@@ -314,6 +314,21 @@
       font-weight: bold;
     }
 
+    .client-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .client-info-grid { grid-template-columns: 1fr; }
+    }
+
+    .client-info-grid label {
+      margin-top: 0;
+    }
+
     .kanban-modal { max-width: 1200px; }
 
     .kanban-header {
@@ -557,7 +572,7 @@
   <div class="toolbar">
     <input
       id="search"
-      placeholder="Поиск по клиенту, контакту, заявкам..."
+      placeholder="Поиск по клиенту, заявкам..."
       style="width: 320px"
       oninput="render()"
     >
@@ -574,7 +589,6 @@
     <thead>
       <tr>
         <th style="width: 200px;">Клиент</th>
-        <th style="width: 160px;">Телефон / контакт</th>
         <th>Заявки</th>
         <th style="width: 110px;">Действия</th>
       </tr>
@@ -590,11 +604,24 @@
         <button class="close-btn" onclick="closeClientModal()">×</button>
       </div>
 
-      <label for="clientName">Имя клиента</label>
+      <label for="clientName">Имя клиента / Название компании</label>
       <input id="clientName">
 
-      <label for="clientContact">Телефон / контакт</label>
-      <input id="clientContact">
+      <div class="client-info-grid">
+        <div>
+          <label for="clientPhone">Телефон</label>
+          <input id="clientPhone" placeholder="+7 900 000-00-00">
+        </div>
+        <div>
+          <label for="clientContactPerson">Контактное лицо</label>
+          <input id="clientContactPerson" placeholder="Имя, должность">
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label for="clientAddress">Адрес</label>
+        <input id="clientAddress" placeholder="Город, улица, дом, офис">
+      </div>
 
       <div class="modal-requests-header">
         <label>Заявки этого клиента</label>
@@ -622,7 +649,7 @@
 
       <div class="kanban-toolbar">
         <button onclick="openAssigneesModal()">👥 Исполнители</button>
-        <button onclick="openStatsModal()"> Статистика</button>
+        <button onclick="openStatsModal()">📊 Статистика</button>
         <span class="muted" id="productionInfo"></span>
       </div>
 
@@ -696,7 +723,7 @@
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
       <div class="modal-header">
-        <h3>📊 Статистика загрузки</h3>
+        <h3> Статистика загрузки</h3>
         <button class="close-btn" onclick="closeStatsModal()">×</button>
       </div>
 
@@ -728,9 +755,9 @@
     let rows = [];
     let clients = {};
     let assignees = [];
-    let tasks = {}; // Теперь tasks[requestId] = [...]
+    let tasks = {};
     let currentClientOldName = '';
-    let currentProductionRequest = null; // ID текущей заявки для канбана
+    let currentProductionRequest = null;
     let unsubscribeClients = null;
     let unsubscribeRequests = null;
     let unsubscribeAssignees = null;
@@ -820,7 +847,6 @@
       return name;
     }
 
-    // Firebase operations
     async function saveClientToFirebase(name, data) {
       try {
         await setDoc(doc(db, 'clients', name), data);
@@ -844,7 +870,6 @@
     async function deleteRequestFromFirebase(id) {
       try {
         await deleteDoc(doc(db, 'requests', id));
-        // Также удаляем задания производства для этой заявки
         await deleteDoc(doc(db, 'tasks', id));
       } catch (e) {
         console.error('Error deleting request:', e);
@@ -867,14 +892,13 @@
       }
     }
 
-    // Real-time listeners
     function setupRealtimeListeners() {
       setSyncStatus('syncing', 'Подключение...');
 
       unsubscribeClients = onSnapshot(collection(db, 'clients'), (snapshot) => {
         clients = {};
-        snapshot.forEach(doc => {
-          clients[doc.id] = doc.data();
+        snapshot.forEach(docSnap => {
+          clients[docSnap.id] = docSnap.data();
         });
         render();
         setSyncStatus('synced', 'Синхронизировано');
@@ -885,8 +909,8 @@
 
       unsubscribeRequests = onSnapshot(collection(db, 'requests'), (snapshot) => {
         rows = [];
-        snapshot.forEach(doc => {
-          rows.push({ id: doc.id, ...doc.data() });
+        snapshot.forEach(docSnap => {
+          rows.push({ id: docSnap.id, ...docSnap.data() });
         });
         render();
         if (currentClientOldName) {
@@ -906,11 +930,10 @@
         }
       });
 
-      // Теперь tasks хранятся по ID заявки
       unsubscribeTasks = onSnapshot(collection(db, 'tasks'), (snapshot) => {
         tasks = {};
-        snapshot.forEach(doc => {
-          tasks[doc.id] = doc.data().tasks || [];
+        snapshot.forEach(docSnap => {
+          tasks[docSnap.id] = docSnap.data().tasks || [];
         });
         if (currentProductionRequest) {
           renderProduction();
@@ -920,7 +943,13 @@
 
     async function addClient() {
       const name = generateNewClientName();
-      const clientData = { name: name, contact: '', createdAt: today() };
+      const clientData = { 
+        name: name, 
+        phone: '', 
+        contactPerson: '', 
+        address: '',
+        createdAt: today() 
+      };
       
       await saveClientToFirebase(name, clientData);
       clients[name] = clientData;
@@ -942,7 +971,6 @@
       return Array.from(names).map(name => {
         const clientRows = rows.filter(r => getClientName(r) === name);
         const card = clients[name] || {};
-        const contact = card.contact || (clientRows.length ? String(clientRows[0].contact || '') : '');
 
         const requests = clientRows
           .map(r => ({
@@ -955,30 +983,19 @@
           }))
           .sort((a, b) => b.date.localeCompare(a.date));
 
-        return { name, contact, requests, requestCount: clientRows.length };
+        return { name, requests, requestCount: clientRows.length };
       });
     }
 
-    async function updateClientContact(name, value) {
+    async function updateClientFields(name, fields) {
       if (!name) return;
-      const contact = value.trim();
       
       if (!clients[name]) {
-        const clientRows = rows.filter(r => getClientName(r) === name);
-        const firstDate = clientRows.map(r => String(r.date || '').trim()).filter(Boolean).sort()[0] || today();
-        clients[name] = { name, contact, createdAt: firstDate };
-      } else {
-        clients[name].contact = contact;
+        clients[name] = { name, createdAt: today() };
       }
       
+      Object.assign(clients[name], fields);
       await saveClientToFirebase(name, clients[name]);
-      
-      rows.forEach(r => { 
-        if (getClientName(r) === name) {
-          r.contact = contact;
-          saveRequestToFirebase(r.id, r);
-        }
-      });
     }
 
     async function deleteClient(name) {
@@ -1001,8 +1018,7 @@
       if (!clients[name]) {
         const clientRows = rows.filter(r => getClientName(r) === name);
         const firstDate = clientRows.map(r => String(r.date || '').trim()).filter(Boolean).sort()[0] || today();
-        const contact = clientRows.length ? String(clientRows[0].contact || '') : '';
-        clients[name] = { name, contact, createdAt: firstDate };
+        clients[name] = { name, phone: '', contactPerson: '', address: '', createdAt: firstDate };
       }
       return clients[name];
     }
@@ -1012,8 +1028,12 @@
       ensureClient(name);
       currentClientOldName = name;
       const stored = clients[name] || {};
+      
       document.getElementById('clientName').value = stored.name || name;
-      document.getElementById('clientContact').value = stored.contact || '';
+      document.getElementById('clientPhone').value = stored.phone || stored.contact || '';
+      document.getElementById('clientContactPerson').value = stored.contactPerson || '';
+      document.getElementById('clientAddress').value = stored.address || '';
+      
       renderClientRequests(name);
       document.getElementById('clientModal').style.display = 'block';
     }
@@ -1025,7 +1045,10 @@
 
     async function applyClientForm() {
       const newName = document.getElementById('clientName').value.trim() || 'Без имени';
-      const contact = document.getElementById('clientContact').value.trim();
+      const phone = document.getElementById('clientPhone').value.trim();
+      const contactPerson = document.getElementById('clientContactPerson').value.trim();
+      const address = document.getElementById('clientAddress').value.trim();
+      
       const oldName = currentClientOldName;
       let createdAt = today();
       
@@ -1044,18 +1067,29 @@
           }
         });
         
+        if (tasks[oldName]) {
+          tasks[newName] = tasks[oldName];
+          delete tasks[oldName];
+        }
+        
         if (clients[oldName]) {
           delete clients[oldName];
           await deleteDoc(doc(db, 'clients', oldName));
         }
       }
 
-      clients[newName] = { name: newName, contact, createdAt };
+      clients[newName] = { 
+        name: newName, 
+        phone, 
+        contactPerson, 
+        address,
+        createdAt 
+      };
       await saveClientToFirebase(newName, clients[newName]);
       
       rows.forEach(r => { 
         if (getClientName(r) === newName) {
-          r.contact = contact;
+          r.contact = phone;
         }
       });
       
@@ -1070,14 +1104,14 @@
 
     async function addRequestToClient() {
       const clientName = await applyClientForm();
-      const contact = document.getElementById('clientContact').value.trim();
+      const phone = document.getElementById('clientPhone').value.trim();
       
       const newRequest = {
         id: uid(), 
         date: today(), 
         endDate: '', 
         client: clientName, 
-        contact,
+        contact: phone,
         title: '', 
         request: '', 
         comment: '',
@@ -1109,7 +1143,7 @@
       
       await deleteRequestFromFirebase(id);
       rows = rows.filter(r => r.id !== id);
-      delete tasks[id]; // Удаляем задания производства для этой заявки
+      delete tasks[id];
       render();
       if (currentClientOldName) {
         renderClientRequests(currentClientOldName);
@@ -1135,7 +1169,6 @@
 
       box.innerHTML = list.map((r, index) => {
         const badge = getDeadlineBadge(String(r.endDate || '').trim(), String(r.date || '').trim());
-        const taskCount = (tasks[r.id] || []).length;
         const activeTasks = (tasks[r.id] || []).filter(t => t.status !== 'done').length;
 
         return `
@@ -1143,7 +1176,7 @@
             <div class="request-item-header">
               <span class="req-number">Заявка №${index + 1}</span>
               <button class="production-btn" onclick="openProduction('${r.id}')">
-                 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}
+                🏭 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}
               </button>
             </div>
             <div>
@@ -1208,8 +1241,15 @@
       const visible = list.filter(client => {
         if (!q) return true;
         const reqText = client.requests.map(r => `${r.date} ${r.endDate} ${r.title} ${r.status}`).join(' ').toLowerCase();
-        const text = [client.name, client.contact, reqText].join(' ').toLowerCase();
-        return text.includes(q);
+        const card = clients[client.name] || {};
+        const searchText = [
+          client.name,
+          card.phone || '',
+          card.contactPerson || '',
+          card.address || '',
+          reqText
+        ].join(' ').toLowerCase();
+        return searchText.includes(q);
       });
 
       document.getElementById('info').textContent = `Всего клиентов: ${list.length}, показано: ${visible.length}`;
@@ -1225,14 +1265,6 @@
         clientButton.onclick = function () { openClientModalByName(client.name); };
         tdClient.appendChild(clientButton);
         tr.appendChild(tdClient);
-
-        const tdContact = document.createElement('td');
-        const contactInput = document.createElement('input');
-        contactInput.value = client.contact || '';
-        contactInput.placeholder = 'Телефон / контакт';
-        contactInput.onchange = function () { updateClientContact(client.name, contactInput.value); };
-        tdContact.appendChild(contactInput);
-        tr.appendChild(tdContact);
 
         const tdRequests = document.createElement('td');
         const requestsDiv = document.createElement('div');
@@ -1273,7 +1305,7 @@
     }
 
     function exportCSV() {
-      const headers = ['Клиент', 'Контакт', 'Статус срока', 'Дата поступления', 'Дата окончания', 'Наименование заявки', 'Статус заявки'];
+      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Адрес', 'Статус срока', 'Дата поступления', 'Дата окончания', 'Наименование заявки', 'Статус заявки'];
       let list = getClientList();
       list.sort((a, b) => {
         const dateA = a.requests.length ? a.requests[0].date : '';
@@ -1283,14 +1315,21 @@
 
       const lines = [];
       list.forEach(client => {
+        const card = clients[client.name] || {};
+        const phone = card.phone || '';
+        const contactPerson = card.contactPerson || '';
+        const address = card.address || '';
+
         if (!client.requests.length) {
-          lines.push([client.name, client.contact, '', '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
+          lines.push([client.name, phone, contactPerson, address, '', '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
         } else {
           client.requests.forEach((r, idx) => {
             const badge = getDeadlineBadge(r.endDate, r.date);
             lines.push([
               idx === 0 ? client.name : '',
-              idx === 0 ? client.contact : '',
+              idx === 0 ? phone : '',
+              idx === 0 ? contactPerson : '',
+              idx === 0 ? address : '',
               badge.text,
               r.date,
               r.endDate,
@@ -1376,59 +1415,59 @@
             return;
           }
 
-          const headers = parsed[0].map(h => String(h || '').trim().toLowerCase());
-
-          const expected = [
-            'клиент',
-            'контакт',
-            'статус срока',
-            'дата поступления',
-            'дата окончания',
-            'наименование заявки',
-            'статус заявки'
-          ];
-
-          const isOurFormat = expected.every((exp, idx) =>
-            headers[idx] && headers[idx].includes(exp.split(' ')[0])
-          );
-
-          if (!isOurFormat) {
-            if (!confirm('Файл не похож на экспорт из этой программы. Всё равно попробовать импортировать?')) {
-              return;
-            }
-          }
-
           let clientsAdded = 0;
           let requestsAdded = 0;
           let lastClientName = '';
-          let lastContact = '';
+          let lastPhone = '';
+          let lastContactPerson = '';
+          let lastAddress = '';
 
           for (let i = 1; i < parsed.length; i++) {
             const line = parsed[i];
             if (!line || line.length < 7) continue;
 
             const clientName = String(line[0] || '').trim();
-            const contact = String(line[1] || '').trim();
-            const date = String(line[3] || '').trim();
-            const endDate = String(line[4] || '').trim();
-            const title = String(line[5] || '').trim();
-            const status = String(line[6] || '').trim();
+            const phone = String(line[1] || '').trim();
+            const contactPerson = String(line[2] || '').trim();
+            const address = String(line[3] || '').trim();
+            const date = String(line[5] || '').trim();
+            const endDate = String(line[6] || '').trim();
+            const title = String(line[7] || '').trim();
+            const status = String(line[8] || '').trim();
 
             if (clientName) {
               lastClientName = clientName;
-              lastContact = contact;
+              lastPhone = phone;
+              lastContactPerson = contactPerson;
+              lastAddress = address;
 
               if (!clients[clientName]) {
                 clients[clientName] = {
                   name: clientName,
-                  contact: contact,
+                  phone: phone,
+                  contactPerson: contactPerson,
+                  address: address,
                   createdAt: date || today()
                 };
                 await saveClientToFirebase(clientName, clients[clientName]);
                 clientsAdded++;
-              } else if (contact && !clients[clientName].contact) {
-                clients[clientName].contact = contact;
-                await saveClientToFirebase(clientName, clients[clientName]);
+              } else {
+                const updated = false;
+                if (phone && !clients[clientName].phone) {
+                  clients[clientName].phone = phone;
+                  updated = true;
+                }
+                if (contactPerson && !clients[clientName].contactPerson) {
+                  clients[clientName].contactPerson = contactPerson;
+                  updated = true;
+                }
+                if (address && !clients[clientName].address) {
+                  clients[clientName].address = address;
+                  updated = true;
+                }
+                if (updated) {
+                  await saveClientToFirebase(clientName, clients[clientName]);
+                }
               }
             }
 
@@ -1438,7 +1477,7 @@
                 date: date || today(),
                 endDate: endDate || '',
                 client: lastClientName,
-                contact: lastContact,
+                contact: lastPhone,
                 title: title,
                 request: '',
                 comment: '',
@@ -1476,7 +1515,6 @@
       reader.readAsText(file, 'UTF-8');
     }
 
-    // Production functions - теперь по ID заявки
     function getRequestTasks(requestId) {
       if (!tasks[requestId]) tasks[requestId] = [];
       return tasks[requestId];
@@ -1584,8 +1622,8 @@
           <div class="task-title">${escapeHtml(task.title || '(без названия)')}</div>
           <div class="task-meta">
             <div>👤 ${escapeHtml(task.assignee || 'не назначен')}</div>
-            ${deadlineText ? `<div class="${deadlineClass}">📅 ${escapeHtml(deadlineText)}</div>` : ''}
-            ${task.comment ? `<div>💬 ${escapeHtml(task.comment)}</div>` : ''}
+            ${deadlineText ? `<div class="${deadlineClass}"> ${escapeHtml(deadlineText)}</div>` : ''}
+            ${task.comment ? `<div> ${escapeHtml(task.comment)}</div>` : ''}
           </div>
           <div class="task-actions">
             ${canMoveLeft ? `<button onclick="moveTask('${task.id}', -1)">← Назад</button>` : ''}
@@ -1620,7 +1658,6 @@
       tasks[requestId] = requestTasks;
       renderProduction();
       
-      // Обновляем отображение в карточке клиента (чтобы обновился счётчик активных заданий)
       if (currentClientOldName) {
         renderClientRequests(currentClientOldName);
       }
@@ -1709,7 +1746,7 @@
         const load = getAssigneeLoad(name);
         return `
           <div class="assignee-item">
-            <span>👤 ${escapeHtml(name)}</span>
+            <span> ${escapeHtml(name)}</span>
             <span>
               <span class="load">Заданий: ${load.active} (в работе), всего: ${load.total}</span>
               <button onclick="removeAssignee('${escapeHtml(name)}')" style="margin-left:8px;">✖</button>
@@ -1817,12 +1854,9 @@
       content.innerHTML = html;
     }
 
-    // Initialize
     setupRealtimeListeners();
 
-    // Make functions global
     window.addClient = addClient;
-    window.updateClientContact = updateClientContact;
     window.deleteClient = deleteClient;
     window.openClientModalByName = openClientModalByName;
     window.closeClientModal = closeClientModal;
