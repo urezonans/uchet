@@ -1,0 +1,1849 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Учёт клиентов и заявок (Облако)</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 16px;
+      background: #f7f7f7;
+      color: #222;
+    }
+
+    h2 { margin-bottom: 8px; }
+
+    .toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin: 12px 0;
+    }
+
+    input, select, textarea, button {
+      padding: 6px 8px;
+      font-size: 14px;
+    }
+
+    button { cursor: pointer; }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0f0f0;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    td input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid transparent;
+      background: transparent;
+    }
+
+    td input:focus {
+      border-color: #888;
+      background: white;
+      outline: none;
+    }
+
+    .muted { color: #777; font-size: 13px; }
+
+    .client-link {
+      width: 100%;
+      min-height: 28px;
+      border: 1px dashed #b7d4ff;
+      background: #f4f9ff;
+      color: #004a99;
+      cursor: pointer;
+      text-align: left;
+      padding: 6px 8px;
+      border-radius: 4px;
+    }
+
+    .client-link:hover { background: #e3f0ff; }
+
+    .requests-cell {
+      max-height: 160px;
+      overflow: auto;
+      padding: 4px;
+    }
+
+    .requests-cell .req-line {
+      display: flex;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px dotted #eee;
+      align-items: flex-start;
+    }
+
+    .requests-cell .req-line:last-child { border-bottom: none; }
+
+    .requests-cell .req-days {
+      flex-shrink: 0;
+      font-size: 12px;
+      color: #fff;
+      background: #888;
+      padding: 1px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .requests-cell .req-days.warn { background: #e6a817; color: #333; }
+    .requests-cell .req-days.danger { background: #d9534f; }
+    .requests-cell .req-days.ok { background: #5cb85c; }
+
+    .requests-cell .req-date {
+      flex-shrink: 0;
+      font-size: 12px;
+      color: #666;
+      min-width: 80px;
+    }
+
+    .requests-cell .req-title {
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .requests-cell .req-status {
+      flex-shrink: 0;
+      font-size: 12px;
+      color: #555;
+      background: #f0f0f0;
+      padding: 1px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 999;
+      overflow: auto;
+    }
+
+    .modal {
+      background: #fff;
+      max-width: 880px;
+      margin: 30px auto;
+      padding: 18px;
+      border-radius: 10px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal-header h3 { margin: 0; }
+
+    .close-btn {
+      font-size: 28px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .modal input, .modal textarea, .modal select {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 4px;
+    }
+
+    .modal-requests-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px solid #ddd;
+    }
+
+    .modal-requests-header label { margin: 0; font-size: 16px; }
+
+    #clientRequests { margin-top: 10px; }
+
+    .request-item {
+      border: 1px solid #ddd;
+      background: #fbfbfb;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+
+    .request-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .request-item-header .req-number {
+      font-weight: bold;
+      color: #004a99;
+      font-size: 14px;
+    }
+
+    .request-grid {
+      display: grid;
+      grid-template-columns: 140px 140px 160px 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 700px) {
+      .request-grid { grid-template-columns: 1fr; }
+    }
+
+    .request-item label {
+      margin: 0 0 4px 0;
+      font-size: 12px;
+      color: #555;
+      font-weight: normal;
+    }
+
+    .request-item input,
+    .request-item select,
+    .request-item textarea {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+    }
+
+    .days-badge {
+      display: inline-block;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background: #888;
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-top: 4px;
+    }
+
+    .days-badge.ok { background: #5cb85c; }
+    .days-badge.warn { background: #e6a817; color: #333; }
+    .days-badge.danger { background: #d9534f; }
+
+    .request-actions {
+      text-align: right;
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .modal-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .production-btn {
+      background: #5bc0de;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .production-btn:hover { background: #31b0d5; }
+
+    .import-btn {
+      background: #5cb85c;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .import-btn:hover { background: #449d44; }
+
+    .export-btn {
+      background: #f0ad4e;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .export-btn:hover { background: #ec971f; }
+
+    .cloud-badge {
+      background: #5cb85c;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .kanban-modal { max-width: 1200px; }
+
+    .kanban-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .kanban-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .kanban-subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .kanban-toolbar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 10px;
+      background: #f0f8ff;
+      border-radius: 6px;
+    }
+
+    .kanban-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .kanban-board { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 500px) {
+      .kanban-board { grid-template-columns: 1fr; }
+    }
+
+    .kanban-column {
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 300px;
+    }
+
+    .kanban-column h4 {
+      margin: 0 0 10px 0;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #ddd;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .kanban-column h4 .count {
+      background: #ddd;
+      color: #333;
+      padding: 1px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+
+    .kanban-column.col-new h4 { border-bottom-color: #5bc0de; }
+    .kanban-column.col-work h4 { border-bottom-color: #f0ad4e; }
+    .kanban-column.col-check h4 { border-bottom-color: #9b59b6; }
+    .kanban-column.col-done h4 { border-bottom-color: #5cb85c; }
+
+    .task-card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 8px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+
+    .task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+
+    .task-card .task-title {
+      font-weight: bold;
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .task-card .task-meta {
+      font-size: 12px;
+      color: #666;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .task-card .task-meta .overdue { color: #d9534f; font-weight: bold; }
+    .task-card .task-meta .soon { color: #e6a817; font-weight: bold; }
+
+    .task-card .task-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .task-card .task-actions button {
+      font-size: 11px;
+      padding: 2px 6px;
+    }
+
+    .add-task-form {
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+
+    .add-task-form h4 { margin: 0 0 8px 0; font-size: 14px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    .assignee-list { margin-top: 10px; }
+
+    .assignee-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    .assignee-item .load { font-size: 12px; color: #666; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .stat-card {
+      background: #f0f8ff;
+      border: 1px solid #b7d4ff;
+      border-radius: 6px;
+      padding: 10px;
+    }
+
+    .stat-card .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #004a99;
+    }
+
+    .stat-card .stat-label { font-size: 12px; color: #666; }
+
+    .load-bar {
+      height: 8px;
+      background: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .load-bar-fill {
+      height: 100%;
+      background: #5cb85c;
+      transition: width 0.3s;
+    }
+
+    .load-bar-fill.warn { background: #f0ad4e; }
+    .load-bar-fill.danger { background: #d9534f; }
+
+    .sync-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #5cb85c;
+    }
+
+    .sync-indicator.syncing {
+      color: #f0ad4e;
+    }
+
+    .sync-indicator.error {
+      color: #d9534f;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .syncing .dot {
+      animation: pulse 1s infinite;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>
+    Учёт клиентов 
+    <span class="cloud-badge">☁ Облако</span>
+    <span id="syncIndicator" class="sync-indicator">
+      <span class="dot"></span>
+      <span>Подключение...</span>
+    </span>
+  </h2>
+
+  <div class="toolbar">
+    <input
+      id="search"
+      placeholder="Поиск по клиенту, контакту, заявкам..."
+      style="width: 320px"
+      oninput="render()"
+    >
+
+    <button onclick="addClient()">+ Добавить клиента</button>
+    <button class="export-btn" onclick="exportCSV()">📤 Экспорт в CSV</button>
+    <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт из CSV</button>
+    <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
+
+    <span id="info" class="muted"></span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 200px;">Клиент</th>
+        <th style="width: 160px;">Телефон / контакт</th>
+        <th>Заявки</th>
+        <th style="width: 110px;">Действия</th>
+      </tr>
+    </thead>
+
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Карточка клиента</h3>
+        <button class="close-btn" onclick="closeClientModal()">×</button>
+      </div>
+
+      <label for="clientName">Имя клиента</label>
+      <input id="clientName">
+
+      <label for="clientContact">Телефон / контакт</label>
+      <input id="clientContact">
+
+      <div class="modal-requests-header">
+        <label>Заявки этого клиента</label>
+        <button onclick="addRequestToClient()">+ Добавить заявку</button>
+      </div>
+
+      <div id="clientRequests"></div>
+
+      <div class="modal-actions">
+        <button onclick="saveClientModal()">Сохранить и закрыть</button>
+        <button onclick="closeClientModal()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
+    <div class="modal kanban-modal">
+      <div class="kanban-header">
+        <div>
+          <h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
+          <div class="kanban-subtitle">Клиент: <span id="productionClientName"></span></div>
+        </div>
+        <button class="close-btn" onclick="closeProduction()">×</button>
+      </div>
+
+      <div class="kanban-toolbar">
+        <button onclick="openAssigneesModal()">👥 Исполнители</button>
+        <button onclick="openStatsModal()"> Статистика</button>
+        <span class="muted" id="productionInfo"></span>
+      </div>
+
+      <div class="add-task-form">
+        <h4>➕ Новое задание</h4>
+        <div class="form-row">
+          <div>
+            <label>Название задания</label>
+            <input id="newTaskTitle" placeholder="Например: Изготовить деталь А">
+          </div>
+          <div>
+            <label>Исполнитель</label>
+            <select id="newTaskAssignee"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Срок выполнения</label>
+            <input id="newTaskDeadline" type="date">
+          </div>
+          <div>
+            <label>Комментарий</label>
+            <input id="newTaskComment" placeholder="Необязательно">
+          </div>
+        </div>
+        <button onclick="addTask()">Добавить задание</button>
+      </div>
+
+      <div class="kanban-board">
+        <div class="kanban-column col-new">
+          <h4>Новые <span class="count" id="count-new">0</span></h4>
+          <div id="col-new"></div>
+        </div>
+        <div class="kanban-column col-work">
+          <h4>В работе <span class="count" id="count-work">0</span></h4>
+          <div id="col-work"></div>
+        </div>
+        <div class="kanban-column col-check">
+          <h4>Проверка <span class="count" id="count-check">0</span></h4>
+          <div id="col-check"></div>
+        </div>
+        <div class="kanban-column col-done">
+          <h4>Готово <span class="count" id="count-done">0</span></h4>
+          <div id="col-done"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="assigneesModal" class="modal-overlay" onclick="if (event.target === this) closeAssigneesModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>👥 Исполнители</h3>
+        <button class="close-btn" onclick="closeAssigneesModal()">×</button>
+      </div>
+
+      <label>Добавить исполнителя</label>
+      <div style="display:flex;gap:8px;">
+        <input id="newAssigneeName" placeholder="ФИО или должность" style="flex:1;">
+        <button onclick="addAssignee()">Добавить</button>
+      </div>
+
+      <div class="assignee-list" id="assigneeList"></div>
+
+      <div class="modal-actions">
+        <button onclick="closeAssigneesModal()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📊 Статистика загрузки</h3>
+        <button class="close-btn" onclick="closeStatsModal()">×</button>
+      </div>
+
+      <div id="statsContent"></div>
+
+      <div class="modal-actions">
+        <button onclick="closeStatsModal()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, getDocs } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBr7FYUUm3HXb8vWypUiDS_gIYS8wlYpOU",
+      authDomain: "ultra-rezonans.firebaseapp.com",
+      databaseURL: "https://ultra-rezonans-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "ultra-rezonans",
+      storageBucket: "ultra-rezonans.firebasestorage.app",
+      messagingSenderId: "414666000829",
+      appId: "1:414666000829:web:2b32d89f8dd4bb6471aad4"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let rows = [];
+    let clients = {};
+    let assignees = [];
+    let tasks = {}; // Теперь tasks[requestId] = [...]
+    let currentClientOldName = '';
+    let currentProductionRequest = null; // ID текущей заявки для канбана
+    let unsubscribeClients = null;
+    let unsubscribeRequests = null;
+    let unsubscribeAssignees = null;
+    let unsubscribeTasks = null;
+
+    function setSyncStatus(status, message) {
+      const indicator = document.getElementById('syncIndicator');
+      indicator.className = 'sync-indicator ' + status;
+      indicator.querySelector('span:last-child').textContent = message;
+    }
+
+    function uid() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function today() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function parseDate(dateStr) {
+      if (!dateStr) return null;
+      const parts = String(dateStr).split('-');
+      if (parts.length !== 3) return null;
+      return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+
+    function daysBetween(fromStr, toStr) {
+      const from = parseDate(fromStr);
+      const to = parseDate(toStr);
+      if (!from || !to) return 0;
+      const diffMs = to.getTime() - from.getTime();
+      return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    }
+
+    function daysFromStart(dateStr) {
+      return daysBetween(dateStr, today());
+    }
+
+    function daysUntilEnd(endDateStr) {
+      if (!endDateStr) return null;
+      return daysBetween(today(), endDateStr);
+    }
+
+    function getDeadlineBadge(endDateStr, startDateStr) {
+      if (!endDateStr) {
+        const days = daysFromStart(startDateStr);
+        return { cls: '', text: daysLabel(Math.max(0, days)) + ' в работе' };
+      }
+
+      const daysLeft = daysUntilEnd(endDateStr);
+
+      if (daysLeft < 0) {
+        const overdue = Math.abs(daysLeft);
+        return { cls: 'danger', text: 'просрочена на ' + daysLabel(overdue) };
+      } else if (daysLeft === 0) {
+        return { cls: 'warn', text: 'срок сегодня' };
+      } else if (daysLeft <= 30) {
+        return { cls: 'warn', text: 'до конца ' + daysLabel(daysLeft) };
+      } else {
+        return { cls: 'ok', text: 'до конца ' + daysLabel(daysLeft) };
+      }
+    }
+
+    function daysLabel(days) {
+      if (days === 0) return 'сегодня';
+      if (days === 1) return '1 день';
+      const lastTwo = days % 100;
+      const lastOne = days % 10;
+      if (lastTwo >= 11 && lastTwo <= 14) return days + ' дней';
+      if (lastOne === 1) return days + ' день';
+      if (lastOne >= 2 && lastOne <= 4) return days + ' дня';
+      return days + ' дней';
+    }
+
+    function getClientName(row) { return String(row.client || '').trim(); }
+    function getRequestTitle(row) { return String(row.title || row.request || '').trim(); }
+    function getRequestComment(row) { return String(row.comment || '').trim(); }
+
+    function generateNewClientName() {
+      let base = 'Новый клиент';
+      let name = base;
+      let n = 1;
+      while (rows.some(r => getClientName(r) === name) || clients[name]) {
+        n++;
+        name = base + ' ' + n;
+      }
+      return name;
+    }
+
+    // Firebase operations
+    async function saveClientToFirebase(name, data) {
+      try {
+        await setDoc(doc(db, 'clients', name), data);
+        setSyncStatus('synced', 'Синхронизировано');
+      } catch (e) {
+        console.error('Error saving client:', e);
+        setSyncStatus('error', 'Ошибка сохранения');
+      }
+    }
+
+    async function saveRequestToFirebase(id, data) {
+      try {
+        await setDoc(doc(db, 'requests', id), data);
+        setSyncStatus('synced', 'Синхронизировано');
+      } catch (e) {
+        console.error('Error saving request:', e);
+        setSyncStatus('error', 'Ошибка сохранения');
+      }
+    }
+
+    async function deleteRequestFromFirebase(id) {
+      try {
+        await deleteDoc(doc(db, 'requests', id));
+        // Также удаляем задания производства для этой заявки
+        await deleteDoc(doc(db, 'tasks', id));
+      } catch (e) {
+        console.error('Error deleting request:', e);
+      }
+    }
+
+    async function saveAssigneesToFirebase() {
+      try {
+        await setDoc(doc(db, 'settings', 'assignees'), { list: assignees });
+      } catch (e) {
+        console.error('Error saving assignees:', e);
+      }
+    }
+
+    async function saveTasksToFirebase(requestId, tasksList) {
+      try {
+        await setDoc(doc(db, 'tasks', requestId), { tasks: tasksList });
+      } catch (e) {
+        console.error('Error saving tasks:', e);
+      }
+    }
+
+    // Real-time listeners
+    function setupRealtimeListeners() {
+      setSyncStatus('syncing', 'Подключение...');
+
+      unsubscribeClients = onSnapshot(collection(db, 'clients'), (snapshot) => {
+        clients = {};
+        snapshot.forEach(doc => {
+          clients[doc.id] = doc.data();
+        });
+        render();
+        setSyncStatus('synced', 'Синхронизировано');
+      }, (error) => {
+        console.error('Error listening to clients:', error);
+        setSyncStatus('error', 'Ошибка подключения');
+      });
+
+      unsubscribeRequests = onSnapshot(collection(db, 'requests'), (snapshot) => {
+        rows = [];
+        snapshot.forEach(doc => {
+          rows.push({ id: doc.id, ...doc.data() });
+        });
+        render();
+        if (currentClientOldName) {
+          renderClientRequests(currentClientOldName);
+        }
+        setSyncStatus('synced', 'Синхронизировано');
+      }, (error) => {
+        console.error('Error listening to requests:', error);
+        setSyncStatus('error', 'Ошибка подключения');
+      });
+
+      unsubscribeAssignees = onSnapshot(doc(db, 'settings', 'assignees'), (docSnap) => {
+        if (docSnap.exists()) {
+          assignees = docSnap.data().list || [];
+        } else {
+          assignees = [];
+        }
+      });
+
+      // Теперь tasks хранятся по ID заявки
+      unsubscribeTasks = onSnapshot(collection(db, 'tasks'), (snapshot) => {
+        tasks = {};
+        snapshot.forEach(doc => {
+          tasks[doc.id] = doc.data().tasks || [];
+        });
+        if (currentProductionRequest) {
+          renderProduction();
+        }
+      });
+    }
+
+    async function addClient() {
+      const name = generateNewClientName();
+      const clientData = { name: name, contact: '', createdAt: today() };
+      
+      await saveClientToFirebase(name, clientData);
+      clients[name] = clientData;
+      
+      openClientModalByName(name);
+    }
+
+    function getClientList() {
+      const names = new Set();
+      Object.keys(clients).forEach(name => {
+        const trimmed = String(name || '').trim();
+        if (trimmed) names.add(trimmed);
+      });
+      rows.forEach(r => {
+        const name = getClientName(r);
+        if (name) names.add(name);
+      });
+
+      return Array.from(names).map(name => {
+        const clientRows = rows.filter(r => getClientName(r) === name);
+        const card = clients[name] || {};
+        const contact = card.contact || (clientRows.length ? String(clientRows[0].contact || '') : '');
+
+        const requests = clientRows
+          .map(r => ({
+            id: r.id,
+            date: String(r.date || '').trim(),
+            endDate: String(r.endDate || '').trim(),
+            title: getRequestTitle(r),
+            status: String(r.status || '').trim(),
+            days: daysFromStart(String(r.date || '').trim())
+          }))
+          .sort((a, b) => b.date.localeCompare(a.date));
+
+        return { name, contact, requests, requestCount: clientRows.length };
+      });
+    }
+
+    async function updateClientContact(name, value) {
+      if (!name) return;
+      const contact = value.trim();
+      
+      if (!clients[name]) {
+        const clientRows = rows.filter(r => getClientName(r) === name);
+        const firstDate = clientRows.map(r => String(r.date || '').trim()).filter(Boolean).sort()[0] || today();
+        clients[name] = { name, contact, createdAt: firstDate };
+      } else {
+        clients[name].contact = contact;
+      }
+      
+      await saveClientToFirebase(name, clients[name]);
+      
+      rows.forEach(r => { 
+        if (getClientName(r) === name) {
+          r.contact = contact;
+          saveRequestToFirebase(r.id, r);
+        }
+      });
+    }
+
+    async function deleteClient(name) {
+      if (!name) return;
+      if (!confirm('Удалить клиента и все его заявки?')) return;
+      
+      delete clients[name];
+      await deleteDoc(doc(db, 'clients', name));
+      
+      const clientRequests = rows.filter(r => getClientName(r) === name);
+      for (const req of clientRequests) {
+        await deleteRequestFromFirebase(req.id);
+      }
+      
+      rows = rows.filter(r => getClientName(r) !== name);
+    }
+
+    function ensureClient(name) {
+      if (!name) return null;
+      if (!clients[name]) {
+        const clientRows = rows.filter(r => getClientName(r) === name);
+        const firstDate = clientRows.map(r => String(r.date || '').trim()).filter(Boolean).sort()[0] || today();
+        const contact = clientRows.length ? String(clientRows[0].contact || '') : '';
+        clients[name] = { name, contact, createdAt: firstDate };
+      }
+      return clients[name];
+    }
+
+    function openClientModalByName(name) {
+      if (!name) return;
+      ensureClient(name);
+      currentClientOldName = name;
+      const stored = clients[name] || {};
+      document.getElementById('clientName').value = stored.name || name;
+      document.getElementById('clientContact').value = stored.contact || '';
+      renderClientRequests(name);
+      document.getElementById('clientModal').style.display = 'block';
+    }
+
+    function closeClientModal() {
+      document.getElementById('clientModal').style.display = 'none';
+      currentClientOldName = '';
+    }
+
+    async function applyClientForm() {
+      const newName = document.getElementById('clientName').value.trim() || 'Без имени';
+      const contact = document.getElementById('clientContact').value.trim();
+      const oldName = currentClientOldName;
+      let createdAt = today();
+      
+      if (oldName && clients[oldName] && clients[oldName].createdAt) {
+        createdAt = clients[oldName].createdAt;
+      }
+      if (clients[newName] && clients[newName].createdAt) {
+        createdAt = clients[newName].createdAt;
+      }
+
+      if (oldName && oldName !== newName) {
+        rows.forEach(r => { 
+          if (getClientName(r) === oldName) {
+            r.client = newName;
+            saveRequestToFirebase(r.id, r);
+          }
+        });
+        
+        if (clients[oldName]) {
+          delete clients[oldName];
+          await deleteDoc(doc(db, 'clients', oldName));
+        }
+      }
+
+      clients[newName] = { name: newName, contact, createdAt };
+      await saveClientToFirebase(newName, clients[newName]);
+      
+      rows.forEach(r => { 
+        if (getClientName(r) === newName) {
+          r.contact = contact;
+        }
+      });
+      
+      currentClientOldName = newName;
+      return newName;
+    }
+
+    async function saveClientModal() {
+      await applyClientForm();
+      closeClientModal();
+    }
+
+    async function addRequestToClient() {
+      const clientName = await applyClientForm();
+      const contact = document.getElementById('clientContact').value.trim();
+      
+      const newRequest = {
+        id: uid(), 
+        date: today(), 
+        endDate: '', 
+        client: clientName, 
+        contact,
+        title: '', 
+        request: '', 
+        comment: '',
+        priority: 'Средний', 
+        status: 'Новая', 
+        responsible: ''
+      };
+      
+      await saveRequestToFirebase(newRequest.id, newRequest);
+      rows.unshift(newRequest);
+      render();
+      renderClientRequests(clientName);
+    }
+
+    async function updateRequest(id, field, value) {
+      const item = rows.find(r => r.id === id);
+      if (!item) return;
+      
+      item[field] = value;
+      await saveRequestToFirebase(id, item);
+      render();
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
+    }
+
+    async function removeRequestFromClient(id) {
+      if (!confirm('Удалить заявку?')) return;
+      
+      await deleteRequestFromFirebase(id);
+      rows = rows.filter(r => r.id !== id);
+      delete tasks[id]; // Удаляем задания производства для этой заявки
+      render();
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function renderClientRequests(clientName) {
+      const box = document.getElementById('clientRequests');
+      const list = rows.filter(r => getClientName(r) === clientName);
+
+      if (!list.length) {
+        box.innerHTML = '<div class="muted">Заявок пока нет. Нажмите «Добавить заявку».</div>';
+        return;
+      }
+
+      const statuses = ['Новая', 'В работе', 'Выполнена', 'Отменена'];
+
+      box.innerHTML = list.map((r, index) => {
+        const badge = getDeadlineBadge(String(r.endDate || '').trim(), String(r.date || '').trim());
+        const taskCount = (tasks[r.id] || []).length;
+        const activeTasks = (tasks[r.id] || []).filter(t => t.status !== 'done').length;
+
+        return `
+          <div class="request-item">
+            <div class="request-item-header">
+              <span class="req-number">Заявка №${index + 1}</span>
+              <button class="production-btn" onclick="openProduction('${r.id}')">
+                 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}
+              </button>
+            </div>
+            <div>
+              <label>Наименование заявки</label>
+              <input value="${escapeHtml(getRequestTitle(r))}" placeholder="Краткое название заявки"
+                onchange="updateRequest('${r.id}', 'title', this.value)">
+            </div>
+            <div class="request-grid" style="margin-top:8px;">
+              <div>
+                <label>Дней в работе</label>
+                <span class="days-badge ${badge.cls}">${escapeHtml(badge.text)}</span>
+              </div>
+              <div>
+                <label>Дата поступления</label>
+                <input type="date" value="${escapeHtml(r.date)}"
+                  onchange="updateRequest('${r.id}', 'date', this.value)">
+              </div>
+              <div>
+                <label>Дата окончания</label>
+                <input type="date" value="${escapeHtml(r.endDate || '')}"
+                  onchange="updateRequest('${r.id}', 'endDate', this.value)">
+              </div>
+              <div>
+                <label>Статус</label>
+                <select onchange="updateRequest('${r.id}', 'status', this.value)">
+                  ${statuses.map(s => `<option ${s === r.status ? 'selected' : ''}>${s}</option>`).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="request-grid" style="margin-top:8px;grid-template-columns:1fr;">
+              <div>
+                <label>Ответственный</label>
+                <input value="${escapeHtml(r.responsible)}" placeholder="Кто выполняет"
+                  onchange="updateRequest('${r.id}', 'responsible', this.value)">
+              </div>
+            </div>
+            <div style="margin-top:8px;">
+              <label>Комментарий</label>
+              <textarea rows="3" placeholder="Подробности, детали, пометки по заявке"
+                onchange="updateRequest('${r.id}', 'comment', this.value)">${escapeHtml(getRequestComment(r))}</textarea>
+            </div>
+            <div class="request-actions">
+              <button onclick="removeRequestFromClient('${r.id}')">Удалить заявку</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function render() {
+      const q = document.getElementById('search').value.trim().toLowerCase();
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+
+      let list = getClientList();
+      list.sort((a, b) => {
+        const dateA = a.requests.length ? a.requests[0].date : '';
+        const dateB = b.requests.length ? b.requests[0].date : '';
+        return dateB.localeCompare(dateA) || a.name.localeCompare(b.name, 'ru');
+      });
+
+      const visible = list.filter(client => {
+        if (!q) return true;
+        const reqText = client.requests.map(r => `${r.date} ${r.endDate} ${r.title} ${r.status}`).join(' ').toLowerCase();
+        const text = [client.name, client.contact, reqText].join(' ').toLowerCase();
+        return text.includes(q);
+      });
+
+      document.getElementById('info').textContent = `Всего клиентов: ${list.length}, показано: ${visible.length}`;
+
+      visible.forEach(client => {
+        const tr = document.createElement('tr');
+
+        const tdClient = document.createElement('td');
+        const clientButton = document.createElement('button');
+        clientButton.type = 'button';
+        clientButton.className = 'client-link';
+        clientButton.textContent = client.name;
+        clientButton.onclick = function () { openClientModalByName(client.name); };
+        tdClient.appendChild(clientButton);
+        tr.appendChild(tdClient);
+
+        const tdContact = document.createElement('td');
+        const contactInput = document.createElement('input');
+        contactInput.value = client.contact || '';
+        contactInput.placeholder = 'Телефон / контакт';
+        contactInput.onchange = function () { updateClientContact(client.name, contactInput.value); };
+        tdContact.appendChild(contactInput);
+        tr.appendChild(tdContact);
+
+        const tdRequests = document.createElement('td');
+        const requestsDiv = document.createElement('div');
+        requestsDiv.className = 'requests-cell';
+
+        if (client.requests.length) {
+          requestsDiv.innerHTML = client.requests.map(r => {
+            const date = r.date || '';
+            const title = r.title || '(без названия)';
+            const status = r.status || '';
+            const badge = getDeadlineBadge(r.endDate, r.date);
+
+            return `
+              <div class="req-line">
+                <span class="req-days ${badge.cls}">${escapeHtml(badge.text)}</span>
+                <span class="req-date">${escapeHtml(date)}</span>
+                <span class="req-title">${escapeHtml(title)}</span>
+                ${status ? `<span class="req-status">${escapeHtml(status)}</span>` : ''}
+              </div>
+            `;
+          }).join('');
+        } else {
+          requestsDiv.innerHTML = '<span class="muted">Нет заявок</span>';
+        }
+
+        tdRequests.appendChild(requestsDiv);
+        tr.appendChild(tdRequests);
+
+        const tdActions = document.createElement('td');
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Удалить';
+        deleteButton.onclick = function () { deleteClient(client.name); };
+        tdActions.appendChild(deleteButton);
+        tr.appendChild(tdActions);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function exportCSV() {
+      const headers = ['Клиент', 'Контакт', 'Статус срока', 'Дата поступления', 'Дата окончания', 'Наименование заявки', 'Статус заявки'];
+      let list = getClientList();
+      list.sort((a, b) => {
+        const dateA = a.requests.length ? a.requests[0].date : '';
+        const dateB = b.requests.length ? b.requests[0].date : '';
+        return dateB.localeCompare(dateA) || a.name.localeCompare(b.name, 'ru');
+      });
+
+      const lines = [];
+      list.forEach(client => {
+        if (!client.requests.length) {
+          lines.push([client.name, client.contact, '', '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
+        } else {
+          client.requests.forEach((r, idx) => {
+            const badge = getDeadlineBadge(r.endDate, r.date);
+            lines.push([
+              idx === 0 ? client.name : '',
+              idx === 0 ? client.contact : '',
+              badge.text,
+              r.date,
+              r.endDate,
+              r.title,
+              r.status
+            ].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
+          });
+        }
+      });
+
+      const csv = '\uFEFF' + [headers.join(';'), ...lines].join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'clients.csv';
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    function parseCSV(text) {
+      if (text.charCodeAt(0) === 0xFEFF) {
+        text = text.slice(1);
+      }
+
+      const rows = [];
+      let current = [];
+      let field = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        const next = text[i + 1];
+
+        if (inQuotes) {
+          if (ch === '"' && next === '"') {
+            field += '"';
+            i++;
+          } else if (ch === '"') {
+            inQuotes = false;
+          } else {
+            field += ch;
+          }
+        } else {
+          if (ch === '"') {
+            inQuotes = true;
+          } else if (ch === ';') {
+            current.push(field);
+            field = '';
+          } else if (ch === '\r') {
+          } else if (ch === '\n') {
+            current.push(field);
+            field = '';
+            if (current.length > 1 || current[0] !== '') {
+              rows.push(current);
+            }
+            current = [];
+          } else {
+            field += ch;
+          }
+        }
+      }
+
+      current.push(field);
+      if (current.length > 1 || current[0] !== '') {
+        rows.push(current);
+      }
+
+      return rows;
+    }
+
+    async function importCSV(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const text = e.target.result;
+          const parsed = parseCSV(text);
+
+          if (parsed.length < 2) {
+            alert('Файл пустой или не содержит данных.');
+            return;
+          }
+
+          const headers = parsed[0].map(h => String(h || '').trim().toLowerCase());
+
+          const expected = [
+            'клиент',
+            'контакт',
+            'статус срока',
+            'дата поступления',
+            'дата окончания',
+            'наименование заявки',
+            'статус заявки'
+          ];
+
+          const isOurFormat = expected.every((exp, idx) =>
+            headers[idx] && headers[idx].includes(exp.split(' ')[0])
+          );
+
+          if (!isOurFormat) {
+            if (!confirm('Файл не похож на экспорт из этой программы. Всё равно попробовать импортировать?')) {
+              return;
+            }
+          }
+
+          let clientsAdded = 0;
+          let requestsAdded = 0;
+          let lastClientName = '';
+          let lastContact = '';
+
+          for (let i = 1; i < parsed.length; i++) {
+            const line = parsed[i];
+            if (!line || line.length < 7) continue;
+
+            const clientName = String(line[0] || '').trim();
+            const contact = String(line[1] || '').trim();
+            const date = String(line[3] || '').trim();
+            const endDate = String(line[4] || '').trim();
+            const title = String(line[5] || '').trim();
+            const status = String(line[6] || '').trim();
+
+            if (clientName) {
+              lastClientName = clientName;
+              lastContact = contact;
+
+              if (!clients[clientName]) {
+                clients[clientName] = {
+                  name: clientName,
+                  contact: contact,
+                  createdAt: date || today()
+                };
+                await saveClientToFirebase(clientName, clients[clientName]);
+                clientsAdded++;
+              } else if (contact && !clients[clientName].contact) {
+                clients[clientName].contact = contact;
+                await saveClientToFirebase(clientName, clients[clientName]);
+              }
+            }
+
+            if (title || date || endDate) {
+              const newRequest = {
+                id: uid(),
+                date: date || today(),
+                endDate: endDate || '',
+                client: lastClientName,
+                contact: lastContact,
+                title: title,
+                request: '',
+                comment: '',
+                priority: 'Средний',
+                status: status || 'Новая',
+                responsible: ''
+              };
+              await saveRequestToFirebase(newRequest.id, newRequest);
+              rows.push(newRequest);
+              requestsAdded++;
+            }
+          }
+
+          render();
+
+          alert(
+            'Импорт завершён!\n\n' +
+            'Добавлено клиентов: ' + clientsAdded + '\n' +
+            'Добавлено заявок: ' + requestsAdded + '\n\n' +
+            'Данные сохранены в облаке и доступны всем пользователям.'
+          );
+
+        } catch (err) {
+          alert('Ошибка при импорте: ' + err.message);
+        }
+
+        event.target.value = '';
+      };
+
+      reader.onerror = function() {
+        alert('Не удалось прочитать файл.');
+        event.target.value = '';
+      };
+
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    // Production functions - теперь по ID заявки
+    function getRequestTasks(requestId) {
+      if (!tasks[requestId]) tasks[requestId] = [];
+      return tasks[requestId];
+    }
+
+    async function openProduction(requestId) {
+      const request = rows.find(r => r.id === requestId);
+      if (!request) return;
+
+      currentProductionRequest = requestId;
+      
+      document.getElementById('productionRequestTitle').textContent = getRequestTitle(request) || '(без названия)';
+      document.getElementById('productionClientName').textContent = getClientName(request);
+      document.getElementById('productionModal').style.display = 'block';
+      
+      renderProduction();
+    }
+
+    function closeProduction() {
+      document.getElementById('productionModal').style.display = 'none';
+      currentProductionRequest = null;
+    }
+
+    function renderProduction() {
+      const requestId = currentProductionRequest;
+      if (!requestId) return;
+
+      const assigneeSelect = document.getElementById('newTaskAssignee');
+      assigneeSelect.innerHTML = '';
+      if (!assignees.length) {
+        assigneeSelect.innerHTML = '<option value="">— Сначала добавьте исполнителей —</option>';
+      } else {
+        assignees.forEach(a => {
+          const opt = document.createElement('option');
+          opt.value = a;
+          opt.textContent = a;
+          assigneeSelect.appendChild(opt);
+        });
+      }
+
+      const defaultDeadline = new Date();
+      defaultDeadline.setDate(defaultDeadline.getDate() + 7);
+      document.getElementById('newTaskDeadline').value = defaultDeadline.toISOString().slice(0, 10);
+
+      document.getElementById('newTaskTitle').value = '';
+      document.getElementById('newTaskComment').value = '';
+
+      const requestTasks = getRequestTasks(requestId);
+      const columns = {
+        'new': requestTasks.filter(t => t.status === 'new'),
+        'work': requestTasks.filter(t => t.status === 'work'),
+        'check': requestTasks.filter(t => t.status === 'check'),
+        'done': requestTasks.filter(t => t.status === 'done')
+      };
+
+      Object.keys(columns).forEach(status => {
+        const col = document.getElementById('col-' + status);
+        const count = document.getElementById('count-' + status);
+        const list = columns[status];
+        count.textContent = list.length;
+
+        if (!list.length) {
+          col.innerHTML = '<div class="muted">Пусто</div>';
+          return;
+        }
+
+        col.innerHTML = list.map(t => renderTaskCard(t)).join('');
+      });
+
+      const total = requestTasks.length;
+      const done = columns['done'].length;
+      document.getElementById('productionInfo').textContent = `Всего заданий: ${total}, выполнено: ${done}`;
+    }
+
+    function renderTaskCard(task) {
+      const deadline = task.deadline || '';
+      const daysLeft = daysUntilEnd(deadline);
+      let deadlineText = '';
+      let deadlineClass = '';
+
+      if (deadline) {
+        if (daysLeft === null) {
+          deadlineText = '';
+        } else if (daysLeft < 0) {
+          deadlineText = `Просрочено на ${Math.abs(daysLeft)} дн.`;
+          deadlineClass = 'overdue';
+        } else if (daysLeft === 0) {
+          deadlineText = 'Срок сегодня';
+          deadlineClass = 'soon';
+        } else if (daysLeft <= 3) {
+          deadlineText = `Осталось ${daysLeft} дн.`;
+          deadlineClass = 'soon';
+        } else {
+          deadlineText = `Срок: ${deadline}`;
+        }
+      }
+
+      const statusOrder = ['new', 'work', 'check', 'done'];
+      const currentIndex = statusOrder.indexOf(task.status);
+      const canMoveLeft = currentIndex > 0;
+      const canMoveRight = currentIndex < statusOrder.length - 1;
+
+      return `
+        <div class="task-card">
+          <div class="task-title">${escapeHtml(task.title || '(без названия)')}</div>
+          <div class="task-meta">
+            <div>👤 ${escapeHtml(task.assignee || 'не назначен')}</div>
+            ${deadlineText ? `<div class="${deadlineClass}">📅 ${escapeHtml(deadlineText)}</div>` : ''}
+            ${task.comment ? `<div>💬 ${escapeHtml(task.comment)}</div>` : ''}
+          </div>
+          <div class="task-actions">
+            ${canMoveLeft ? `<button onclick="moveTask('${task.id}', -1)">← Назад</button>` : ''}
+            ${canMoveRight ? `<button onclick="moveTask('${task.id}', 1)">Далее →</button>` : ''}
+            <button onclick="editTask('${task.id}')">✏️</button>
+            <button onclick="deleteTask('${task.id}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    }
+
+    async function addTask() {
+      const requestId = currentProductionRequest;
+      if (!requestId) return;
+
+      const title = document.getElementById('newTaskTitle').value.trim();
+      const assignee = document.getElementById('newTaskAssignee').value;
+      const deadline = document.getElementById('newTaskDeadline').value;
+      const comment = document.getElementById('newTaskComment').value.trim();
+
+      if (!title) { alert('Введите название задания'); return; }
+      if (!assignee) { alert('Выберите исполнителя.'); return; }
+
+      const requestTasks = getRequestTasks(requestId);
+      const newTask = {
+        id: uid(), title, assignee, deadline, comment,
+        status: 'new', createdAt: today()
+      };
+      
+      requestTasks.push(newTask);
+      await saveTasksToFirebase(requestId, requestTasks);
+      tasks[requestId] = requestTasks;
+      renderProduction();
+      
+      // Обновляем отображение в карточке клиента (чтобы обновился счётчик активных заданий)
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
+    }
+
+    async function moveTask(taskId, direction) {
+      const requestId = currentProductionRequest;
+      if (!requestId) return;
+
+      const requestTasks = getRequestTasks(requestId);
+      const task = requestTasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const statusOrder = ['new', 'work', 'check', 'done'];
+      const currentIndex = statusOrder.indexOf(task.status);
+      const newIndex = currentIndex + direction;
+
+      if (newIndex < 0 || newIndex >= statusOrder.length) return;
+
+      task.status = statusOrder[newIndex];
+      await saveTasksToFirebase(requestId, requestTasks);
+      renderProduction();
+      
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
+    }
+
+    async function editTask(taskId) {
+      const requestId = currentProductionRequest;
+      if (!requestId) return;
+
+      const requestTasks = getRequestTasks(requestId);
+      const task = requestTasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const newTitle = prompt('Название задания:', task.title);
+      if (newTitle === null) return;
+      const newAssignee = prompt('Исполнитель:', task.assignee);
+      if (newAssignee === null) return;
+      const newDeadline = prompt('Срок (ГГГГ-ММ-ДД):', task.deadline || '');
+      if (newDeadline === null) return;
+      const newComment = prompt('Комментарий:', task.comment || '');
+      if (newComment === null) return;
+
+      task.title = newTitle.trim();
+      task.assignee = newAssignee.trim();
+      task.deadline = newDeadline.trim();
+      task.comment = newComment.trim();
+
+      await saveTasksToFirebase(requestId, requestTasks);
+      renderProduction();
+    }
+
+    async function deleteTask(taskId) {
+      if (!confirm('Удалить задание?')) return;
+      const requestId = currentProductionRequest;
+      if (!requestId) return;
+      
+      tasks[requestId] = getRequestTasks(requestId).filter(t => t.id !== taskId);
+      await saveTasksToFirebase(requestId, tasks[requestId]);
+      renderProduction();
+      
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
+    }
+
+    async function openAssigneesModal() {
+      document.getElementById('assigneesModal').style.display = 'block';
+      renderAssignees();
+    }
+
+    function closeAssigneesModal() {
+      document.getElementById('assigneesModal').style.display = 'none';
+    }
+
+    function renderAssignees() {
+      const list = document.getElementById('assigneeList');
+      if (!assignees.length) {
+        list.innerHTML = '<div class="muted">Исполнителей пока нет. Добавьте первого.</div>';
+        return;
+      }
+
+      list.innerHTML = assignees.map(name => {
+        const load = getAssigneeLoad(name);
+        return `
+          <div class="assignee-item">
+            <span>👤 ${escapeHtml(name)}</span>
+            <span>
+              <span class="load">Заданий: ${load.active} (в работе), всего: ${load.total}</span>
+              <button onclick="removeAssignee('${escapeHtml(name)}')" style="margin-left:8px;">✖</button>
+            </span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function addAssignee() {
+      const input = document.getElementById('newAssigneeName');
+      const name = input.value.trim();
+      if (!name) return;
+      if (assignees.includes(name)) { alert('Такой исполнитель уже есть'); return; }
+      
+      assignees.push(name);
+      await saveAssigneesToFirebase();
+      input.value = '';
+      renderAssignees();
+    }
+
+    async function removeAssignee(name) {
+      if (!confirm(`Удалить исполнителя «${name}»?`)) return;
+      assignees = assignees.filter(a => a !== name);
+      await saveAssigneesToFirebase();
+      renderAssignees();
+    }
+
+    function getAssigneeLoad(assigneeName) {
+      let total = 0;
+      let active = 0;
+      Object.values(tasks).forEach(requestTasks => {
+        requestTasks.forEach(t => {
+          if (t.assignee === assigneeName) {
+            total++;
+            if (t.status !== 'done') active++;
+          }
+        });
+      });
+      return { total, active };
+    }
+
+    function openStatsModal() {
+      document.getElementById('statsModal').style.display = 'block';
+      renderStats();
+    }
+
+    function closeStatsModal() {
+      document.getElementById('statsModal').style.display = 'none';
+    }
+
+    function renderStats() {
+      const requestId = currentProductionRequest;
+      if (!requestId) return;
+
+      const requestTasks = getRequestTasks(requestId);
+      const content = document.getElementById('statsContent');
+
+      const total = requestTasks.length;
+      const done = requestTasks.filter(t => t.status === 'done').length;
+      const active = requestTasks.filter(t => t.status !== 'done').length;
+      const overdue = requestTasks.filter(t => {
+        if (t.status === 'done') return false;
+        const days = daysUntilEnd(t.deadline);
+        return days !== null && days < 0;
+      }).length;
+
+      let html = `
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-value">${total}</div><div class="stat-label">Всего заданий</div></div>
+          <div class="stat-card"><div class="stat-value">${active}</div><div class="stat-label">В работе</div></div>
+          <div class="stat-card"><div class="stat-value">${done}</div><div class="stat-label">Выполнено</div></div>
+          <div class="stat-card"><div class="stat-value" style="color:#d9534f;">${overdue}</div><div class="stat-label">Просрочено</div></div>
+        </div>
+        <h4 style="margin-top:20px;">Загрузка исполнителей</h4>
+      `;
+
+      if (!assignees.length) {
+        html += '<div class="muted">Исполнителей пока нет.</div>';
+      } else {
+        const maxLoad = Math.max(1, ...assignees.map(a => getAssigneeLoad(a).active));
+        html += '<div style="margin-top:10px;">';
+        assignees.forEach(name => {
+          const load = getAssigneeLoad(name);
+          const percent = Math.round((load.active / maxLoad) * 100);
+          let barClass = '';
+          if (percent > 80) barClass = 'danger';
+          else if (percent > 50) barClass = 'warn';
+
+          html += `
+            <div style="margin-bottom:12px;">
+              <div style="display:flex;justify-content:space-between;">
+                <span><strong>${escapeHtml(name)}</strong></span>
+                <span class="muted">${load.active} активных / ${load.total} всего</span>
+              </div>
+              <div class="load-bar">
+                <div class="load-bar-fill ${barClass}" style="width:${percent}%;"></div>
+              </div>
+            </div>
+          `;
+        });
+        html += '</div>';
+      }
+
+      content.innerHTML = html;
+    }
+
+    // Initialize
+    setupRealtimeListeners();
+
+    // Make functions global
+    window.addClient = addClient;
+    window.updateClientContact = updateClientContact;
+    window.deleteClient = deleteClient;
+    window.openClientModalByName = openClientModalByName;
+    window.closeClientModal = closeClientModal;
+    window.saveClientModal = saveClientModal;
+    window.addRequestToClient = addRequestToClient;
+    window.updateRequest = updateRequest;
+    window.removeRequestFromClient = removeRequestFromClient;
+    window.exportCSV = exportCSV;
+    window.importCSV = importCSV;
+    window.openProduction = openProduction;
+    window.closeProduction = closeProduction;
+    window.addTask = addTask;
+    window.moveTask = moveTask;
+    window.editTask = editTask;
+    window.deleteTask = deleteTask;
+    window.openAssigneesModal = openAssigneesModal;
+    window.closeAssigneesModal = closeAssigneesModal;
+    window.addAssignee = addAssignee;
+    window.removeAssignee = removeAssignee;
+    window.openStatsModal = openStatsModal;
+    window.closeStatsModal = closeStatsModal;
+  </script>
+</body>
+</html>
