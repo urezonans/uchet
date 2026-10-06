@@ -281,6 +281,30 @@
 
     .production-btn:hover { background: #31b0d5; }
 
+    .archive-btn {
+      background: #95a5a6;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .archive-btn:hover { background: #7f8c8d; }
+
+    .restore-btn {
+      background: #2ecc71;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .restore-btn:hover { background: #27ae60; }
+
     .import-btn {
       background: #5cb85c;
       color: white;
@@ -327,6 +351,50 @@
 
     .client-info-grid label {
       margin-top: 0;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #ddd;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      background: #f0f0f0;
+      border: 1px solid #ddd;
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .tab:hover {
+      background: #e8e8e8;
+    }
+
+    .tab.active {
+      background: white;
+      color: #004a99;
+      border-bottom: 2px solid white;
+      margin-bottom: -2px;
+    }
+
+    .tab .count {
+      background: #ddd;
+      color: #333;
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 11px;
+      margin-left: 4px;
+    }
+
+    .tab.active .count {
+      background: #004a99;
+      color: white;
     }
 
     .kanban-modal { max-width: 1200px; }
@@ -569,13 +637,30 @@
     </span>
   </h2>
 
+  <div class="tabs">
+    <button class="tab active" id="tabActive" onclick="switchView('active')">
+      📋 Активные <span class="count" id="activeCount">0</span>
+    </button>
+    <button class="tab" id="tabArchive" onclick="switchView('archive')">
+      📦 Архив <span class="count" id="archiveCount">0</span>
+    </button>
+  </div>
+
   <div class="toolbar">
     <input
       id="search"
       placeholder="Поиск по клиенту, заявкам..."
-      style="width: 320px"
+      style="width: 280px"
       oninput="render()"
     >
+
+    <select id="statusFilter" onchange="render()">
+      <option value="">Все статусы</option>
+      <option>Новая</option>
+      <option>В работе</option>
+      <option>Выполнена</option>
+      <option>Отменена</option>
+    </select>
 
     <button onclick="addClient()">+ Добавить клиента</button>
     <button class="export-btn" onclick="exportCSV()">📤 Экспорт в CSV</button>
@@ -648,7 +733,7 @@
       </div>
 
       <div class="kanban-toolbar">
-        <button onclick="openAssigneesModal()">👥 Исполнители</button>
+        <button onclick="openAssigneesModal()"> Исполнители</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
         <span class="muted" id="productionInfo"></span>
       </div>
@@ -723,7 +808,7 @@
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
       <div class="modal-header">
-        <h3> Статистика загрузки</h3>
+        <h3>📊 Статистика загрузки</h3>
         <button class="close-btn" onclick="closeStatsModal()">×</button>
       </div>
 
@@ -758,6 +843,7 @@
     let tasks = {};
     let currentClientOldName = '';
     let currentProductionRequest = null;
+    let currentView = 'active'; // 'active' или 'archive'
     let unsubscribeClients = null;
     let unsubscribeRequests = null;
     let unsubscribeAssignees = null;
@@ -979,6 +1065,7 @@
             endDate: String(r.endDate || '').trim(),
             title: getRequestTitle(r),
             status: String(r.status || '').trim(),
+            archived: !!r.archived,
             days: daysFromStart(String(r.date || '').trim())
           }))
           .sort((a, b) => b.date.localeCompare(a.date));
@@ -1000,7 +1087,7 @@
 
     async function deleteClient(name) {
       if (!name) return;
-      if (!confirm('Удалить клиента и все его заявки?')) return;
+      if (!confirm('Удалить клиента и все его заявки (включая архивные)?')) return;
       
       delete clients[name];
       await deleteDoc(doc(db, 'clients', name));
@@ -1067,11 +1154,6 @@
           }
         });
         
-        if (tasks[oldName]) {
-          tasks[newName] = tasks[oldName];
-          delete tasks[oldName];
-        }
-        
         if (clients[oldName]) {
           delete clients[oldName];
           await deleteDoc(doc(db, 'clients', oldName));
@@ -1117,7 +1199,8 @@
         comment: '',
         priority: 'Средний', 
         status: 'Новая', 
-        responsible: ''
+        responsible: '',
+        archived: false
       };
       
       await saveRequestToFirebase(newRequest.id, newRequest);
@@ -1138,8 +1221,31 @@
       }
     }
 
+    async function archiveRequest(id) {
+      if (!confirm('Отправить заявку в архив? Её можно будет восстановить.')) return;
+      
+      const item = rows.find(r => r.id === id);
+      if (!item) return;
+      
+      item.archived = true;
+      await saveRequestToFirebase(id, item);
+      render();
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
+    }
+
+    async function restoreRequest(id) {
+      const item = rows.find(r => r.id === id);
+      if (!item) return;
+      
+      item.archived = false;
+      await saveRequestToFirebase(id, item);
+      render();
+    }
+
     async function removeRequestFromClient(id) {
-      if (!confirm('Удалить заявку?')) return;
+      if (!confirm('Удалить заявку БЕЗВОЗВРАТНО? Это действие нельзя отменить.')) return;
       
       await deleteRequestFromFirebase(id);
       rows = rows.filter(r => r.id !== id);
@@ -1158,10 +1264,11 @@
 
     function renderClientRequests(clientName) {
       const box = document.getElementById('clientRequests');
-      const list = rows.filter(r => getClientName(r) === clientName);
+      // Показываем только активные заявки в карточке клиента
+      const list = rows.filter(r => getClientName(r) === clientName && !r.archived);
 
       if (!list.length) {
-        box.innerHTML = '<div class="muted">Заявок пока нет. Нажмите «Добавить заявку».</div>';
+        box.innerHTML = '<div class="muted">Активных заявок пока нет. Нажмите «Добавить заявку».</div>';
         return;
       }
 
@@ -1175,9 +1282,12 @@
           <div class="request-item">
             <div class="request-item-header">
               <span class="req-number">Заявка №${index + 1}</span>
-              <button class="production-btn" onclick="openProduction('${r.id}')">
-                🏭 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}
-              </button>
+              <div>
+                <button class="production-btn" onclick="openProduction('${r.id}')">
+                  🏭 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}
+                </button>
+                <button class="archive-btn" onclick="archiveRequest('${r.id}')">📦 В архив</button>
+              </div>
             </div>
             <div>
               <label>Наименование заявки</label>
@@ -1219,25 +1329,60 @@
                 onchange="updateRequest('${r.id}', 'comment', this.value)">${escapeHtml(getRequestComment(r))}</textarea>
             </div>
             <div class="request-actions">
-              <button onclick="removeRequestFromClient('${r.id}')">Удалить заявку</button>
+              <button onclick="removeRequestFromClient('${r.id}')">🗑 Удалить навсегда</button>
             </div>
           </div>
         `;
       }).join('');
     }
 
+    function switchView(view) {
+      currentView = view;
+      document.getElementById('tabActive').classList.toggle('active', view === 'active');
+      document.getElementById('tabArchive').classList.toggle('active', view === 'archive');
+      render();
+    }
+
     function render() {
       const q = document.getElementById('search').value.trim().toLowerCase();
+      const statusFilter = document.getElementById('statusFilter').value;
       const tbody = document.getElementById('tbody');
       tbody.innerHTML = '';
 
       let list = getClientList();
+
+      // Подсчёт для вкладок
+      let activeRequestsTotal = 0;
+      let archiveRequestsTotal = 0;
+      list.forEach(client => {
+        client.requests.forEach(r => {
+          if (r.archived) archiveRequestsTotal++;
+          else activeRequestsTotal++;
+        });
+      });
+      document.getElementById('activeCount').textContent = activeRequestsTotal;
+      document.getElementById('archiveCount').textContent = archiveRequestsTotal;
+
+      // Фильтрация заявок по архиву и статусу
+      list = list.map(client => {
+        let filteredRequests = client.requests.filter(r => {
+          if (currentView === 'active' && r.archived) return false;
+          if (currentView === 'archive' && !r.archived) return false;
+          if (statusFilter && r.status !== statusFilter) return false;
+          return true;
+        });
+
+        return { ...client, requests: filteredRequests };
+      }).filter(client => client.requests.length > 0);
+
+      // Сортировка
       list.sort((a, b) => {
         const dateA = a.requests.length ? a.requests[0].date : '';
         const dateB = b.requests.length ? b.requests[0].date : '';
         return dateB.localeCompare(dateA) || a.name.localeCompare(b.name, 'ru');
       });
 
+      // Поиск
       const visible = list.filter(client => {
         if (!q) return true;
         const reqText = client.requests.map(r => `${r.date} ${r.endDate} ${r.title} ${r.status}`).join(' ').toLowerCase();
@@ -1252,7 +1397,9 @@
         return searchText.includes(q);
       });
 
-      document.getElementById('info').textContent = `Всего клиентов: ${list.length}, показано: ${visible.length}`;
+      const viewName = currentView === 'active' ? 'Активных' : 'Архивных';
+      document.getElementById('info').textContent = 
+        `${viewName} клиентов: ${visible.length} (всего заявок: ${currentView === 'active' ? activeRequestsTotal : archiveRequestsTotal})`;
 
       visible.forEach(client => {
         const tr = document.createElement('tr');
@@ -1294,10 +1441,51 @@
         tr.appendChild(tdRequests);
 
         const tdActions = document.createElement('td');
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Удалить';
-        deleteButton.onclick = function () { deleteClient(client.name); };
-        tdActions.appendChild(deleteButton);
+        if (currentView === 'archive') {
+          // В архиве — кнопка "Вернуть" и "Удалить навсегда"
+          const restoreBtn = document.createElement('button');
+          restoreBtn.textContent = '↩ Вернуть';
+          restoreBtn.className = 'restore-btn';
+          restoreBtn.style.marginRight = '4px';
+          restoreBtn.onclick = function () {
+            // Возвращаем все архивные заявки этого клиента
+            const archivedRequests = rows.filter(r => getClientName(r) === client.name && r.archived);
+            if (archivedRequests.length === 1) {
+              restoreRequest(archivedRequests[0].id);
+            } else {
+              // Если несколько — спрашиваем
+              if (confirm('Вернуть все архивные заявки этого клиента в работу?')) {
+                archivedRequests.forEach(r => restoreRequest(r.id));
+              }
+            }
+          };
+          tdActions.appendChild(restoreBtn);
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = '🗑 Удалить';
+          delBtn.onclick = function () {
+            const archivedRequests = rows.filter(r => getClientName(r) === client.name && r.archived);
+            if (archivedRequests.length === 1) {
+              removeRequestFromClient(archivedRequests[0].id);
+            } else {
+              if (confirm('Удалить ВСЕ архивные заявки этого клиента БЕЗВОЗВРАТНО?')) {
+                archivedRequests.forEach(r => {
+                  deleteRequestFromFirebase(r.id);
+                  delete tasks[r.id];
+                });
+                rows = rows.filter(r => !(getClientName(r) === client.name && r.archived));
+                render();
+              }
+            }
+          };
+          tdActions.appendChild(delBtn);
+        } else {
+          // В активных — кнопка "Удалить клиента"
+          const deleteButton = document.createElement('button');
+          deleteButton.textContent = 'Удалить';
+          deleteButton.onclick = function () { deleteClient(client.name); };
+          tdActions.appendChild(deleteButton);
+        }
         tr.appendChild(tdActions);
 
         tbody.appendChild(tr);
@@ -1305,7 +1493,7 @@
     }
 
     function exportCSV() {
-      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Адрес', 'Статус срока', 'Дата поступления', 'Дата окончания', 'Наименование заявки', 'Статус заявки'];
+      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Адрес', 'Статус срока', 'Дата поступления', 'Дата окончания', 'Наименование заявки', 'Статус заявки', 'Архив'];
       let list = getClientList();
       list.sort((a, b) => {
         const dateA = a.requests.length ? a.requests[0].date : '';
@@ -1321,7 +1509,7 @@
         const address = card.address || '';
 
         if (!client.requests.length) {
-          lines.push([client.name, phone, contactPerson, address, '', '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
+          lines.push([client.name, phone, contactPerson, address, '', '', '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
         } else {
           client.requests.forEach((r, idx) => {
             const badge = getDeadlineBadge(r.endDate, r.date);
@@ -1334,7 +1522,8 @@
               r.date,
               r.endDate,
               r.title,
-              r.status
+              r.status,
+              r.archived ? 'Да' : ''
             ].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
           });
         }
@@ -1434,6 +1623,7 @@
             const endDate = String(line[6] || '').trim();
             const title = String(line[7] || '').trim();
             const status = String(line[8] || '').trim();
+            const archived = String(line[9] || '').trim().toLowerCase() === 'да';
 
             if (clientName) {
               lastClientName = clientName;
@@ -1483,7 +1673,8 @@
                 comment: '',
                 priority: 'Средний',
                 status: status || 'Новая',
-                responsible: ''
+                responsible: '',
+                archived: archived
               };
               await saveRequestToFirebase(newRequest.id, newRequest);
               rows.push(newRequest);
@@ -1522,7 +1713,10 @@
 
     async function openProduction(requestId) {
       const request = rows.find(r => r.id === requestId);
-      if (!request) return;
+      if (!request || request.archived) {
+        alert('Нельзя открыть производство для архивной заявки.');
+        return;
+      }
 
       currentProductionRequest = requestId;
       
@@ -1622,8 +1816,8 @@
           <div class="task-title">${escapeHtml(task.title || '(без названия)')}</div>
           <div class="task-meta">
             <div>👤 ${escapeHtml(task.assignee || 'не назначен')}</div>
-            ${deadlineText ? `<div class="${deadlineClass}"> ${escapeHtml(deadlineText)}</div>` : ''}
-            ${task.comment ? `<div> ${escapeHtml(task.comment)}</div>` : ''}
+            ${deadlineText ? `<div class="${deadlineClass}">📅 ${escapeHtml(deadlineText)}</div>` : ''}
+            ${task.comment ? `<div>💬 ${escapeHtml(task.comment)}</div>` : ''}
           </div>
           <div class="task-actions">
             ${canMoveLeft ? `<button onclick="moveTask('${task.id}', -1)">← Назад</button>` : ''}
@@ -1746,7 +1940,7 @@
         const load = getAssigneeLoad(name);
         return `
           <div class="assignee-item">
-            <span> ${escapeHtml(name)}</span>
+            <span>👤 ${escapeHtml(name)}</span>
             <span>
               <span class="load">Заданий: ${load.active} (в работе), всего: ${load.total}</span>
               <button onclick="removeAssignee('${escapeHtml(name)}')" style="margin-left:8px;">✖</button>
@@ -1863,9 +2057,12 @@
     window.saveClientModal = saveClientModal;
     window.addRequestToClient = addRequestToClient;
     window.updateRequest = updateRequest;
+    window.archiveRequest = archiveRequest;
+    window.restoreRequest = restoreRequest;
     window.removeRequestFromClient = removeRequestFromClient;
     window.exportCSV = exportCSV;
     window.importCSV = importCSV;
+    window.switchView = switchView;
     window.openProduction = openProduction;
     window.closeProduction = closeProduction;
     window.addTask = addTask;
