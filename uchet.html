@@ -73,8 +73,6 @@
     .import-btn { background: #5cb85c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     .export-btn { background: #f0ad4e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     .cloud-badge { background: #5cb85c; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-    .client-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    @media (max-width: 600px) { .client-info-grid { grid-template-columns: 1fr; } }
     .tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 2px solid #ddd; }
     .tab { padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-bottom: none; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 14px; font-weight: bold; color: #555; }
     .tab:hover { background: #e8e8e8; }
@@ -93,6 +91,8 @@
     .view-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; padding: 12px; background: #f9f9f9; border-radius: 8px; }
     .view-info-item label { font-size: 11px; color: #777; text-transform: uppercase; margin-bottom: 2px; display: block; }
     .view-info-item .value { font-size: 14px; font-weight: bold; color: #222; }
+    .view-info-item .value input { font-size: 14px; font-weight: bold; color: #222; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; box-sizing: border-box; }
+    .view-info-item .value input:focus { border-color: #004a99; outline: none; }
     .view-comment-section { margin-top: 20px; border-top: 2px solid #eee; padding-top: 16px; }
     .view-comment-section h4 { margin: 0 0 12px 0; font-size: 16px; }
     .comment-add-form { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -144,16 +144,88 @@
     .load-bar-fill { height: 100%; background: #5cb85c; }
     .load-bar-fill.warn { background: #f0ad4e; }
     .load-bar-fill.danger { background: #d9534f; }
-    .contact-person-block { background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
-    .contact-person-block .cp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; color: #004a99; font-size: 13px; }
-    .contact-person-block .cp-field { margin-bottom: 6px; }
-    .contact-person-block .cp-field label { display: block; font-size: 11px; color: #666; margin-bottom: 2px; font-weight: normal; }
-    .contact-person-block .cp-field input { width: 100%; padding: 5px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; box-sizing: border-box; }
-    .contact-person-block .cp-field input:focus { border-color: #004a99; outline: none; }
-    .remove-cp-btn { background: #d9534f; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    
+    /* Стили для контактных лиц */
+    .contact-person-block {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .contact-person-block .cp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #004a99;
+      font-size: 13px;
+    }
+    .contact-person-block .cp-field {
+      margin-bottom: 6px;
+    }
+    .contact-person-block .cp-field label {
+      display: block;
+      font-size: 10px;
+      color: #666;
+      margin-bottom: 2px;
+      font-weight: normal;
+      text-transform: uppercase;
+    }
+    .contact-person-block .cp-field input {
+      width: 100%;
+      padding: 4px 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 11px;
+      box-sizing: border-box;
+    }
+    .contact-person-block .cp-field input:focus {
+      border-color: #004a99;
+      outline: none;
+    }
+    .remove-cp-btn {
+      background: #d9534f;
+      color: white;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+    }
     .remove-cp-btn:hover { background: #c9302c; }
-    .add-cp-btn { background: #5cb85c; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 8px; }
+    .add-cp-btn {
+      background: #5cb85c;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
     .add-cp-btn:hover { background: #449d44; }
+    .client-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 14px;
+    }
+    @media (max-width: 700px) {
+      .client-columns { grid-template-columns: 1fr; }
+    }
+    .client-column-left {
+      min-height: 200px;
+    }
+    .client-column-right {
+      background: #f9f9f9;
+      border: 1px dashed #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      min-height: 200px;
+    }
   </style>
 </head>
 <body>
@@ -210,23 +282,21 @@
   <div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
     <div class="modal modal-large">
       <div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
-      <label for="clientName">Имя клиента / Название компании</label><input id="clientName">
-      <div class="client-info-grid">
-        <div><label for="clientPhone1">Телефон 1</label><input id="clientPhone1" placeholder="+7 900 000-00-00"></div>
-        <div><label for="clientPhone2">Телефон 2</label><input id="clientPhone2" placeholder="+7 900 000-00-00"></div>
-        <div><label for="clientPhone3">Телефон 3</label><input id="clientPhone3" placeholder="+7 900 000-00-00"></div>
-        <div><label for="clientEmail">Email</label><input id="clientEmail" placeholder="email@example.com"></div>
+      <label for="clientName">Наименование клиента</label><input id="clientName">
+      
+      <div class="client-columns">
+        <div class="client-column-left">
+          <div id="contactPersonsList"></div>
+          <button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button>
+        </div>
+        <div class="client-column-right">
+          <div class="muted">Правый столбец (пока пусто)</div>
+        </div>
       </div>
-      <div style="margin-top:14px;">
-        <label style="font-size:15px;">Контактные лица</label>
-        <div id="contactPersonsList" style="margin-top:8px;"></div>
-        <button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button>
-      </div>
-      <div style="margin-top:10px;"><label for="clientWebsite">Сайт</label><input id="clientWebsite" placeholder="https://example.com"></div>
-      <div style="margin-top:10px;"><label for="clientAddress">Адрес</label><input id="clientAddress" placeholder="Город, улица, дом, офис"></div>
+      
       <div class="requests-columns">
         <div class="requests-column projects-col">
-          <h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
+          <h4> Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
           <div class="tiles-grid" id="projectsTiles"></div>
         </div>
         <div class="requests-column requests-col">
@@ -252,8 +322,8 @@
         <button class="close-btn" onclick="closeViewModal()">×</button>
       </div>
       <div class="view-info-grid">
-        <div class="view-info-item"><label>Дата начала</label><div class="value" id="viewDate">—</div></div>
-        <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value" id="viewEndDate">—</div></div>
+        <div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate" onchange="updateViewField('date', this.value)"></div></div>
+        <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate" onchange="updateViewField('endDate', this.value)"></div></div>
         <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus" onchange="updateViewField('status', this.value)"><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select></div></div>
         <div class="view-info-item"><label>Ответственный</label><div class="value"><input id="viewResponsible" placeholder="Кто выполняет" onchange="updateViewField('responsible', this.value)"></div></div>
         <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
@@ -277,7 +347,7 @@
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
         <button onclick="openAssigneesModal()">👥 Исполнители</button>
-        <button onclick="openStatsModal()">📊 Статистика</button>
+        <button onclick="openStatsModal()"> Статистика</button>
       </div>
       <div class="add-task-form">
         <h4>➕ Новое задание</h4>
@@ -302,7 +372,7 @@
 
   <div id="assigneesModal" class="modal-overlay" onclick="if (event.target === this) closeAssigneesModal()">
     <div class="modal">
-      <div class="modal-header"><h3>👥 Исполнители</h3><button class="close-btn" onclick="closeAssigneesModal()">×</button></div>
+      <div class="modal-header"><h3> Исполнители</h3><button class="close-btn" onclick="closeAssigneesModal()">×</button></div>
       <label>Добавить исполнителя</label>
       <div style="display:flex;gap:8px;"><input id="newAssigneeName" placeholder="ФИО или должность" style="flex:1;"><button onclick="addAssignee()">Добавить</button></div>
       <div id="assigneeList"></div>
@@ -312,7 +382,7 @@
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -422,7 +492,7 @@ async function saveTasksToFirebase(id, list) {
 
 async function ensureClientExists(name) {
   if (!clients[name]) {
-    clients[name] = { name, phone1: '', phone2: '', phone3: '', contactPersons: [], email: '', website: '', address: '', createdAt: today() };
+    clients[name] = { name, contactPersons: [], createdAt: today() };
     await saveClientToFirebase(name, clients[name]);
   }
   return clients[name];
@@ -470,7 +540,7 @@ function setupRealtimeListeners() {
 
 async function addClient() {
   const name = generateNewClientName();
-  await saveClientToFirebase(name, { name, phone1: '', phone2: '', phone3: '', contactPersons: [], email: '', website: '', address: '', createdAt: today() });
+  await saveClientToFirebase(name, { name, contactPersons: [], createdAt: today() });
   setTimeout(() => openClientModalByName(name), 300);
 }
 
@@ -507,13 +577,7 @@ function getBaseList() {
     const c = clients[name];
     return { 
       name, 
-      phone1: c.phone1||'', 
-      phone2: c.phone2||'', 
-      phone3: c.phone3||'',
       contactPersons: c.contactPersons || [],
-      email: c.email||'', 
-      website: c.website||'', 
-      address: c.address||'', 
       createdAt: c.createdAt||'', 
       projectCount: rows.filter(r => getClientName(r) === name && !r.archived).length, 
       requestCount: leads.filter(l => getClientName(l) === name && !l.archived).length 
@@ -538,12 +602,6 @@ function openClientModalByName(name) {
   currentClientOldName = name;
   const s = clients[name] || {};
   document.getElementById('clientName').value = s.name || name;
-  document.getElementById('clientPhone1').value = s.phone1 || '';
-  document.getElementById('clientPhone2').value = s.phone2 || '';
-  document.getElementById('clientPhone3').value = s.phone3 || '';
-  document.getElementById('clientEmail').value = s.email || '';
-  document.getElementById('clientWebsite').value = s.website || '';
-  document.getElementById('clientAddress').value = s.address || '';
   renderContactPersons(s.contactPersons || []);
   renderClientRequests(name);
   document.getElementById('clientModal').style.display = 'block';
@@ -581,6 +639,18 @@ function renderContactPersons(contactPersons) {
         <label>Телефон 3</label>
         <input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone3 || '')}" onchange="updateContactPerson(${idx}, 'phone3', this.value)">
       </div>
+      <div class="cp-field">
+        <label>Электронная почта</label>
+        <input type="email" placeholder="email@example.com" value="${escapeHtml(cp.email || '')}" onchange="updateContactPerson(${idx}, 'email', this.value)">
+      </div>
+      <div class="cp-field">
+        <label>Сайт</label>
+        <input type="text" placeholder="https://example.com" value="${escapeHtml(cp.website || '')}" onchange="updateContactPerson(${idx}, 'website', this.value)">
+      </div>
+      <div class="cp-field">
+        <label>Адрес</label>
+        <input type="text" placeholder="Город, улица, дом, офис" value="${escapeHtml(cp.address || '')}" onchange="updateContactPerson(${idx}, 'address', this.value)">
+      </div>
     </div>
   `).join('');
 }
@@ -596,7 +666,7 @@ function updateContactPerson(idx, field, value) {
 function addContactPerson() {
   const s = clients[currentClientOldName] || {};
   if (!s.contactPersons) s.contactPersons = [];
-  s.contactPersons.push({ name: '', position: '', phone1: '', phone2: '', phone3: '' });
+  s.contactPersons.push({ name: '', position: '', phone1: '', phone2: '', phone3: '', email: '', website: '', address: '' });
   clients[currentClientOldName] = s;
   renderContactPersons(s.contactPersons);
 }
@@ -613,12 +683,6 @@ function closeClientModal() { document.getElementById('clientModal').style.displ
 
 async function applyClientForm() {
   const newName = document.getElementById('clientName').value.trim() || 'Без имени';
-  const phone1 = document.getElementById('clientPhone1').value.trim();
-  const phone2 = document.getElementById('clientPhone2').value.trim();
-  const phone3 = document.getElementById('clientPhone3').value.trim();
-  const email = document.getElementById('clientEmail').value.trim();
-  const website = document.getElementById('clientWebsite').value.trim();
-  const address = document.getElementById('clientAddress').value.trim();
   const oldName = currentClientOldName;
   let createdAt = today();
   if (oldName && clients[oldName] && clients[oldName].createdAt) createdAt = clients[oldName].createdAt;
@@ -629,7 +693,7 @@ async function applyClientForm() {
     if (clients[oldName]) { delete clients[oldName]; await deleteDoc(doc(db, 'clients', oldName)); }
   }
   const s = clients[newName] || {};
-  clients[newName] = { name: newName, phone1, phone2, phone3, contactPersons: s.contactPersons || [], email, website, address, createdAt };
+  clients[newName] = { name: newName, contactPersons: s.contactPersons || [], createdAt };
   await saveClientToFirebase(newName, clients[newName]);
   currentClientOldName = newName;
   return newName;
@@ -639,9 +703,8 @@ async function saveClientModal() { await applyClientForm(); closeClientModal(); 
 
 async function addRequestToClient(type) {
   const clientName = await applyClientForm();
-  const phone1 = document.getElementById('clientPhone1').value.trim();
   const isReq = type === 'request';
-  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: phone1, title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
+  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: '', title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
   await saveRequestToFirebase(newItem.id, newItem, isReq ? 'leads' : 'requests');
 }
 
@@ -720,7 +783,6 @@ async function convertProjectToRequest(id) {
   setTimeout(() => alert('✅ Проект конвертирован в заявку!'), 300);
 }
 
-// ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТКРЫТИЯ ПРОИЗВОДСТВА =====
 async function openProduction(id) {
   console.log('openProduction вызвана с id:', id);
   const r = rows.find(r => r.id === id);
@@ -734,22 +796,10 @@ async function openProduction(id) {
     return;
   }
   currentProductionRequest = id;
-  
-  // Безопасная установка текста с проверкой на null
   const titleEl = document.getElementById('productionRequestTitle');
-  if (titleEl) {
-    titleEl.textContent = getRequestTitle(r) || '(без названия)';
-  } else {
-    console.error('Элемент productionRequestTitle не найден!');
-  }
-  
+  if (titleEl) titleEl.textContent = getRequestTitle(r) || '(без названия)';
   const clientEl = document.getElementById('productionClientName');
-  if (clientEl) {
-    clientEl.textContent = getClientName(r);
-  } else {
-    console.error('Элемент productionClientName не найден!');
-  }
-  
+  if (clientEl) clientEl.textContent = getClientName(r);
   const modal = document.getElementById('productionModal');
   if (modal) {
     modal.style.display = 'block';
@@ -778,8 +828,8 @@ function openRequestView(id, type) {
   const badge = document.getElementById('viewTypeBadge');
   badge.textContent = type === 'project' ? 'ПРОЕКТ' : 'ЗАЯВКА';
   badge.className = 'view-type-badge ' + type;
-  document.getElementById('viewDate').textContent = item.date || '—';
-  document.getElementById('viewEndDate').textContent = item.endDate || 'не указана';
+  document.getElementById('viewDate').value = item.date || '';
+  document.getElementById('viewEndDate').value = item.endDate || '';
   document.getElementById('viewEndDateBlock').style.display = type === 'project' ? 'block' : 'none';
   document.getElementById('viewDaysBlock').style.display = type === 'project' ? 'block' : 'none';
   if (type === 'project') {
@@ -808,8 +858,8 @@ function refreshViewModal() {
   if (!u) return;
   currentViewRequest = u;
   document.getElementById('viewTitle').textContent = getRequestTitle(u) || '(без названия)';
-  document.getElementById('viewDate').textContent = u.date || '—';
-  document.getElementById('viewEndDate').textContent = u.endDate || 'не указана';
+  document.getElementById('viewDate').value = u.date || '';
+  document.getElementById('viewEndDate').value = u.endDate || '';
   document.getElementById('viewStatus').value = u.status || 'Новая';
   document.getElementById('viewResponsible').value = u.responsible || '';
   document.getElementById('viewComment').value = u.comment || '';
@@ -869,7 +919,6 @@ function renderComments() {
   list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
-// ===== ИСПРАВЛЕННАЯ ФУНКЦИЯ КНОПОК =====
 function renderViewActions() {
   const div = document.getElementById('viewActions');
   div.innerHTML = '';
@@ -883,7 +932,7 @@ function renderViewActions() {
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
-    prodBtn.textContent = ' Производство';
+    prodBtn.textContent = '🏭 Производство';
     prodBtn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -900,7 +949,7 @@ function renderViewActions() {
     
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = '📦 В архив';
+    archBtn.textContent = ' В архив';
     archBtn.addEventListener('click', async function(e) {
       e.preventDefault();
       e.stopPropagation();
@@ -1007,7 +1056,7 @@ function render() {
   document.getElementById('archiveCount').textContent = arc;
   list = list.map(c => ({ ...c, requests: c.requests.filter(r => { if (currentView === 'active' && r.archived) return false; if (currentView === 'archive' && !r.archived) return false; if (sf && r.status !== sf) return false; return true; }) })).filter(c => c.requests.length > 0);
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
-  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(r => r.date + ' ' + r.endDate + ' ' + r.title + ' ' + r.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone1||'', card.phone2||'', card.phone3||'', card.email||'', card.website||'', rt].join(' ').toLowerCase().includes(q); });
+  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(r => r.date + ' ' + r.endDate + ' ' + r.title + ' ' + r.status).join(' ').toLowerCase(); return [c.name, rt].join(' ').toLowerCase().includes(q); });
   document.getElementById('info').textContent = (currentView === 'active' ? 'Активных' : 'Архивных') + ' клиентов: ' + visible.length + ' (всего проектов: ' + (currentView === 'active' ? act : arc) + ')';
   visible.forEach(c => {
     const tr = document.createElement('tr');
@@ -1024,7 +1073,7 @@ function render() {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) restoreProject(arr[0].id); else if (confirm('Вернуть все архивные проекты?')) arr.forEach(r => restoreProject(r.id)); }; td3.appendChild(rb);
       const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) deleteProjectFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные проекты БЕЗВОЗВРАТНО?')) { arr.forEach(r => { deleteRequestFromFirebase(r.id, 'requests'); delete tasks[r.id]; }); rows = rows.filter(r => !(getClientName(r) === c.name && r.archived)); render(); } }; td3.appendChild(db);
     } else {
-      const ab = document.createElement('button'); ab.textContent = '📦 Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && !r.archived); if (arr.length === 1) archiveProject(arr[0].id); else if (confirm('Отправить все активные проекты в архив?')) arr.forEach(r => archiveProject(r.id)); }; td3.appendChild(ab);
+      const ab = document.createElement('button'); ab.textContent = ' Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && !r.archived); if (arr.length === 1) archiveProject(arr[0].id); else if (confirm('Отправить все активные проекты в архив?')) arr.forEach(r => archiveProject(r.id)); }; td3.appendChild(ab);
     }
     tr.appendChild(td3); tbody.appendChild(tr);
   });
@@ -1040,7 +1089,7 @@ function renderRequests() {
   document.getElementById('requestActiveCount').textContent = act;
   document.getElementById('requestArchiveCount').textContent = arc;
   list = list.map(c => ({ ...c, requests: c.requests.filter(r => { if (currentRequestView === 'active' && r.archived) return false; if (currentRequestView === 'archive' && !r.archived) return false; return true; }) })).filter(c => c.requests.length > 0);
-  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone1||'', card.email||'', rt].join(' ').toLowerCase().includes(q); });
+  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase(); return [c.name, rt].join(' ').toLowerCase().includes(q); });
   document.getElementById('requestInfo').textContent = 'Всего клиентов с заявками: ' + visible.length;
   visible.forEach(c => {
     const tr = document.createElement('tr');
@@ -1075,25 +1124,22 @@ function renderBase() {
     const div = document.createElement('div');
     div.className = 'client-base-item';
     let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
-    if (c.phone1) html += '<div class="client-base-info">📞 ' + escapeHtml(c.phone1) + '</div>';
-    if (c.phone2) html += '<div class="client-base-info">📞 ' + escapeHtml(c.phone2) + '</div>';
-    if (c.phone3) html += '<div class="client-base-info">📞 ' + escapeHtml(c.phone3) + '</div>';
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
           let cpLine = '👤 ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
-          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
+          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
-          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
+          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone3) + '</div>';
+          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
+          if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
+          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
-    if (c.email) html += '<div class="client-base-info">✉️ ' + escapeHtml(c.email) + '</div>';
-    if (c.website) html += '<div class="client-base-info">🌐 ' + escapeHtml(c.website) + '</div>';
-    if (c.address) html += '<div class="client-base-info">📍 ' + escapeHtml(c.address) + '</div>';
-    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span> Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
@@ -1107,20 +1153,23 @@ function formatContactPersonsForCSV(cps) {
     if (cp.position) s += ' (' + cp.position + ')';
     const phones = [cp.phone1, cp.phone2, cp.phone3].filter(p => p).join(', ');
     if (phones) s += ' [' + phones + ']';
+    if (cp.email) s += ' <' + cp.email + '>';
+    if (cp.website) s += ' {' + cp.website + '}';
+    if (cp.address) s += ' @' + cp.address;
     return s;
   }).join('; ');
 }
 
 function exportCSV() {
-  const headers = ['Клиент','Телефон 1','Телефон 2','Телефон 3','Контактные лица','Email','Сайт','Адрес','Статус срока','Дата поступления','Дата окончания','Наименование проекта','Статус проекта','Архив'];
+  const headers = ['Клиент','Контактные лица','Статус срока','Дата поступления','Дата окончания','Наименование проекта','Статус проекта','Архив'];
   let list = getClientList();
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
   const lines = [];
   list.forEach(c => {
     const card = clients[c.name] || {};
     const cpText = formatContactPersonsForCSV(card.contactPersons);
-    if (!c.requests.length) lines.push([c.name, card.phone1||'', card.phone2||'', card.phone3||'', cpText, card.email||'', card.website||'', card.address||'', '','','','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
-    else c.requests.forEach((r, i) => { const b = getDeadlineBadge(r.endDate, r.date); lines.push([i===0?c.name:'', i===0?(card.phone1||''):'', i===0?(card.phone2||''):'', i===0?(card.phone3||''):'', i===0?cpText:'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', b.text, r.date, r.endDate, r.title, r.status, r.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
+    if (!c.requests.length) lines.push([c.name, cpText, '','','','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
+    else c.requests.forEach((r, i) => { const b = getDeadlineBadge(r.endDate, r.date); lines.push([i===0?c.name:'', i===0?cpText:'', b.text, r.date, r.endDate, r.title, r.status, r.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
   });
   const csv = '\uFEFF' + [headers.join(';'), ...lines].join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1128,15 +1177,15 @@ function exportCSV() {
 }
 
 function exportRequestsCSV() {
-  const headers = ['Клиент','Телефон 1','Телефон 2','Телефон 3','Контактные лица','Email','Сайт','Адрес','Дата','Наименование заявки','Статус заявки','Архив'];
+  const headers = ['Клиент','Контактные лица','Дата','Наименование заявки','Статус заявки','Архив'];
   let list = getRequestList();
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
   const lines = [];
   list.forEach(c => {
     const card = clients[c.name] || {};
     const cpText = formatContactPersonsForCSV(card.contactPersons);
-    if (!c.requests.length) lines.push([c.name, card.phone1||'', card.phone2||'', card.phone3||'', cpText, card.email||'', card.website||'', card.address||'', '','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
-    else c.requests.forEach((l, i) => { lines.push([i===0?c.name:'', i===0?(card.phone1||''):'', i===0?(card.phone2||''):'', i===0?(card.phone3||''):'', i===0?cpText:'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', l.date, l.title, l.status, l.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
+    if (!c.requests.length) lines.push([c.name, cpText, '','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
+    else c.requests.forEach((l, i) => { lines.push([i===0?c.name:'', i===0?cpText:'', l.date, l.title, l.status, l.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
   });
   const csv = '\uFEFF' + [headers.join(';'), ...lines].join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1168,7 +1217,7 @@ async function importCSV(event) {
       for (let i = 1; i < parsed.length; i++) {
         const line = parsed[i];
         if (!line || line.length < 7) continue;
-        const cn = String(line[0]||'').trim(), ph1 = String(line[1]||'').trim(), ph2 = String(line[2]||'').trim(), ph3 = String(line[3]||'').trim(), cpText = String(line[4]||'').trim(), em = String(line[5]||'').trim(), ws = String(line[6]||'').trim(), ad = String(line[7]||'').trim(), dt = String(line[9]||'').trim(), ed = String(line[10]||'').trim(), ti = String(line[11]||'').trim(), st = String(line[12]||'').trim(), ar = String(line[13]||'').trim().toLowerCase() === 'да';
+        const cn = String(line[0]||'').trim(), cpText = String(line[1]||'').trim(), dt = String(line[3]||'').trim(), ed = String(line[4]||'').trim(), ti = String(line[5]||'').trim(), st = String(line[6]||'').trim(), ar = String(line[7]||'').trim().toLowerCase() === 'да';
         const contactPersons = [];
         if (cpText) {
           cpText.split(';').forEach(part => {
@@ -1177,17 +1226,29 @@ async function importCSV(event) {
             const nameMatch = p.match(/^([^(]+?)(?:\s*\(([^)]*)\))?/);
             const name = nameMatch ? nameMatch[1].trim() : p;
             const rest = nameMatch && nameMatch[2] ? nameMatch[2].trim() : '';
-            const phoneMatch = rest.match(/^(.*?)\s*\[(.+)\]$/);
+            const phoneMatch = rest.match(/^(.*?)\s*\[(.+)\]/);
             const position = phoneMatch ? phoneMatch[1].trim() : rest;
             const phones = phoneMatch ? phoneMatch[2].split(',').map(x => x.trim()) : [];
-            contactPersons.push({ name, position, phone1: phones[0]||'', phone2: phones[1]||'', phone3: phones[2]||'' });
+            const emailMatch = rest.match(/<([^>]+)>/);
+            const websiteMatch = rest.match(/\{([^}]+)\}/);
+            const addressMatch = rest.match(/@(.+)$/);
+            contactPersons.push({ 
+              name, 
+              position, 
+              phone1: phones[0]||'', 
+              phone2: phones[1]||'', 
+              phone3: phones[2]||'',
+              email: emailMatch ? emailMatch[1].trim() : '',
+              website: websiteMatch ? websiteMatch[1].trim() : '',
+              address: addressMatch ? addressMatch[1].trim() : ''
+            });
           });
         }
         if (cn) {
-          if (!clients[cn]) { clients[cn] = { name: cn, phone1: ph1, phone2: ph2, phone3: ph3, contactPersons, email: em, website: ws, address: ad, createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
+          if (!clients[cn]) { clients[cn] = { name: cn, contactPersons, createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
         }
         if (ti || dt || ed) {
-          const np = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: ph1, title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
+          const np = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: '', title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
           await saveRequestToFirebase(np.id, np, 'requests');
           rows.push(np); pa++;
         }
@@ -1221,7 +1282,8 @@ function renderProduction() {
     document.getElementById('count-' + s).textContent = cols[s].length;
     col.innerHTML = cols[s].length ? cols[s].map(t => renderTaskCard(t)).join('') : '<div class="muted">Пусто</div>';
   });
-  document.getElementById('productionInfo').textContent = 'Всего: ' + rt.length + ', выполнено: ' + cols['done'].length;
+  const infoEl = document.getElementById('productionInfo');
+  if (infoEl) infoEl.textContent = 'Всего: ' + rt.length + ', выполнено: ' + cols['done'].length;
 }
 
 function renderTaskCard(t) {
@@ -1236,7 +1298,7 @@ function renderTaskCard(t) {
     else dt = 'Срок: ' + dl;
   }
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
+  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">️</button></div></div>';
 }
 
 async function addTask() {
@@ -1298,7 +1360,7 @@ function closeAssigneesModal() { document.getElementById('assigneesModal').style
 function renderAssignees() {
   const list = document.getElementById('assigneeList');
   if (!assignees.length) { list.innerHTML = '<div class="muted">Исполнителей пока нет.</div>'; return; }
-  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span> ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
+  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span>👤 ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
 }
 
 async function addAssignee() {
