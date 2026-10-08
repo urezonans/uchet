@@ -144,6 +144,14 @@
     .load-bar-fill { height: 100%; background: #5cb85c; }
     .load-bar-fill.warn { background: #f0ad4e; }
     .load-bar-fill.danger { background: #d9534f; }
+    /* Стили для контактных лиц */
+    .contact-person-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; padding: 6px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; }
+    .contact-person-row input { flex: 1; }
+    .contact-person-row button { flex-shrink: 0; }
+    .add-contact-btn { background: #5cb85c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 8px; }
+    .add-contact-btn:hover { background: #449d44; }
+    .remove-contact-btn { background: #d9534f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .remove-contact-btn:hover { background: #c9302c; }
   </style>
 </head>
 <body>
@@ -201,13 +209,27 @@
     <div class="modal modal-large">
       <div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
       <label for="clientName">Имя клиента / Название компании</label><input id="clientName">
+      
       <div class="client-info-grid">
-        <div><label for="clientPhone">Телефон</label><input id="clientPhone" placeholder="+7 900 000-00-00"></div>
-        <div><label for="clientContactPerson">Контактное лицо</label><input id="clientContactPerson" placeholder="Имя, должность"></div>
+        <div><label for="clientPhone1">Телефон 1</label><input id="clientPhone1" placeholder="+7 900 000-00-00"></div>
+        <div><label for="clientPhone2">Телефон 2</label><input id="clientPhone2" placeholder="+7 900 000-00-00"></div>
+        <div><label for="clientPhone3">Телефон 3</label><input id="clientPhone3" placeholder="+7 900 000-00-00"></div>
         <div><label for="clientEmail">Email</label><input id="clientEmail" placeholder="email@example.com"></div>
-        <div><label for="clientWebsite">Сайт</label><input id="clientWebsite" placeholder="https://example.com"></div>
       </div>
-      <div style="margin-top:10px;"><label for="clientAddress">Адрес</label><input id="clientAddress" placeholder="Город, улица, дом, офис"></div>
+      
+      <div style="margin-top:10px;">
+        <label>Контактные лица</label>
+        <div id="contactPersonsList"></div>
+        <button class="add-contact-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button>
+      </div>
+      
+      <div style="margin-top:10px;">
+        <label for="clientWebsite">Сайт</label><input id="clientWebsite" placeholder="https://example.com">
+      </div>
+      <div style="margin-top:10px;">
+        <label for="clientAddress">Адрес</label><input id="clientAddress" placeholder="Город, улица, дом, офис">
+      </div>
+      
       <div class="requests-columns">
         <div class="requests-column projects-col">
           <h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
@@ -256,7 +278,7 @@
     <div class="modal kanban-modal">
       <div class="modal-header"><h3>🏭 Производство: <span id="productionRequestTitle"></span></h3><button class="close-btn" onclick="closeProduction()">×</button></div>
       <div class="kanban-toolbar">
-        <button onclick="openAssigneesModal()"> Исполнители</button>
+        <button onclick="openAssigneesModal()">👥 Исполнители</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
       <div class="add-task-form">
@@ -400,7 +422,7 @@ async function saveTasksToFirebase(id, list) {
 
 async function ensureClientExists(name) {
   if (!clients[name]) {
-    clients[name] = { name, phone: '', contactPerson: '', address: '', email: '', website: '', createdAt: today() };
+    clients[name] = { name, phone1: '', phone2: '', phone3: '', contactPersons: [], email: '', website: '', address: '', createdAt: today() };
     await saveClientToFirebase(name, clients[name]);
   }
   return clients[name];
@@ -448,7 +470,7 @@ function setupRealtimeListeners() {
 
 async function addClient() {
   const name = generateNewClientName();
-  await saveClientToFirebase(name, { name, phone: '', contactPerson: '', address: '', email: '', website: '', createdAt: today() });
+  await saveClientToFirebase(name, { name, phone1: '', phone2: '', phone3: '', contactPersons: [], email: '', website: '', address: '', createdAt: today() });
   setTimeout(() => openClientModalByName(name), 300);
 }
 
@@ -464,7 +486,6 @@ function getClientList() {
   rows.forEach(r => { const n = getClientName(r); if (n) names.add(n); });
   return Array.from(names).map(name => {
     const cr = rows.filter(r => getClientName(r) === name);
-    const card = clients[name] || {};
     const requests = cr.map(r => ({ id: r.id, date: String(r.date||'').trim(), endDate: String(r.endDate||'').trim(), title: getRequestTitle(r), status: String(r.status||'').trim(), archived: !!r.archived, days: daysFromStart(String(r.date||'').trim()) })).sort((a,b) => b.date.localeCompare(a.date));
     return { name, requests, requestCount: cr.length };
   });
@@ -484,7 +505,19 @@ function getRequestList() {
 function getBaseList() {
   return Object.keys(clients).map(name => {
     const c = clients[name];
-    return { name, phone: c.phone||'', contactPerson: c.contactPerson||'', address: c.address||'', email: c.email||'', website: c.website||'', createdAt: c.createdAt||'', projectCount: rows.filter(r => getClientName(r) === name && !r.archived).length, requestCount: leads.filter(l => getClientName(l) === name && !l.archived).length };
+    return { 
+      name, 
+      phone1: c.phone1||'', 
+      phone2: c.phone2||'', 
+      phone3: c.phone3||'',
+      contactPersons: c.contactPersons || [],
+      email: c.email||'', 
+      website: c.website||'', 
+      address: c.address||'', 
+      createdAt: c.createdAt||'', 
+      projectCount: rows.filter(r => getClientName(r) === name && !r.archived).length, 
+      requestCount: leads.filter(l => getClientName(l) === name && !l.archived).length 
+    };
   }).sort((a,b) => a.name.localeCompare(b.name, 'ru'));
 }
 
@@ -505,24 +538,71 @@ function openClientModalByName(name) {
   currentClientOldName = name;
   const s = clients[name] || {};
   document.getElementById('clientName').value = s.name || name;
-  document.getElementById('clientPhone').value = s.phone || '';
-  document.getElementById('clientContactPerson').value = s.contactPerson || '';
-  document.getElementById('clientAddress').value = s.address || '';
+  document.getElementById('clientPhone1').value = s.phone1 || '';
+  document.getElementById('clientPhone2').value = s.phone2 || '';
+  document.getElementById('clientPhone3').value = s.phone3 || '';
   document.getElementById('clientEmail').value = s.email || '';
   document.getElementById('clientWebsite').value = s.website || '';
+  document.getElementById('clientAddress').value = s.address || '';
+  
+  // Отображаем контактных лиц
+  renderContactPersons(s.contactPersons || []);
+  
   renderClientRequests(name);
   document.getElementById('clientModal').style.display = 'block';
+}
+
+function renderContactPersons(contactPersons) {
+  const container = document.getElementById('contactPersonsList');
+  if (!contactPersons.length) {
+    container.innerHTML = '<div class="muted">Контактных лиц пока нет</div>';
+    return;
+  }
+  
+  container.innerHTML = contactPersons.map((cp, idx) => `
+    <div class="contact-person-row">
+      <input type="text" placeholder="Имя" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${idx}, 'name', this.value)">
+      <input type="text" placeholder="Должность" value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${idx}, 'position', this.value)">
+      <button class="remove-contact-btn" onclick="removeContactPerson(${idx})">✖</button>
+    </div>
+  `).join('');
+}
+
+function updateContactPerson(idx, field, value) {
+  const s = clients[currentClientOldName] || {};
+  if (!s.contactPersons) s.contactPersons = [];
+  if (!s.contactPersons[idx]) s.contactPersons[idx] = {};
+  s.contactPersons[idx][field] = value;
+  clients[currentClientOldName] = s;
+}
+
+function addContactPerson() {
+  const s = clients[currentClientOldName] || {};
+  if (!s.contactPersons) s.contactPersons = [];
+  s.contactPersons.push({ name: '', position: '' });
+  clients[currentClientOldName] = s;
+  renderContactPersons(s.contactPersons);
+}
+
+function removeContactPerson(idx) {
+  const s = clients[currentClientOldName] || {};
+  if (!s.contactPersons) return;
+  s.contactPersons.splice(idx, 1);
+  clients[currentClientOldName] = s;
+  renderContactPersons(s.contactPersons);
 }
 
 function closeClientModal() { document.getElementById('clientModal').style.display = 'none'; currentClientOldName = ''; }
 
 async function applyClientForm() {
   const newName = document.getElementById('clientName').value.trim() || 'Без имени';
-  const phone = document.getElementById('clientPhone').value.trim();
-  const contactPerson = document.getElementById('clientContactPerson').value.trim();
-  const address = document.getElementById('clientAddress').value.trim();
+  const phone1 = document.getElementById('clientPhone1').value.trim();
+  const phone2 = document.getElementById('clientPhone2').value.trim();
+  const phone3 = document.getElementById('clientPhone3').value.trim();
   const email = document.getElementById('clientEmail').value.trim();
   const website = document.getElementById('clientWebsite').value.trim();
+  const address = document.getElementById('clientAddress').value.trim();
+  
   const oldName = currentClientOldName;
   let createdAt = today();
   if (oldName && clients[oldName] && clients[oldName].createdAt) createdAt = clients[oldName].createdAt;
@@ -533,7 +613,15 @@ async function applyClientForm() {
     leads.forEach(l => { if (getClientName(l) === oldName) { l.client = newName; saveRequestToFirebase(l.id, l, 'leads'); } });
     if (clients[oldName]) { delete clients[oldName]; await deleteDoc(doc(db, 'clients', oldName)); }
   }
-  clients[newName] = { name: newName, phone, contactPerson, address, email, website, createdAt };
+  
+  const s = clients[newName] || {};
+  clients[newName] = { 
+    name: newName, 
+    phone1, phone2, phone3,
+    contactPersons: s.contactPersons || [],
+    email, website, address, 
+    createdAt 
+  };
   await saveClientToFirebase(newName, clients[newName]);
   currentClientOldName = newName;
   return newName;
@@ -543,9 +631,9 @@ async function saveClientModal() { await applyClientForm(); closeClientModal(); 
 
 async function addRequestToClient(type) {
   const clientName = await applyClientForm();
-  const phone = document.getElementById('clientPhone').value.trim();
+  const phone1 = document.getElementById('clientPhone1').value.trim();
   const isReq = type === 'request';
-  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: phone, title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
+  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: phone1, title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
   await saveRequestToFirebase(newItem.id, newItem, isReq ? 'leads' : 'requests');
 }
 
@@ -726,67 +814,17 @@ function renderViewActions() {
   const div = document.getElementById('viewActions');
   div.innerHTML = '';
   if (!currentViewRequest || !currentViewType) return;
-  
-  // ВАЖНО: сохраняем id ДО закрытия модалки
   const itemId = currentViewRequest.id;
   const itemType = currentViewType;
-  
   if (itemType === 'project') {
-    const b1 = document.createElement('button'); 
-    b1.className = 'production-btn'; 
-    b1.textContent = '🏭 Производство'; 
-    b1.onclick = () => { 
-      closeViewModal(); 
-      openProduction(itemId);  // используем сохранённый id
-    }; 
-    div.appendChild(b1);
-    
-    const b2 = document.createElement('button'); 
-    b2.className = 'archive-btn'; 
-    b2.textContent = '📦 В архив'; 
-    b2.onclick = async () => { 
-      await archiveProject(itemId); 
-      closeViewModal(); 
-    }; 
-    div.appendChild(b2);
-    
-    const b3 = document.createElement('button'); 
-    b3.className = 'convert-btn'; 
-    b3.textContent = '🔄 В заявку'; 
-    b3.onclick = async () => { 
-      await convertProjectToRequest(itemId); 
-      closeViewModal(); 
-    }; 
-    div.appendChild(b3);
+    const b1 = document.createElement('button'); b1.className = 'production-btn'; b1.textContent = '🏭 Производство'; b1.onclick = () => { closeViewModal(); openProduction(itemId); }; div.appendChild(b1);
+    const b2 = document.createElement('button'); b2.className = 'archive-btn'; b2.textContent = '📦 В архив'; b2.onclick = async () => { await archiveProject(itemId); closeViewModal(); }; div.appendChild(b2);
+    const b3 = document.createElement('button'); b3.className = 'convert-btn'; b3.textContent = '🔄 В заявку'; b3.onclick = async () => { await convertProjectToRequest(itemId); closeViewModal(); }; div.appendChild(b3);
   } else {
-    const b1 = document.createElement('button'); 
-    b1.className = 'convert-btn'; 
-    b1.textContent = ' В проект'; 
-    b1.onclick = async () => { 
-      await convertRequestToProject(itemId); 
-      closeViewModal(); 
-    }; 
-    div.appendChild(b1);
-    
-    const b2 = document.createElement('button'); 
-    b2.className = 'archive-btn'; 
-    b2.textContent = '📦 В архив'; 
-    b2.onclick = async () => { 
-      await archiveRequest(itemId); 
-      closeViewModal(); 
-    }; 
-    div.appendChild(b2);
+    const b1 = document.createElement('button'); b1.className = 'convert-btn'; b1.textContent = ' В проект'; b1.onclick = async () => { await convertRequestToProject(itemId); closeViewModal(); }; div.appendChild(b1);
+    const b2 = document.createElement('button'); b2.className = 'archive-btn'; b2.textContent = '📦 В архив'; b2.onclick = async () => { await archiveRequest(itemId); closeViewModal(); }; div.appendChild(b2);
   }
-  
-  const b4 = document.createElement('button'); 
-  b4.className = 'delete-final-btn'; 
-  b4.textContent = '🗑 Удалить навсегда'; 
-  b4.onclick = async () => { 
-    if (itemType === 'project') await deleteProjectFinal(itemId); 
-    else await deleteRequestFinal(itemId); 
-    closeViewModal(); 
-  }; 
-  div.appendChild(b4);
+  const b4 = document.createElement('button'); b4.className = 'delete-final-btn'; b4.textContent = '🗑 Удалить навсегда'; b4.onclick = async () => { if (itemType === 'project') await deleteProjectFinal(itemId); else await deleteRequestFinal(itemId); closeViewModal(); }; div.appendChild(b4);
 }
 
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -796,16 +834,10 @@ function renderClientRequests(clientName) {
   const rc = document.getElementById('requestsTiles');
   const ap = rows.filter(r => getClientName(r) === clientName && !r.archived);
   const ar = leads.filter(l => getClientName(l) === clientName && !l.archived);
-
   if (!ap.length) { pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; }
-  else {
-    pc.innerHTML = ap.map(r => '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date">📅 ' + escapeHtml(r.date || '—') + '</div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join('');
-  }
-
+  else { pc.innerHTML = ap.map(r => '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"> ' + escapeHtml(r.date || '—') + '</div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join(''); }
   if (!ar.length) { rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; }
-  else {
-    rc.innerHTML = ar.map(l => '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date">📅 ' + escapeHtml(l.date || '—') + '</div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>').join('');
-  }
+  else { rc.innerHTML = ar.map(l => '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date">📅 ' + escapeHtml(l.date || '—') + '</div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>').join(''); }
 }
 
 function switchNavView(view) {
@@ -836,7 +868,7 @@ function render() {
   document.getElementById('archiveCount').textContent = arc;
   list = list.map(c => ({ ...c, requests: c.requests.filter(r => { if (currentView === 'active' && r.archived) return false; if (currentView === 'archive' && !r.archived) return false; if (sf && r.status !== sf) return false; return true; }) })).filter(c => c.requests.length > 0);
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
-  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(r => r.date + ' ' + r.endDate + ' ' + r.title + ' ' + r.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone||'', card.contactPerson||'', card.address||'', card.email||'', card.website||'', rt].join(' ').toLowerCase().includes(q); });
+  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(r => r.date + ' ' + r.endDate + ' ' + r.title + ' ' + r.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone1||'', card.phone2||'', card.phone3||'', card.email||'', card.website||'', rt].join(' ').toLowerCase().includes(q); });
   document.getElementById('info').textContent = (currentView === 'active' ? 'Активных' : 'Архивных') + ' клиентов: ' + visible.length + ' (всего проектов: ' + (currentView === 'active' ? act : arc) + ')';
   visible.forEach(c => {
     const tr = document.createElement('tr');
@@ -845,9 +877,8 @@ function render() {
     td1.appendChild(btn); tr.appendChild(td1);
     const td2 = document.createElement('td');
     const div = document.createElement('div'); div.className = 'requests-cell';
-    if (c.requests.length) {
-      div.innerHTML = c.requests.map(r => '<div class="req-line"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join('');
-    } else { div.innerHTML = '<span class="muted">Нет проектов</span>'; }
+    if (c.requests.length) { div.innerHTML = c.requests.map(r => '<div class="req-line"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join(''); }
+    else { div.innerHTML = '<span class="muted">Нет проектов</span>'; }
     td2.appendChild(div); tr.appendChild(td2);
     const td3 = document.createElement('td');
     if (currentView === 'archive') {
@@ -870,7 +901,7 @@ function renderRequests() {
   document.getElementById('requestActiveCount').textContent = act;
   document.getElementById('requestArchiveCount').textContent = arc;
   list = list.map(c => ({ ...c, requests: c.requests.filter(r => { if (currentRequestView === 'active' && r.archived) return false; if (currentRequestView === 'archive' && !r.archived) return false; return true; }) })).filter(c => c.requests.length > 0);
-  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone||'', card.contactPerson||'', card.address||'', card.email||'', card.website||'', rt].join(' ').toLowerCase().includes(q); });
+  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone1||'', card.email||'', rt].join(' ').toLowerCase().includes(q); });
   document.getElementById('requestInfo').textContent = 'Всего клиентов с заявками: ' + visible.length;
   visible.forEach(c => {
     const tr = document.createElement('tr');
@@ -879,14 +910,13 @@ function renderRequests() {
     td1.appendChild(btn); tr.appendChild(td1);
     const td2 = document.createElement('td');
     const div = document.createElement('div'); div.className = 'requests-cell';
-    if (c.requests.length) {
-      div.innerHTML = c.requests.map(l => '<div class="req-line"><span class="req-type-request">ЗАЯВКА</span><span class="req-date">' + escapeHtml(l.date) + '</span><span class="req-title">' + escapeHtml(l.title) + '</span>' + (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>').join('');
-    } else { div.innerHTML = '<span class="muted">Нет заявок</span>'; }
+    if (c.requests.length) { div.innerHTML = c.requests.map(l => '<div class="req-line"><span class="req-type-request">ЗАЯВКА</span><span class="req-date">' + escapeHtml(l.date) + '</span><span class="req-title">' + escapeHtml(l.title) + '</span>' + (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>').join(''); }
+    else { div.innerHTML = '<span class="muted">Нет заявок</span>'; }
     td2.appendChild(div); tr.appendChild(td2);
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
-      const rb = document.createElement('button'); rb.textContent = ' Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
+      const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
+      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📦 Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && !l.archived); if (arr.length === 1) archiveRequest(arr[0].id); else if (confirm('Отправить все активные заявки в архив?')) arr.forEach(l => archiveRequest(l.id)); }; td3.appendChild(ab);
     }
@@ -905,21 +935,35 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    div.innerHTML = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>' + (c.phone ? '<div class="client-base-info">📞 ' + escapeHtml(c.phone) + '</div>' : '') + (c.contactPerson ? '<div class="client-base-info">👤 ' + escapeHtml(c.contactPerson) + '</div>' : '') + (c.email ? '<div class="client-base-info">✉️ ' + escapeHtml(c.email) + '</div>' : '') + (c.website ? '<div class="client-base-info">🌐 ' + escapeHtml(c.website) + '</div>' : '') + (c.address ? '<div class="client-base-info">📍 ' + escapeHtml(c.address) + '</div>' : '') + '<div class="client-base-stats"><span> Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
+    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
+    if (c.phone1) html += '<div class="client-base-info">📞 ' + escapeHtml(c.phone1) + '</div>';
+    if (c.phone2) html += '<div class="client-base-info">📞 ' + escapeHtml(c.phone2) + '</div>';
+    if (c.phone3) html += '<div class="client-base-info"> ' + escapeHtml(c.phone3) + '</div>';
+    if (c.contactPersons && c.contactPersons.length) {
+      c.contactPersons.forEach(cp => {
+        if (cp.name) html += '<div class="client-base-info">👤 ' + escapeHtml(cp.name) + (cp.position ? ' — ' + escapeHtml(cp.position) : '') + '</div>';
+      });
+    }
+    if (c.email) html += '<div class="client-base-info">✉️ ' + escapeHtml(c.email) + '</div>';
+    if (c.website) html += '<div class="client-base-info">🌐 ' + escapeHtml(c.website) + '</div>';
+    if (c.address) html += '<div class="client-base-info">📍 ' + escapeHtml(c.address) + '</div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span> Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
+    div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
   });
 }
 
 function exportCSV() {
-  const headers = ['Клиент','Телефон','Контактное лицо','Email','Сайт','Адрес','Статус срока','Дата поступления','Дата окончания','Наименование проекта','Статус проекта','Архив'];
+  const headers = ['Клиент','Телефон 1','Телефон 2','Телефон 3','Контактные лица','Email','Сайт','Адрес','Статус срока','Дата поступления','Дата окончания','Наименование проекта','Статус проекта','Архив'];
   let list = getClientList();
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
   const lines = [];
   list.forEach(c => {
     const card = clients[c.name] || {};
-    if (!c.requests.length) lines.push([c.name, card.phone||'', card.contactPerson||'', card.email||'', card.website||'', card.address||'', '','','','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
-    else c.requests.forEach((r, i) => { const b = getDeadlineBadge(r.endDate, r.date); lines.push([i===0?c.name:'', i===0?(card.phone||''):'', i===0?(card.contactPerson||''):'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', b.text, r.date, r.endDate, r.title, r.status, r.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
+    const cpText = (card.contactPersons || []).map(cp => (cp.name || '') + (cp.position ? ' (' + cp.position + ')' : '')).join('; ');
+    if (!c.requests.length) lines.push([c.name, card.phone1||'', card.phone2||'', card.phone3||'', cpText, card.email||'', card.website||'', card.address||'', '','','','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
+    else c.requests.forEach((r, i) => { const b = getDeadlineBadge(r.endDate, r.date); lines.push([i===0?c.name:'', i===0?(card.phone1||''):'', i===0?(card.phone2||''):'', i===0?(card.phone3||''):'', i===0?cpText:'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', b.text, r.date, r.endDate, r.title, r.status, r.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
   });
   const csv = '\uFEFF' + [headers.join(';'), ...lines].join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -927,14 +971,15 @@ function exportCSV() {
 }
 
 function exportRequestsCSV() {
-  const headers = ['Клиент','Телефон','Контактное лицо','Email','Сайт','Адрес','Дата','Наименование заявки','Статус заявки','Архив'];
+  const headers = ['Клиент','Телефон 1','Телефон 2','Телефон 3','Контактные лица','Email','Сайт','Адрес','Дата','Наименование заявки','Статус заявки','Архив'];
   let list = getRequestList();
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
   const lines = [];
   list.forEach(c => {
     const card = clients[c.name] || {};
-    if (!c.requests.length) lines.push([c.name, card.phone||'', card.contactPerson||'', card.email||'', card.website||'', card.address||'', '','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
-    else c.requests.forEach((l, i) => { lines.push([i===0?c.name:'', i===0?(card.phone||''):'', i===0?(card.contactPerson||''):'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', l.date, l.title, l.status, l.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
+    const cpText = (card.contactPersons || []).map(cp => (cp.name || '') + (cp.position ? ' (' + cp.position + ')' : '')).join('; ');
+    if (!c.requests.length) lines.push([c.name, card.phone1||'', card.phone2||'', card.phone3||'', cpText, card.email||'', card.website||'', card.address||'', '','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
+    else c.requests.forEach((l, i) => { lines.push([i===0?c.name:'', i===0?(card.phone1||''):'', i===0?(card.phone2||''):'', i===0?(card.phone3||''):'', i===0?cpText:'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', l.date, l.title, l.status, l.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
   });
   const csv = '\uFEFF' + [headers.join(';'), ...lines].join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -966,12 +1011,13 @@ async function importCSV(event) {
       for (let i = 1; i < parsed.length; i++) {
         const line = parsed[i];
         if (!line || line.length < 7) continue;
-        const cn = String(line[0]||'').trim(), ph = String(line[1]||'').trim(), cp = String(line[2]||'').trim(), em = String(line[3]||'').trim(), ws = String(line[4]||'').trim(), ad = String(line[5]||'').trim(), dt = String(line[7]||'').trim(), ed = String(line[8]||'').trim(), ti = String(line[9]||'').trim(), st = String(line[10]||'').trim(), ar = String(line[11]||'').trim().toLowerCase() === 'да';
+        const cn = String(line[0]||'').trim(), ph1 = String(line[1]||'').trim(), ph2 = String(line[2]||'').trim(), ph3 = String(line[3]||'').trim(), cpText = String(line[4]||'').trim(), em = String(line[5]||'').trim(), ws = String(line[6]||'').trim(), ad = String(line[7]||'').trim(), dt = String(line[9]||'').trim(), ed = String(line[10]||'').trim(), ti = String(line[11]||'').trim(), st = String(line[12]||'').trim(), ar = String(line[13]||'').trim().toLowerCase() === 'да';
+        const contactPersons = cpText ? cpText.split(';').map(s => { const parts = s.trim().split('('); const name = parts[0].trim(); const position = parts[1] ? parts[1].replace(')', '').trim() : ''; return { name, position }; }).filter(cp => cp.name) : [];
         if (cn) {
-          if (!clients[cn]) { clients[cn] = { name: cn, phone: ph, contactPerson: cp, address: ad, email: em, website: ws, createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
+          if (!clients[cn]) { clients[cn] = { name: cn, phone1: ph1, phone2: ph2, phone3: ph3, contactPersons, email: em, website: ws, address: ad, createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
         }
         if (ti || dt || ed) {
-          const np = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: ph, title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
+          const np = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: ph1, title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
           await saveRequestToFirebase(np.id, np, 'requests');
           rows.push(np); pa++;
         }
@@ -1032,7 +1078,7 @@ function renderTaskCard(t) {
     else dt = 'Срок: ' + dl;
   }
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
+  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div> ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
 }
 
 async function addTask() {
@@ -1094,7 +1140,7 @@ function closeAssigneesModal() { document.getElementById('assigneesModal').style
 function renderAssignees() {
   const list = document.getElementById('assigneeList');
   if (!assignees.length) { list.innerHTML = '<div class="muted">Исполнителей пока нет.</div>'; return; }
-  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span>👤 ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
+  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span>👤 ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;"></button></span></div>'; }).join('');
 }
 
 async function addAssignee() {
@@ -1182,6 +1228,9 @@ window.addAssignee = addAssignee;
 window.removeAssignee = removeAssignee;
 window.openStatsModal = openStatsModal;
 window.closeStatsModal = closeStatsModal;
+window.addContactPerson = addContactPerson;
+window.removeContactPerson = removeContactPerson;
+window.updateContactPerson = updateContactPerson;
 </script>
 
 </body>
