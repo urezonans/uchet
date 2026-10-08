@@ -88,6 +88,8 @@
     .nav-tab.active { background: #004a99; color: white; border-color: #004a99; }
     .view-modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
     .view-modal-header h2 { margin: 0 0 4px 0; font-size: 22px; color: #004a99; }
+    .view-title-input { font-size: 22px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+    .view-title-input:focus { border-color: #004a99; outline: none; }
     .view-type-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
     .view-type-badge.project { background: #5bc0de; }
     .view-type-badge.request { background: #9b59b6; }
@@ -172,9 +174,9 @@
   <h2>Учёт клиентов и проектов <span class="cloud-badge">☁ Облако</span> <span id="syncIndicator" class="sync-indicator"><span class="dot"></span><span>Подключение...</span></span></h2>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')"> Проекты</button>
+    <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
     <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
-    <button class="nav-tab" id="navBase" onclick="switchNavView('base')"> База клиентов</button>
+    <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
   </div>
 
   <div id="projectsView">
@@ -188,7 +190,7 @@
         <option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option>
       </select>
       <button onclick="addClient()">+ Добавить проект</button>
-      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
+      <button class="export-btn" onclick="exportCSV()"> Экспорт</button>
       <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
       <span id="info" class="muted"></span>
@@ -198,13 +200,13 @@
 
   <div id="requestsView" style="display:none;">
     <div class="tabs">
-      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')"> Активные <span class="count" id="requestActiveCount">0</span></button>
+      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')">📋 Активные <span class="count" id="requestActiveCount">0</span></button>
       <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
     </div>
     <div class="toolbar">
       <input id="requestSearch" placeholder="Поиск..." style="width: 280px" oninput="renderRequests()">
       <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()"> Экспорт</button>
+      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
       <span id="requestInfo" class="muted"></span>
     </div>
     <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
@@ -256,12 +258,14 @@
   <div id="viewModal" class="modal-overlay" onclick="if (event.target === this) closeViewModal()">
     <div class="modal modal-large">
       <div class="view-modal-header">
-        <div>
-          <h2 id="viewTitle">Название</h2>
-          <span id="viewTypeBadge" class="view-type-badge">ТИП</span>
-          <div style="margin-top:4px;font-size:13px;color:#666;">Клиент: <strong id="viewClientName"></strong></div>
+        <div style="width: 100%;">
+          <input type="text" id="viewTitleInput" class="view-title-input" placeholder="Введите название проекта/заявки" onchange="updateViewField('title', this.value)">
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+            <span id="viewTypeBadge" class="view-type-badge">ТИП</span>
+            <span style="font-size:13px;color:#666;">Клиент: <strong id="viewClientName"></strong></span>
+          </div>
         </div>
-        <button class="close-btn" onclick="closeViewModal()">×</button>
+        <button class="close-btn" onclick="closeViewModal()" style="flex-shrink:0;">×</button>
       </div>
       <div class="view-info-grid">
         <div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate" onchange="updateViewField('date', this.value)"></div></div>
@@ -768,7 +772,7 @@ function openRequestView(id, type) {
   if (!item) { alert('Запись не найдена'); return; }
   currentViewRequest = item;
   currentViewType = type;
-  document.getElementById('viewTitle').textContent = getRequestTitle(item) || '(без названия)';
+  document.getElementById('viewTitleInput').value = getRequestTitle(item) || '';
   document.getElementById('viewClientName').textContent = getClientName(item);
   const badge = document.getElementById('viewTypeBadge');
   badge.textContent = type === 'project' ? 'ПРОЕКТ' : 'ЗАЯВКА';
@@ -802,7 +806,7 @@ function refreshViewModal() {
   const u = list.find(r => r.id === currentViewRequest.id);
   if (!u) return;
   currentViewRequest = u;
-  document.getElementById('viewTitle').textContent = getRequestTitle(u) || '(без названия)';
+  document.getElementById('viewTitleInput').value = getRequestTitle(u) || '';
   document.getElementById('viewDate').value = u.date || '';
   document.getElementById('viewEndDate').value = u.endDate || '';
   document.getElementById('viewStatus').value = u.status || 'Новая';
@@ -861,7 +865,7 @@ function renderComments() {
   const list = document.getElementById('commentsList');
   const comments = (currentViewRequest && currentViewRequest.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span> ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 function renderViewActions() {
@@ -873,7 +877,7 @@ function renderViewActions() {
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
-    prodBtn.textContent = '🏭 Производство';
+    prodBtn.textContent = ' Производство';
     prodBtn.addEventListener('click', function(e) {
       e.preventDefault(); e.stopPropagation();
       const savedId = itemId;
@@ -884,7 +888,7 @@ function renderViewActions() {
     div.appendChild(prodBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = ' В архив';
+    archBtn.textContent = '📦 В архив';
     archBtn.addEventListener('click', async function(e) {
       e.preventDefault(); e.stopPropagation();
       await archiveProject(itemId);
@@ -1009,9 +1013,9 @@ function render() {
     const td3 = document.createElement('td');
     if (currentView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) restoreProject(arr[0].id); else if (confirm('Вернуть все архивные проекты?')) arr.forEach(r => restoreProject(r.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) deleteProjectFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные проекты БЕЗВОЗВРАТНО?')) { arr.forEach(r => { deleteRequestFromFirebase(r.id, 'requests'); delete tasks[r.id]; }); rows = rows.filter(r => !(getClientName(r) === c.name && r.archived)); render(); } }; td3.appendChild(db);
+      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) deleteProjectFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные проекты БЕЗВОЗВРАТНО?')) { arr.forEach(r => { deleteRequestFromFirebase(r.id, 'requests'); delete tasks[r.id]; }); rows = rows.filter(r => !(getClientName(r) === c.name && r.archived)); render(); } }; td3.appendChild(db);
     } else {
-      const ab = document.createElement('button'); ab.textContent = ' Архив'; ab.className = 'archive-btn'; ab.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && !r.archived); if (arr.length === 1) archiveProject(arr[0].id); else if (confirm('Отправить все активные проекты в архив?')) arr.forEach(r => archiveProject(r.id)); }; td3.appendChild(ab);
+      const ab = document.createElement('button'); ab.textContent = ' Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
     tr.appendChild(td3); tbody.appendChild(tr);
   });
@@ -1046,9 +1050,9 @@ function renderRequests() {
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
+      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
-      const ab = document.createElement('button'); ab.textContent = '📦 Архив'; ab.className = 'archive-btn'; ab.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && !l.archived); if (arr.length === 1) archiveRequest(arr[0].id); else if (confirm('Отправить все активные заявки в архив?')) arr.forEach(l => archiveRequest(l.id)); }; td3.appendChild(ab);
+      const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
     tr.appendChild(td3); tbody.appendChild(tr);
   });
@@ -1069,7 +1073,7 @@ function renderBase() {
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
-          let cpLine = ' ' + escapeHtml(cp.name);
+          let cpLine = '👤 ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
@@ -1293,7 +1297,7 @@ function closeAssigneesModal() { document.getElementById('assigneesModal').style
 function renderAssignees() {
   const list = document.getElementById('assigneeList');
   if (!assignees.length) { list.innerHTML = '<div class="muted">Исполнителей пока нет.</div>'; return; }
-  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span>👤 ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
+  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span> ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
 }
 
 async function addAssignee() {
