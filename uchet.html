@@ -181,6 +181,61 @@
     .employee-page-header .emp-info { font-size: 14px; color: #666; }
     .add-employee-form { display: flex; gap: 8px; margin-bottom: 16px; padding: 12px; background: #f0f8ff; border-radius: 6px; flex-wrap: wrap; }
     .add-employee-form input { flex: 1; min-width: 150px; }
+    
+    /* ===== КАЛЕНДАРЬ ===== */
+    .calendar-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; }
+    .calendar-toolbar .cal-nav { display: flex; align-items: center; gap: 8px; }
+    .calendar-toolbar .cal-nav button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .calendar-toolbar .cal-nav button:hover { background: #e0e0e0; }
+    .calendar-toolbar .cal-nav .cal-month-label { font-size: 16px; font-weight: bold; color: #004a99; min-width: 180px; text-align: center; }
+    .calendar-toolbar .cal-view-switch { display: flex; gap: 4px; }
+    .calendar-toolbar .cal-view-switch button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .calendar-toolbar .cal-view-switch button.active { background: #004a99; color: white; border-color: #004a99; }
+    .calendar-toolbar .cal-filter { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .calendar-toolbar .cal-filter select, .calendar-toolbar .cal-filter input { padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+    
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: #ddd; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+    .calendar-header-cell { background: #f0f0f0; padding: 8px 4px; text-align: center; font-weight: bold; font-size: 12px; color: #555; }
+    .calendar-day-cell { background: white; min-height: 90px; padding: 4px; position: relative; cursor: pointer; transition: background 0.15s; }
+    .calendar-day-cell:hover { background: #f4f9ff; }
+    .calendar-day-cell.other-month { background: #fafafa; }
+    .calendar-day-cell.today { background: #fffbe6; }
+    .calendar-day-cell .day-number { font-size: 12px; font-weight: bold; color: #666; margin-bottom: 4px; }
+    .calendar-day-cell.today .day-number { color: #e6a817; font-size: 14px; }
+    .calendar-day-cell .day-events { display: flex; flex-direction: column; gap: 2px; }
+    .cal-event { font-size: 10px; padding: 2px 4px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.15s; }
+    .cal-event:hover { opacity: 0.8; }
+    .cal-event.project-ok { background: #5cb85c; color: white; }
+    .cal-event.project-warn { background: #e6a817; color: #333; }
+    .cal-event.project-danger { background: #d9534f; color: white; }
+    .cal-event.project-neutral { background: #888; color: white; }
+    .cal-event.task { background: #5bc0de; color: white; }
+    .cal-event.task-overdue { background: #d9534f; color: white; }
+    .cal-event-more { font-size: 10px; color: #004a99; font-weight: bold; cursor: pointer; padding: 2px 4px; }
+    
+    .calendar-list-view { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 12px; }
+    .calendar-list-day { margin-bottom: 16px; }
+    .calendar-list-day-header { font-size: 14px; font-weight: bold; color: #004a99; padding-bottom: 6px; border-bottom: 2px solid #eee; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .calendar-list-day-header.today { color: #e6a817; border-bottom-color: #e6a817; }
+    .calendar-list-event { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-left: 4px solid #ddd; margin-bottom: 4px; background: #fafafa; border-radius: 4px; cursor: pointer; transition: background 0.15s; }
+    .calendar-list-event:hover { background: #f4f9ff; }
+    .calendar-list-event.project { border-left-color: #5bc0de; }
+    .calendar-list-event.task { border-left-color: #9b59b6; }
+    .calendar-list-event.overdue { border-left-color: #d9534f; background: #fff5f5; }
+    .calendar-list-event .evt-type { font-size: 11px; padding: 2px 6px; border-radius: 10px; color: white; flex-shrink: 0; }
+    .calendar-list-event .evt-type.project { background: #5bc0de; }
+    .calendar-list-event .evt-type.task { background: #9b59b6; }
+    .calendar-list-event .evt-title { flex: 1; font-size: 13px; font-weight: bold; color: #222; }
+    .calendar-list-event .evt-client { font-size: 12px; color: #666; }
+    .calendar-list-event .evt-deadline { font-size: 11px; color: #888; flex-shrink: 0; }
+    
+    .calendar-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .cal-stat-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 10px; text-align: center; }
+    .cal-stat-card .stat-num { font-size: 24px; font-weight: bold; color: #004a99; }
+    .cal-stat-card .stat-label { font-size: 11px; color: #666; margin-top: 4px; }
+    .cal-stat-card.danger .stat-num { color: #d9534f; }
+    .cal-stat-card.warn .stat-num { color: #e6a817; }
+    .cal-stat-card.ok .stat-num { color: #5cb85c; }
   </style>
 </head>
 <body>
@@ -191,13 +246,14 @@
     <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
     <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
     <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
-    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
+    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')"> Персонал</button>
+    <button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')">📅 Календарь</button>
   </div>
 
   <div id="projectsView">
     <div class="tabs">
-      <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
-      <button class="tab" id="tabArchive" onclick="switchView('archive')"> Архив <span class="count" id="archiveCount">0</span></button>
+      <button class="tab active" id="tabActive" onclick="switchView('active')"> Активные <span class="count" id="activeCount">0</span></button>
+      <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
       <input id="search" placeholder="Поиск..." style="width: 280px">
@@ -205,7 +261,7 @@
         <option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option>
       </select>
       <button onclick="addClient()">+ Добавить проект</button>
-      <button class="export-btn" onclick="exportCSV()"> Экспорт</button>
+      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
       <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
       <span id="info" class="muted"></span>
@@ -248,6 +304,29 @@
       <button onclick="hideAddEmployeeForm()">Отмена</button>
     </div>
     <div id="employeeList" class="employee-list"></div>
+  </div>
+
+  <div id="calendarView" style="display:none;">
+    <div class="calendar-toolbar">
+      <div class="cal-nav">
+        <button onclick="calendarPrev()">◀</button>
+        <span class="cal-month-label" id="calMonthLabel">Октябрь 2026</span>
+        <button onclick="calendarNext()">▶</button>
+        <button onclick="calendarToday()">Сегодня</button>
+      </div>
+      <div class="cal-view-switch">
+        <button id="calViewMonth" class="active" onclick="setCalendarView('month')">📅 Месяц</button>
+        <button id="calViewList" onclick="setCalendarView('list')">📋 Список</button>
+      </div>
+      <div class="cal-filter">
+        <select id="calEmployeeFilter" onchange="renderCalendar()">
+          <option value="">Все сотрудники</option>
+        </select>
+        <input id="calClientFilter" placeholder="🔍 Поиск по клиенту..." style="width: 200px" oninput="renderCalendar()">
+      </div>
+    </div>
+    <div class="calendar-stats" id="calendarStats"></div>
+    <div id="calendarContent"></div>
   </div>
 
   <div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
@@ -339,7 +418,7 @@
   <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
     <div class="modal kanban-modal">
       <div class="modal-header">
-        <h3> Производство: <span id="productionRequestTitle"></span></h3>
+        <h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
         <button class="close-btn" onclick="closeProduction()">×</button>
       </div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
@@ -370,7 +449,7 @@
 
   <div id="employeesModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeesModal()">
     <div class="modal">
-      <div class="modal-header"><h3> Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
+      <div class="modal-header"><h3>👷 Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
       <p class="muted" style="margin-top:0;">Список сотрудников синхронизирован с вкладкой "Персонал".</p>
       <div id="employeesModalList"></div>
       <div class="modal-actions">
@@ -417,7 +496,12 @@ let currentNavView = 'projects';
 let currentViewRequest = null;
 let currentViewType = null;
 let currentEmployeeId = null;
+let calendarDate = new Date();
+let calendarViewMode = 'month';
 let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null;
+
+const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const WEEKDAY_NAMES = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 function setSyncStatus(status, message) {
   const indicator = document.getElementById('syncIndicator');
@@ -429,9 +513,11 @@ function setSyncStatus(status, message) {
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function today() { return new Date().toISOString().slice(0, 10); }
+function todayDate() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function nowDateTime() { const n = new Date(); return { date: n.toLocaleDateString('ru-RU'), time: n.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }; }
 
 function parseDate(s) { if (!s) return null; const p = String(s).split('-'); if (p.length !== 3) return null; return new Date(Number(p[0]), Number(p[1])-1, Number(p[2])); }
+function formatDate(d) { if (!d) return ''; const dd = new Date(d); return dd.toISOString().slice(0,10); }
 function daysBetween(a, b) { const x = parseDate(a), y = parseDate(b); if (!x || !y) return 0; return Math.floor((y.getTime()-x.getTime())/(1000*60*60*24)); }
 function daysFromStart(d) { return daysBetween(d, today()); }
 function daysUntilEnd(d) { if (!d) return null; return daysBetween(today(), d); }
@@ -535,6 +621,7 @@ function setupRealtimeListeners() {
     render(); renderRequests(); renderBase();
     if (currentClientOldName) { renderClientRequests(currentClientOldName); renderNotes(); }
     if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
+    if (currentNavView === 'calendar') renderCalendar();
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -545,6 +632,7 @@ function setupRealtimeListeners() {
     if (currentClientOldName) renderClientRequests(currentClientOldName);
     if (currentViewRequest && currentViewType === 'project') refreshViewModal();
     if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
+    if (currentNavView === 'calendar') renderCalendar();
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -564,6 +652,7 @@ function setupRealtimeListeners() {
     if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
     if (currentProductionRequest) renderProduction();
     if (currentViewRequest && currentViewType) refreshViewModalResponsibleSelect();
+    if (currentNavView === 'calendar') { fillCalendarEmployeeFilter(); renderCalendar(); }
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -573,6 +662,7 @@ function setupRealtimeListeners() {
     if (currentProductionRequest) renderProduction();
     if (currentClientOldName) renderClientRequests(currentClientOldName);
     if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
+    if (currentNavView === 'calendar') renderCalendar();
   });
 }
 
@@ -976,7 +1066,7 @@ function renderComments() {
   const list = document.getElementById('commentsList');
   const comments = (currentViewRequest && currentViewRequest.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span> ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 function renderViewActions() {
@@ -1020,7 +1110,7 @@ function renderViewActions() {
   } else {
     const convBtn = document.createElement('button');
     convBtn.className = 'convert-btn';
-    convBtn.textContent = ' В проект';
+    convBtn.textContent = '🔄 В проект';
     convBtn.addEventListener('click', async function(e) {
       e.preventDefault(); e.stopPropagation();
       await convertRequestToProject(itemId);
@@ -1041,7 +1131,7 @@ function renderViewActions() {
   }
   const delBtn = document.createElement('button');
   delBtn.className = 'delete-final-btn';
-  delBtn.textContent = '🗑 Удалить навсегда';
+  delBtn.textContent = ' Удалить навсегда';
   delBtn.addEventListener('click', async function(e) {
     e.preventDefault(); e.stopPropagation();
     if (itemType === 'project') await deleteProjectFinal(itemId);
@@ -1066,7 +1156,7 @@ function renderClientRequests(clientName) {
     pc.innerHTML = ap.map(r => {
       const badge = getDeadlineBadge(r.endDate, r.date);
       const daysText = badge.days < 0 ? badge.days : badge.days;
-      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span> ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
     }).join('');
   }
   
@@ -1075,7 +1165,7 @@ function renderClientRequests(clientName) {
   } else {
     rc.innerHTML = ar.map(l => {
       const days = daysFromStart(String(l.date||'').trim());
-      return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span> ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
+      return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
     }).join('');
   }
 }
@@ -1086,14 +1176,17 @@ function switchNavView(view) {
   document.getElementById('navRequests').classList.toggle('active', view === 'requests');
   document.getElementById('navBase').classList.toggle('active', view === 'base');
   document.getElementById('navEmployees').classList.toggle('active', view === 'employees');
+  document.getElementById('navCalendar').classList.toggle('active', view === 'calendar');
   document.getElementById('projectsView').style.display = view === 'projects' ? 'block' : 'none';
   document.getElementById('requestsView').style.display = view === 'requests' ? 'block' : 'none';
   document.getElementById('baseView').style.display = view === 'base' ? 'block' : 'none';
   document.getElementById('employeesView').style.display = view === 'employees' ? 'block' : 'none';
+  document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
   if (view === 'projects') render();
   if (view === 'requests') renderRequests();
   if (view === 'base') renderBase();
   if (view === 'employees') renderEmployees();
+  if (view === 'calendar') { fillCalendarEmployeeFilter(); renderCalendar(); }
 }
 
 function switchView(view) { currentView = view; document.getElementById('tabActive').classList.toggle('active', view === 'active'); document.getElementById('tabArchive').classList.toggle('active', view === 'archive'); render(); }
@@ -1164,7 +1257,7 @@ function renderRequests() {
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
+      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
@@ -1183,23 +1276,23 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
+    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')"> Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')"> Удалить клиента</button></div></div>';
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
-          let cpLine = ' ' + escapeHtml(cp.name);
+          let cpLine = '👤 ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
-          if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
+          if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone2) + '</div>';
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
-          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
+          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
           if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
-    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span> Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
@@ -1212,27 +1305,20 @@ function renderEmployees() {
   const q = document.getElementById('employeeSearch').value.trim().toLowerCase();
   const container = document.getElementById('employeeList');
   container.innerHTML = '';
-  
   const visible = employees.filter(e => {
     if (!q) return true;
     return (e.name || '').toLowerCase().includes(q) || (e.position || '').toLowerCase().includes(q);
   });
-  
   document.getElementById('employeeInfo').textContent = 'Всего сотрудников: ' + visible.length;
-  
   if (!visible.length) {
     container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Сотрудники не найдены. Добавьте первого.</div>';
     return;
   }
-  
   visible.forEach(emp => {
     const empProjects = getEmployeeProjects(emp.name).length;
     const row = document.createElement('div');
     row.className = 'employee-row';
-    row.onclick = (e) => {
-      if (e.target.classList.contains('emp-delete')) return;
-      openEmployeePage(emp.id);
-    };
+    row.onclick = (e) => { if (e.target.classList.contains('emp-delete')) return; openEmployeePage(emp.id); };
     row.innerHTML = `
       <div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div>
       <div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div>
@@ -1243,13 +1329,10 @@ function renderEmployees() {
   });
 }
 
-// Получает проекты сотрудника: где он ответственный ИЛИ где есть его задания
 function getEmployeeProjects(empName) {
   return rows.filter(r => {
     if (r.archived) return false;
-    // Если сотрудник указан как ответственный
     if (r.responsible === empName) return true;
-    // Если у проекта есть задания с этим исполнителем
     const projectTasks = tasks[r.id] || [];
     return projectTasks.some(t => t.assignee === empName);
   });
@@ -1306,15 +1389,12 @@ function openEmployeePage(empId) {
 function renderEmployeeProjects(empId) {
   const emp = employees.find(e => e.id === empId);
   if (!emp) return;
-  
   const container = document.getElementById('employeeProjectsTiles');
   const empProjects = getEmployeeProjects(emp.name);
-  
   if (!empProjects.length) {
     container.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">У сотрудника нет активных проектов</div>';
     return;
   }
-  
   container.innerHTML = empProjects.map(r => {
     const badge = getDeadlineBadge(r.endDate, r.date);
     const daysText = badge.days < 0 ? badge.days : badge.days;
@@ -1355,6 +1435,308 @@ function renderEmployeesModal() {
       </div>
     `;
   }).join('');
+}
+
+// ===== ПРОИЗВОДСТВЕННЫЙ КАЛЕНДАРЬ =====
+
+function fillCalendarEmployeeFilter() {
+  const sel = document.getElementById('calEmployeeFilter');
+  const currentValue = sel.value;
+  sel.innerHTML = '<option value="">Все сотрудники</option>';
+  employees.forEach(emp => {
+    const opt = document.createElement('option');
+    opt.value = emp.name;
+    opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
+    sel.appendChild(opt);
+  });
+  sel.value = currentValue;
+}
+
+function calendarPrev() {
+  calendarDate.setMonth(calendarDate.getMonth() - 1);
+  renderCalendar();
+}
+
+function calendarNext() {
+  calendarDate.setMonth(calendarDate.getMonth() + 1);
+  renderCalendar();
+}
+
+function calendarToday() {
+  calendarDate = new Date();
+  renderCalendar();
+}
+
+function setCalendarView(mode) {
+  calendarViewMode = mode;
+  document.getElementById('calViewMonth').classList.toggle('active', mode === 'month');
+  document.getElementById('calViewList').classList.toggle('active', mode === 'list');
+  renderCalendar();
+}
+
+function getCalendarEvents() {
+  const employeeFilter = document.getElementById('calEmployeeFilter').value;
+  const clientFilter = document.getElementById('calClientFilter').value.trim().toLowerCase();
+  const events = [];
+  
+  // Проекты
+  rows.forEach(r => {
+    if (r.archived) return;
+    if (employeeFilter && r.responsible !== employeeFilter) {
+      // Проверяем, есть ли у проекта задания этого сотрудника
+      const projectTasks = tasks[r.id] || [];
+      if (!projectTasks.some(t => t.assignee === employeeFilter)) return;
+    }
+    if (clientFilter && !getClientName(r).toLowerCase().includes(clientFilter) && !getRequestTitle(r).toLowerCase().includes(clientFilter)) return;
+    
+    const startDate = r.date;
+    const endDate = r.endDate || r.date;
+    const badge = getDeadlineBadge(r.endDate, r.date);
+    
+    events.push({
+      type: 'project',
+      id: r.id,
+      title: getRequestTitle(r) || '(без названия)',
+      client: getClientName(r),
+      startDate,
+      endDate,
+      status: r.status,
+      cls: badge.cls,
+      responsible: r.responsible
+    });
+  });
+  
+  // Задания производства
+  Object.keys(tasks).forEach(taskId => {
+    const project = rows.find(r => r.id === taskId);
+    if (!project || project.archived) return;
+    
+    (tasks[taskId] || []).forEach(t => {
+      if (employeeFilter && t.assignee !== employeeFilter) return;
+      if (clientFilter && !getClientName(project).toLowerCase().includes(clientFilter) && !t.title.toLowerCase().includes(clientFilter)) return;
+      
+      if (t.deadline) {
+        const left = daysUntilEnd(t.deadline);
+        let cls = 'task';
+        if (left !== null && left < 0) cls = 'task-overdue';
+        events.push({
+          type: 'task',
+          projectId: taskId,
+          taskId: t.id,
+          title: t.title || '(без названия)',
+          client: getClientName(project),
+          date: t.deadline,
+          assignee: t.assignee,
+          status: t.status,
+          cls
+        });
+      }
+    });
+  });
+  
+  return events;
+}
+
+function renderCalendarStats(events) {
+  const todayStr = today();
+  const overdue = events.filter(e => {
+    if (e.type === 'project') {
+      const left = daysUntilEnd(e.endDate);
+      return left !== null && left < 0;
+    } else {
+      const left = daysUntilEnd(e.date);
+      return left !== null && left < 0;
+    }
+  }).length;
+  const today_events = events.filter(e => {
+    if (e.type === 'project') {
+      return e.startDate === todayStr || e.endDate === todayStr;
+    } else {
+      return e.date === todayStr;
+    }
+  }).length;
+  const week_events = events.filter(e => {
+    const d = e.type === 'project' ? e.startDate : e.date;
+    if (!d) return false;
+    const eventDate = parseDate(d);
+    if (!eventDate) return false;
+    const todayD = todayDate();
+    const weekStart = new Date(todayD);
+    weekStart.setDate(todayD.getDate() - todayD.getDay() + 1);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    return eventDate >= weekStart && eventDate <= weekEnd;
+  }).length;
+  
+  document.getElementById('calendarStats').innerHTML = `
+    <div class="cal-stat-card"><div class="stat-num">${events.length}</div><div class="stat-label">Всего событий</div></div>
+    <div class="cal-stat-card danger"><div class="stat-num">${overdue}</div><div class="stat-label">Просрочено</div></div>
+    <div class="cal-stat-card warn"><div class="stat-num">${today_events}</div><div class="stat-label">Сегодня</div></div>
+    <div class="cal-stat-card ok"><div class="stat-num">${week_events}</div><div class="stat-label">На неделе</div></div>
+  `;
+}
+
+function renderCalendar() {
+  const events = getCalendarEvents();
+  renderCalendarStats(events);
+  
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+  document.getElementById('calMonthLabel').textContent = MONTH_NAMES[month] + ' ' + year;
+  
+  if (calendarViewMode === 'month') {
+    renderCalendarMonth(year, month, events);
+  } else {
+    renderCalendarList(year, month, events);
+  }
+}
+
+function renderCalendarMonth(year, month, events) {
+  const container = document.getElementById('calendarContent');
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  
+  // Понедельник = 0
+  let startWeekday = firstDay.getDay() - 1;
+  if (startWeekday < 0) startWeekday = 6;
+  
+  const todayStr = today();
+  
+  let html = '<div class="calendar-grid">';
+  WEEKDAY_NAMES.forEach(d => { html += '<div class="calendar-header-cell">' + d + '</div>'; });
+  
+  // Пустые ячейки до первого дня
+  const prevMonthLastDay = new Date(year, month, 0).getDate();
+  for (let i = startWeekday - 1; i >= 0; i--) {
+    const day = prevMonthLastDay - i;
+    html += '<div class="calendar-day-cell other-month"><div class="day-number">' + day + '</div></div>';
+  }
+  
+  // Дни месяца
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    const isToday = dateStr === todayStr;
+    
+    const dayEvents = events.filter(e => {
+      if (e.type === 'project') {
+        if (!e.startDate) return false;
+        const start = parseDate(e.startDate);
+        const end = e.endDate ? parseDate(e.endDate) : start;
+        const current = new Date(year, month, day);
+        return current >= start && current <= end;
+      } else {
+        return e.date === dateStr;
+      }
+    });
+    
+    html += '<div class="calendar-day-cell' + (isToday ? ' today' : '') + '">';
+    html += '<div class="day-number">' + day + '</div>';
+    html += '<div class="day-events">';
+    
+    const maxEvents = 3;
+    dayEvents.slice(0, maxEvents).forEach(e => {
+      if (e.type === 'project') {
+        html += '<div class="cal-event project-' + e.cls + '" onclick="openRequestView(\'' + e.id + '\', \'project\')" title="' + escapeHtml(e.title) + ' — ' + escapeHtml(e.client) + '">' + escapeHtml(e.title.substring(0, 20)) + '</div>';
+      } else {
+        html += '<div class="cal-event ' + e.cls + '" onclick="openRequestView(\'' + e.projectId + '\', \'project\')" title="' + escapeHtml(e.title) + ' — ' + escapeHtml(e.client) + '">' + escapeHtml(e.title.substring(0, 20)) + '</div>';
+      }
+    });
+    
+    if (dayEvents.length > maxEvents) {
+      html += '<div class="cal-event-more">+' + (dayEvents.length - maxEvents) + ' ещё</div>';
+    }
+    
+    html += '</div></div>';
+  }
+  
+  // Пустые ячейки после последнего дня
+  const totalCells = startWeekday + daysInMonth;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let i = 1; i <= remaining; i++) {
+    html += '<div class="calendar-day-cell other-month"><div class="day-number">' + i + '</div></div>';
+  }
+  
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderCalendarList(year, month, events) {
+  const container = document.getElementById('calendarContent');
+  const todayStr = today();
+  
+  // Собираем все даты с событиями
+  const dateMap = {};
+  events.forEach(e => {
+    if (e.type === 'project') {
+      if (!e.startDate) return;
+      const start = parseDate(e.startDate);
+      const end = e.endDate ? parseDate(e.endDate) : start;
+      const current = new Date(start);
+      while (current <= end) {
+        const ds = current.toISOString().slice(0, 10);
+        if (current.getFullYear() === year && current.getMonth() === month) {
+          if (!dateMap[ds]) dateMap[ds] = [];
+          dateMap[ds].push(e);
+        }
+        current.setDate(current.getDate() + 1);
+      }
+    } else {
+      if (e.date) {
+        const d = parseDate(e.date);
+        if (d && d.getFullYear() === year && d.getMonth() === month) {
+          if (!dateMap[e.date]) dateMap[e.date] = [];
+          dateMap[e.date].push(e);
+        }
+      }
+    }
+  });
+  
+  const dates = Object.keys(dateMap).sort();
+  
+  if (!dates.length) {
+    container.innerHTML = '<div class="calendar-list-view"><div class="muted" style="padding:20px;text-align:center;">В этом месяце нет событий</div></div>';
+    return;
+  }
+  
+  let html = '<div class="calendar-list-view">';
+  dates.forEach(ds => {
+    const d = parseDate(ds);
+    const isToday = ds === todayStr;
+    const dayName = d.toLocaleDateString('ru-RU', { weekday: 'long' });
+    const dateLabel = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) + ', ' + dayName;
+    
+    html += '<div class="calendar-list-day">';
+    html += '<div class="calendar-list-day-header' + (isToday ? ' today' : '') + '"><span>' + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1) + '</span><span>' + dateMap[ds].length + ' событий</span></div>';
+    
+    dateMap[ds].forEach(e => {
+      if (e.type === 'project') {
+        const left = daysUntilEnd(e.endDate);
+        const isOverdue = left !== null && left < 0;
+        html += '<div class="calendar-list-event project' + (isOverdue ? ' overdue' : '') + '" onclick="openRequestView(\'' + e.id + '\', \'project\')">';
+        html += '<span class="evt-type project">ПРОЕКТ</span>';
+        html += '<span class="evt-title">' + escapeHtml(e.title) + '</span>';
+        html += '<span class="evt-client">' + escapeHtml(e.client) + '</span>';
+        if (e.responsible) html += '<span class="evt-client">👤 ' + escapeHtml(e.responsible) + '</span>';
+        html += '<span class="evt-deadline">' + escapeHtml(e.endDate || 'без срока') + '</span>';
+        html += '</div>';
+      } else {
+        const left = daysUntilEnd(e.date);
+        const isOverdue = left !== null && left < 0;
+        html += '<div class="calendar-list-event task' + (isOverdue ? ' overdue' : '') + '" onclick="openRequestView(\'' + e.projectId + '\', \'project\')">';
+        html += '<span class="evt-type task">ЗАДАНИЕ</span>';
+        html += '<span class="evt-title">' + escapeHtml(e.title) + '</span>';
+        html += '<span class="evt-client">' + escapeHtml(e.client) + '</span>';
+        if (e.assignee) html += '<span class="evt-client">👤 ' + escapeHtml(e.assignee) + '</span>';
+        html += '<span class="evt-deadline">📅 ' + escapeHtml(e.date) + '</span>';
+        html += '</div>';
+      }
+    });
+    
+    html += '</div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
 }
 
 function formatContactPersonsForCSV(cps) {
@@ -1469,7 +1851,6 @@ function getRequestTasks(id) { if (!tasks[id]) tasks[id] = []; return tasks[id];
 function renderProduction() {
   const id = currentProductionRequest;
   if (!id) return;
-  
   const sel = document.getElementById('newTaskAssignee');
   sel.innerHTML = '<option value="">— Выберите сотрудника —</option>';
   if (!employees.length) {
@@ -1482,7 +1863,6 @@ function renderProduction() {
       sel.appendChild(opt);
     });
   }
-  
   const dd = new Date(); dd.setDate(dd.getDate() + 7);
   document.getElementById('newTaskDeadline').value = dd.toISOString().slice(0,10);
   document.getElementById('newTaskTitle').value = '';
@@ -1510,7 +1890,7 @@ function renderTaskCard(t) {
     else dt = 'Срок: ' + dl;
   }
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div> ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
+  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
 }
 
 async function addTask() {
@@ -1522,14 +1902,11 @@ async function addTask() {
   const co = document.getElementById('newTaskComment').value.trim();
   if (!ti) { alert('Введите название'); return; }
   if (!as) { alert('Выберите исполнителя (сотрудника)'); return; }
-  
-  // Автоматически назначаем исполнителя ответственным за проект, если поле пустое
   const project = rows.find(r => r.id === id);
   if (project && !project.responsible) {
     project.responsible = as;
     await saveRequestToFirebase(id, project, 'requests');
   }
-  
   const rt = getRequestTasks(id);
   rt.push({ id: uid(), title: ti, assignee: as, deadline: dl, comment: co, status: 'new', createdAt: today() });
   await saveTasksToFirebase(id, rt);
@@ -1658,6 +2035,10 @@ window.deleteEmployee = deleteEmployee;
 window.quickDeleteEmployee = quickDeleteEmployee;
 window.openEmployeePage = openEmployeePage;
 window.closeEmployeePage = closeEmployeePage;
+window.calendarPrev = calendarPrev;
+window.calendarNext = calendarNext;
+window.calendarToday = calendarToday;
+window.setCalendarView = setCalendarView;
 </script>
 
 </body>
