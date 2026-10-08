@@ -131,6 +131,16 @@
       white-space: nowrap;
     }
 
+    .requests-cell .req-type-lead {
+      flex-shrink: 0;
+      font-size: 11px;
+      color: #fff;
+      background: #9b59b6;
+      padding: 1px 6px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
     .modal-overlay {
       display: none;
       position: fixed;
@@ -199,17 +209,33 @@
       margin-top: 10px;
     }
 
+    .request-item.lead-item {
+      background: #faf0ff;
+      border-color: #d8b4e2;
+    }
+
     .request-item-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
     .request-item-header .req-number {
       font-weight: bold;
       color: #004a99;
       font-size: 14px;
+    }
+
+    .request-item-header .lead-badge {
+      background: #9b59b6;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: bold;
     }
 
     .request-grid {
@@ -413,6 +439,7 @@
       display: flex;
       gap: 8px;
       margin-bottom: 16px;
+      flex-wrap: wrap;
     }
 
     .nav-tab {
@@ -666,18 +693,25 @@
     }
 
     .client-base-item {
-      padding: 10px;
+      padding: 12px;
       border: 1px solid #ddd;
       border-radius: 6px;
       margin-bottom: 8px;
       background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .client-base-item:hover {
+      background: #f4f9ff;
+      border-color: #b7d4ff;
     }
 
     .client-base-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .client-base-name {
@@ -689,12 +723,21 @@
     .client-base-info {
       font-size: 13px;
       color: #666;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
-    .client-base-actions {
+    .client-base-stats {
       display: flex;
-      gap: 6px;
+      gap: 12px;
+      font-size: 12px;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    .client-base-stats span {
+      background: #f0f0f0;
+      padding: 2px 8px;
+      border-radius: 10px;
     }
   </style>
 </head>
@@ -711,7 +754,7 @@
   </h2>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" id="navRequests" onclick="switchNavView('requests')"> Заявки</button>
+    <button class="nav-tab active" id="navRequests" onclick="switchNavView('requests')">📋 Заявки</button>
     <button class="nav-tab" id="navLeads" onclick="switchNavView('leads')">🎯 Лиды</button>
     <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
   </div>
@@ -744,7 +787,7 @@
 
       <button onclick="addClient()">+ Добавить клиента</button>
       <button class="export-btn" onclick="exportCSV()">📤 Экспорт в CSV</button>
-      <button class="import-btn" onclick="document.getElementById('importFile').click()"> Импорт из CSV</button>
+      <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт из CSV</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
 
       <span id="info" class="muted"></span>
@@ -795,8 +838,8 @@
     <div class="toolbar">
       <input
         id="baseSearch"
-        placeholder="Поиск по базе клиентов..."
-        style="width: 320px"
+        placeholder="🔍 Поиск по названию клиента..."
+        style="width: 360px"
         oninput="renderBase()"
       >
 
@@ -833,8 +876,11 @@
       </div>
 
       <div class="modal-requests-header">
-        <label id="requestsLabel">Заявки этого клиента</label>
-        <button onclick="addRequestToClient()">+ Добавить</button>
+        <label>Все записи клиента (заявки и лиды)</label>
+        <div>
+          <button onclick="addRequestToClient('request')" style="margin-right:4px;">+ Заявку</button>
+          <button onclick="addRequestToClient('lead')">+ Лид</button>
+        </div>
       </div>
 
       <div id="clientRequests"></div>
@@ -858,7 +904,7 @@
 
       <div class="kanban-toolbar">
         <button onclick="openAssigneesModal()">👥 Исполнители</button>
-        <button onclick="openStatsModal()"> Статистика</button>
+        <button onclick="openStatsModal()">📊 Статистика</button>
         <span class="muted" id="productionInfo"></span>
       </div>
 
@@ -911,7 +957,7 @@
   <div id="assigneesModal" class="modal-overlay" onclick="if (event.target === this) closeAssigneesModal()">
     <div class="modal">
       <div class="modal-header">
-        <h3>👥 Исполнители</h3>
+        <h3> Исполнители</h3>
         <button class="close-btn" onclick="closeAssigneesModal()">×</button>
       </div>
 
@@ -970,7 +1016,6 @@
     let currentProductionRequest = null;
     let currentView = 'active';
     let currentNavView = 'requests';
-    let currentModalType = 'request';
     let unsubscribeClients = null;
     let unsubscribeRequests = null;
     let unsubscribeLeads = null;
@@ -1108,6 +1153,20 @@
       }
     }
 
+    async function ensureClientExists(name) {
+      if (!clients[name]) {
+        clients[name] = { 
+          name: name, 
+          phone: '', 
+          contactPerson: '', 
+          address: '',
+          createdAt: today() 
+        };
+        await saveClientToFirebase(name, clients[name]);
+      }
+      return clients[name];
+    }
+
     function setupRealtimeListeners() {
       setSyncStatus('syncing', 'Подключение...');
 
@@ -1119,6 +1178,9 @@
         render();
         renderLeads();
         renderBase();
+        if (currentClientOldName) {
+          renderClientRequests(currentClientOldName);
+        }
         setSyncStatus('synced', 'Синхронизировано');
       }, (error) => {
         console.error('Error listening to clients:', error);
@@ -1131,7 +1193,7 @@
           rows.push({ id: docSnap.id, ...docSnap.data() });
         });
         render();
-        if (currentClientOldName && currentModalType === 'request') {
+        if (currentClientOldName) {
           renderClientRequests(currentClientOldName);
         }
         setSyncStatus('synced', 'Синхронизировано');
@@ -1146,7 +1208,7 @@
           leads.push({ id: docSnap.id, ...docSnap.data() });
         });
         renderLeads();
-        if (currentClientOldName && currentModalType === 'lead') {
+        if (currentClientOldName) {
           renderClientRequests(currentClientOldName);
         }
         setSyncStatus('synced', 'Синхронизировано');
@@ -1187,23 +1249,16 @@
       await saveClientToFirebase(name, clientData);
       clients[name] = clientData;
       
-      openClientModalByName(name, 'request');
+      openClientModalByName(name);
     }
 
     async function addLead() {
       const name = generateNewClientName();
-      const clientData = { 
-        name: name, 
-        phone: '', 
-        contactPerson: '', 
-        address: '',
-        createdAt: today() 
-      };
       
-      await saveClientToFirebase(name, clientData);
-      clients[name] = clientData;
+      // Клиент сразу попадает в общую базу
+      await ensureClientExists(name);
       
-      openClientModalByName(name, 'lead');
+      openClientModalByName(name);
     }
 
     function getClientList() {
@@ -1266,9 +1321,9 @@
     }
 
     function getBaseList() {
-      return Object.keys(clients).map(name => {
+      const list = Object.keys(clients).map(name => {
         const card = clients[name];
-        const requestCount = rows.filter(r => getClientName(r) === name).length;
+        const requestCount = rows.filter(r => getClientName(r) === name && !r.archived).length;
         const leadCount = leads.filter(l => getClientName(l) === name).length;
         
         return {
@@ -1280,7 +1335,12 @@
           requestCount,
           leadCount
         };
-      }).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+      });
+      
+      // Алфавитная сортировка по названию клиента
+      list.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+      
+      return list;
     }
 
     async function deleteClient(name) {
@@ -1304,27 +1364,16 @@
       leads = leads.filter(l => getClientName(l) !== name);
     }
 
-    function ensureClient(name) {
-      if (!name) return null;
-      if (!clients[name]) {
-        clients[name] = { name, phone: '', contactPerson: '', address: '', createdAt: today() };
-      }
-      return clients[name];
-    }
-
-    function openClientModalByName(name, type = 'request') {
+    function openClientModalByName(name) {
       if (!name) return;
-      ensureClient(name);
+      ensureClientExists(name);
       currentClientOldName = name;
-      currentModalType = type;
       const stored = clients[name] || {};
       
       document.getElementById('clientName').value = stored.name || name;
       document.getElementById('clientPhone').value = stored.phone || '';
       document.getElementById('clientContactPerson').value = stored.contactPerson || '';
       document.getElementById('clientAddress').value = stored.address || '';
-      
-      document.getElementById('requestsLabel').textContent = type === 'lead' ? 'Лиды этого клиента' : 'Заявки этого клиента';
       
       renderClientRequests(name);
       document.getElementById('clientModal').style.display = 'block';
@@ -1333,7 +1382,6 @@
     function closeClientModal() {
       document.getElementById('clientModal').style.display = 'none';
       currentClientOldName = '';
-      currentModalType = 'request';
     }
 
     async function applyClientForm() {
@@ -1391,11 +1439,11 @@
       closeClientModal();
     }
 
-    async function addRequestToClient() {
+    async function addRequestToClient(type) {
       const clientName = await applyClientForm();
       const phone = document.getElementById('clientPhone').value.trim();
       
-      const isLead = currentModalType === 'lead';
+      const isLead = type === 'lead';
       const collectionName = isLead ? 'leads' : 'requests';
       
       const newItem = {
@@ -1427,7 +1475,7 @@
     }
 
     async function updateRequest(id, field, value) {
-      const isLead = currentModalType === 'lead';
+      const isLead = leads.some(l => l.id === id);
       const collectionName = isLead ? 'leads' : 'requests';
       const list = isLead ? leads : rows;
       
@@ -1494,18 +1542,21 @@
     }
 
     async function removeRequestFromClient(id) {
-      const isLead = currentModalType === 'lead';
+      const isLead = leads.some(l => l.id === id);
       const collectionName = isLead ? 'leads' : 'requests';
       const list = isLead ? leads : rows;
       
-      if (!confirm('Удалить БЕЗВОЗВРАТНО?')) return;
+      const label = isLead ? 'лид' : 'заявку';
+      if (!confirm(`Удалить ${label} БЕЗВОЗВРАТНО?`)) return;
       
       await deleteRequestFromFirebase(id, collectionName);
       const index = list.findIndex(r => r.id === id);
       if (index > -1) {
         list.splice(index, 1);
       }
-      delete tasks[id];
+      if (!isLead) {
+        delete tasks[id];
+      }
       render();
       renderLeads();
       if (currentClientOldName) {
@@ -1521,26 +1572,42 @@
 
     function renderClientRequests(clientName) {
       const box = document.getElementById('clientRequests');
-      const isLead = currentModalType === 'lead';
-      const list = isLead 
-        ? leads.filter(l => getClientName(l) === clientName)
-        : rows.filter(r => getClientName(r) === clientName && !r.archived);
+      
+      // Собираем все записи клиента: заявки (активные) + лиды
+      const activeRequests = rows.filter(r => getClientName(r) === clientName && !r.archived);
+      const clientLeads = leads.filter(l => getClientName(l) === clientName);
+      
+      // Объединяем и сортируем по дате (новые сверху)
+      const allItems = [
+        ...activeRequests.map(r => ({ ...r, itemType: 'request' })),
+        ...clientLeads.map(l => ({ ...l, itemType: 'lead' }))
+      ].sort((a, b) => {
+        const dateA = String(a.date || '');
+        const dateB = String(b.date || '');
+        return dateB.localeCompare(dateA);
+      });
 
-      if (!list.length) {
-        box.innerHTML = `<div class="muted">${isLead ? 'Лидов' : 'Активных заявок'} пока нет. Нажмите «Добавить».</div>`;
+      if (!allItems.length) {
+        box.innerHTML = '<div class="muted">У клиента пока нет ни заявок, ни лидов. Нажмите «+ Заявку» или «+ Лид».</div>';
         return;
       }
 
       const statuses = ['Новая', 'В работе', 'Выполнена', 'Отменена'];
 
-      box.innerHTML = list.map((r, index) => {
+      box.innerHTML = allItems.map((r, index) => {
+        const isLead = r.itemType === 'lead';
         const badge = isLead ? null : getDeadlineBadge(String(r.endDate || '').trim(), String(r.date || '').trim());
-        const activeTasks = (tasks[r.id] || []).filter(t => t.status !== 'done').length;
+        const activeTasks = !isLead ? (tasks[r.id] || []).filter(t => t.status !== 'done').length : 0;
 
         return `
-          <div class="request-item">
+          <div class="request-item ${isLead ? 'lead-item' : ''}">
             <div class="request-item-header">
-              <span class="req-number">${isLead ? 'Лид' : 'Заявка'} №${index + 1}</span>
+              <div>
+                ${isLead 
+                  ? `<span class="req-number">Лид №${index + 1}</span> <span class="lead-badge">ЛИД</span>`
+                  : `<span class="req-number">Заявка №${index + 1}</span>`
+                }
+              </div>
               <div>
                 ${!isLead ? `<button class="production-btn" onclick="openProduction('${r.id}')">🏭 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}</button>` : ''}
                 ${isLead ? `<button class="convert-btn" onclick="convertLeadToRequest('${r.id}')">🔄 В заявку</button>` : ''}
@@ -1548,7 +1615,7 @@
               </div>
             </div>
             <div>
-              <label>Наименование ${isLead ? 'лида' : 'заявки'}</label>
+              <label>${isLead ? 'Наименование лида' : 'Наименование заявки'}</label>
               <input value="${escapeHtml(getRequestTitle(r))}" placeholder="Краткое название"
                 onchange="updateRequest('${r.id}', 'title', this.value)">
             </div>
@@ -1569,7 +1636,7 @@
                   onchange="updateRequest('${r.id}', 'endDate', this.value)">
               </div>
               ` : `
-              <div>
+              <div style="grid-column: 1 / -1;">
                 <label>Дата</label>
                 <input type="date" value="${escapeHtml(r.date)}"
                   onchange="updateRequest('${r.id}', 'date', this.value)">
@@ -1686,7 +1753,7 @@
         clientButton.type = 'button';
         clientButton.className = 'client-link';
         clientButton.textContent = client.name;
-        clientButton.onclick = function () { openClientModalByName(client.name, 'request'); };
+        clientButton.onclick = function () { openClientModalByName(client.name); };
         tdClient.appendChild(clientButton);
         tr.appendChild(tdClient);
 
@@ -1796,7 +1863,7 @@
         clientButton.type = 'button';
         clientButton.className = 'client-link';
         clientButton.textContent = client.name;
-        clientButton.onclick = function () { openClientModalByName(client.name, 'lead'); };
+        clientButton.onclick = function () { openClientModalByName(client.name); };
         tdClient.appendChild(clientButton);
         tr.appendChild(tdClient);
 
@@ -1812,6 +1879,7 @@
 
             return `
               <div class="req-line">
+                <span class="req-type-lead">ЛИД</span>
                 <span class="req-date">${escapeHtml(date)}</span>
                 <span class="req-title">${escapeHtml(title)}</span>
                 ${status ? `<span class="req-status">${escapeHtml(status)}</span>` : ''}
@@ -1843,36 +1911,35 @@
 
       let list = getBaseList();
 
+      // Поиск ТОЛЬКО по названию клиента
       const visible = list.filter(client => {
         if (!q) return true;
-        const searchText = [
-          client.name,
-          client.phone,
-          client.contactPerson,
-          client.address
-        ].join(' ').toLowerCase();
-        return searchText.includes(q);
+        return client.name.toLowerCase().includes(q);
       });
 
       document.getElementById('baseInfo').textContent = `Всего клиентов в базе: ${visible.length}`;
 
+      if (!visible.length) {
+        baseList.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Клиенты не найдены</div>';
+        return;
+      }
+
       visible.forEach(client => {
         const div = document.createElement('div');
         div.className = 'client-base-item';
+        div.onclick = function () { openClientModalByName(client.name); };
 
         div.innerHTML = `
           <div class="client-base-header">
             <span class="client-base-name">${escapeHtml(client.name)}</span>
-            <div class="client-base-actions">
-              <button class="production-btn" onclick="openClientModalByName('${escapeHtml(client.name)}', 'request')">📋 Заявки</button>
-              <button class="convert-btn" onclick="openClientModalByName('${escapeHtml(client.name)}', 'lead')"> Лиды</button>
-            </div>
           </div>
-          ${client.phone ? `<div class="client-base-info"> ${escapeHtml(client.phone)}</div>` : ''}
+          ${client.phone ? `<div class="client-base-info">📞 ${escapeHtml(client.phone)}</div>` : ''}
           ${client.contactPerson ? `<div class="client-base-info">👤 ${escapeHtml(client.contactPerson)}</div>` : ''}
           ${client.address ? `<div class="client-base-info"> ${escapeHtml(client.address)}</div>` : ''}
-          <div class="client-base-info muted">
-            Заявок: ${client.requestCount} | Лидов: ${client.leadCount} | Добавлен: ${client.createdAt}
+          <div class="client-base-stats">
+            <span>📋 Заявок: ${client.requestCount}</span>
+            <span> Лидов: ${client.leadCount}</span>
+            <span>📅 Добавлен: ${client.createdAt}</span>
           </div>
         `;
 
@@ -2252,7 +2319,7 @@
             ${canMoveLeft ? `<button onclick="moveTask('${task.id}', -1)">← Назад</button>` : ''}
             ${canMoveRight ? `<button onclick="moveTask('${task.id}', 1)">Далее →</button>` : ''}
             <button onclick="editTask('${task.id}')">✏️</button>
-            <button onclick="deleteTask('${task.id}')">🗑️</button>
+            <button onclick="deleteTask('${task.id}')">️</button>
           </div>
         </div>
       `;
@@ -2372,7 +2439,7 @@
             <span>👤 ${escapeHtml(name)}</span>
             <span>
               <span class="load">Заданий: ${load.active} (в работе), всего: ${load.total}</span>
-              <button onclick="removeAssignee('${escapeHtml(name)}')" style="margin-left:8px;"></button>
+              <button onclick="removeAssignee('${escapeHtml(name)}')" style="margin-left:8px;">✖</button>
             </span>
           </div>
         `;
