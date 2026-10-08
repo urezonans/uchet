@@ -782,7 +782,7 @@
         📋 Активные <span class="count" id="activeCount">0</span>
       </button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">
-         Архив <span class="count" id="archiveCount">0</span>
+        📦 Архив <span class="count" id="archiveCount">0</span>
       </button>
     </div>
 
@@ -804,7 +804,7 @@
 
       <button onclick="addClient()">+ Добавить проект</button>
       <button class="export-btn" onclick="exportCSV()">📤 Экспорт в CSV</button>
-      <button class="import-btn" onclick="document.getElementById('importFile').click()"> Импорт из CSV</button>
+      <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт из CSV</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
 
       <span id="info" class="muted"></span>
@@ -842,7 +842,7 @@
       >
 
       <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()"> Экспорт заявок</button>
+      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт заявок</button>
 
       <span id="requestInfo" class="muted"></span>
     </div>
@@ -1033,8 +1033,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let rows = []; // проекты
-    let leads = []; // заявки
+    let rows = [];
+    let leads = [];
     let clients = {};
     let assignees = [];
     let tasks = {};
@@ -1260,6 +1260,9 @@
         if (currentProductionRequest) {
           renderProduction();
         }
+        if (currentClientOldName) {
+          renderClientRequests(currentClientOldName);
+        }
       });
     }
 
@@ -1274,17 +1277,21 @@
       };
       
       await saveClientToFirebase(name, clientData);
-      clients[name] = clientData;
+      // Не добавляем вручную в clients — listener сделает это сам
       
-      openClientModalByName(name);
+      // Ждём, пока listener обновит clients, затем открываем карточку
+      setTimeout(() => {
+        openClientModalByName(name);
+      }, 300);
     }
 
     async function addRequest() {
       const name = generateNewClientName();
-      
       await ensureClientExists(name);
       
-      openClientModalByName(name);
+      setTimeout(() => {
+        openClientModalByName(name);
+      }, 300);
     }
 
     function getClientList() {
@@ -1492,16 +1499,8 @@
       };
       
       await saveRequestToFirebase(newItem.id, newItem, collectionName);
-      
-      if (isRequest) {
-        leads.unshift(newItem);
-      } else {
-        rows.unshift(newItem);
-      }
-      
-      render();
-      renderRequests();
-      renderClientRequests(clientName);
+      // Не добавляем вручную в локальный массив — listener сделает это сам
+      // Не вызываем render — listener сделает это сам
     }
 
     async function updateRequest(id, field, value) {
@@ -1514,11 +1513,7 @@
       
       item[field] = value;
       await saveRequestToFirebase(id, item, collectionName);
-      render();
-      renderRequests();
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
+      // Не вызываем render — listener сделает это сам
     }
 
     async function archiveProject(id) {
@@ -1529,10 +1524,7 @@
       
       item.archived = true;
       await saveRequestToFirebase(id, item, 'requests');
-      render();
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
+      // Не вызываем render — listener сделает это сам
     }
 
     async function archiveRequest(id) {
@@ -1543,10 +1535,7 @@
       
       item.archived = true;
       await saveRequestToFirebase(id, item, 'leads');
-      renderRequests();
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
+      // Не вызываем render — listener сделает это сам
     }
 
     async function restoreProject(id) {
@@ -1555,7 +1544,6 @@
       
       item.archived = false;
       await saveRequestToFirebase(id, item, 'requests');
-      render();
     }
 
     async function restoreRequest(id) {
@@ -1564,7 +1552,6 @@
       
       item.archived = false;
       await saveRequestToFirebase(id, item, 'leads');
-      renderRequests();
     }
 
     async function deleteProjectFinal(id) {
@@ -1605,16 +1592,11 @@
       await saveRequestToFirebase(newProject.id, newProject, 'requests');
       await deleteRequestFromFirebase(requestId, 'leads');
       
-      leads = leads.filter(l => l.id !== requestId);
-      rows.unshift(newProject);
+      // Не манипулируем локальными массивами — listeners сделают это сами
       
-      render();
-      renderRequests();
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
-      
-      alert('Заявка успешно конвертирована в проект!');
+      setTimeout(() => {
+        alert('Заявка успешно конвертирована в проект!');
+      }, 500);
     }
 
     function escapeHtml(s) {
@@ -1663,7 +1645,7 @@
                 ${!isRequest ? `<button class="production-btn" onclick="openProduction('${r.id}')">🏭 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}</button>` : ''}
                 ${isRequest ? `<button class="convert-btn" onclick="convertRequestToProject('${r.id}')">🔄 В проект</button>` : ''}
                 ${!isRequest ? `<button class="archive-btn" onclick="archiveProject('${r.id}')"> В архив</button>` : ''}
-                ${isRequest ? `<button class="archive-btn" onclick="archiveRequest('${r.id}')"> В архив</button>` : ''}
+                ${isRequest ? `<button class="archive-btn" onclick="archiveRequest('${r.id}')">📦 В архив</button>` : ''}
               </div>
             </div>
             <div>
@@ -1859,7 +1841,7 @@
           tdActions.appendChild(restoreBtn);
 
           const delBtn = document.createElement('button');
-          delBtn.textContent = ' Удалить';
+          delBtn.textContent = '🗑 Удалить';
           delBtn.className = 'delete-final-btn';
           delBtn.onclick = function () {
             const archivedRequests = rows.filter(r => getClientName(r) === client.name && r.archived);
@@ -1879,7 +1861,7 @@
           tdActions.appendChild(delBtn);
         } else {
           const archiveBtn = document.createElement('button');
-          archiveBtn.textContent = ' Архив';
+          archiveBtn.textContent = '📦 Архив';
           archiveBtn.className = 'archive-btn';
           archiveBtn.onclick = function () {
             const activeRequests = rows.filter(r => getClientName(r) === client.name && !r.archived);
@@ -2019,7 +2001,7 @@
           tdActions.appendChild(delBtn);
         } else {
           const archiveBtn = document.createElement('button');
-          archiveBtn.textContent = ' Архив';
+          archiveBtn.textContent = '📦 Архив';
           archiveBtn.className = 'archive-btn';
           archiveBtn.onclick = function () {
             const activeRequests = leads.filter(l => getClientName(l) === client.name && !l.archived);
@@ -2449,7 +2431,7 @@
         <div class="task-card">
           <div class="task-title">${escapeHtml(task.title || '(без названия)')}</div>
           <div class="task-meta">
-            <div>👤 ${escapeHtml(task.assignee || 'не назначен')}</div>
+            <div> ${escapeHtml(task.assignee || 'не назначен')}</div>
             ${deadlineText ? `<div class="${deadlineClass}">📅 ${escapeHtml(deadlineText)}</div>` : ''}
             ${task.comment ? `<div>💬 ${escapeHtml(task.comment)}</div>` : ''}
           </div>
@@ -2457,7 +2439,7 @@
             ${canMoveLeft ? `<button onclick="moveTask('${task.id}', -1)">← Назад</button>` : ''}
             ${canMoveRight ? `<button onclick="moveTask('${task.id}', 1)">Далее →</button>` : ''}
             <button onclick="editTask('${task.id}')">✏️</button>
-            <button onclick="deleteTask('${task.id}')">️</button>
+            <button onclick="deleteTask('${task.id}')">🗑️</button>
           </div>
         </div>
       `;
