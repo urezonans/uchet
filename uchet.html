@@ -37,9 +37,6 @@
     .close-btn { font-size: 28px; border: none; background: none; cursor: pointer; line-height: 1; }
     .modal label { display: block; margin-top: 10px; font-weight: bold; }
     .modal input, .modal textarea, .modal select { width: 100%; box-sizing: border-box; margin-top: 4px; }
-    .modal-requests-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 18px; padding-top: 12px; border-top: 1px solid #ddd; }
-    .modal-requests-header label { margin: 0; font-size: 16px; }
-    #clientRequests { margin-top: 10px; }
     .requests-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
     @media (max-width: 700px) { .requests-columns { grid-template-columns: 1fr; } }
     .requests-column { background: #fafafa; border: 2px dashed #ddd; border-radius: 8px; padding: 12px; min-height: 200px; }
@@ -53,7 +50,11 @@
     .request-tile.request-tile-type { border-left: 4px solid #9b59b6; background: #faf0ff; }
     .request-tile .tile-title { font-weight: bold; font-size: 14px; color: #004a99; margin-bottom: 6px; word-break: break-word; }
     .request-tile .tile-date { font-size: 12px; color: #666; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-    .request-tile .tile-days { font-size: 22px; font-weight: bold; color: #004a99; line-height: 1; }
+    .request-tile .tile-days { font-size: 22px; font-weight: bold; line-height: 1; }
+    .request-tile .tile-days.ok { color: #5cb85c; }
+    .request-tile .tile-days.warn { color: #e6a817; }
+    .request-tile .tile-days.danger { color: #d9534f; }
+    .request-tile .tile-days.neutral { color: #888; }
     .request-tile .tile-status { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 10px; background: #f0f0f0; color: #555; margin-top: 6px; }
     .request-tile .tile-empty { color: #999; font-size: 13px; font-style: italic; }
     .days-badge { display: inline-block; font-size: 16px; font-weight: bold; color: #fff; background: #888; padding: 4px 12px; border-radius: 12px; margin-top: 4px; }
@@ -220,7 +221,6 @@
     <div class="modal modal-large">
       <div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
       <label for="clientName">Наименование клиента</label><input id="clientName">
-      
       <div class="client-columns">
         <div class="client-column-left">
           <div id="contactPersonsList"></div>
@@ -235,7 +235,6 @@
           <div class="notes-list" id="notesList"></div>
         </div>
       </div>
-      
       <div class="requests-columns">
         <div class="requests-column projects-col">
           <h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
@@ -379,12 +378,12 @@ function daysFromStart(d) { return daysBetween(d, today()); }
 function daysUntilEnd(d) { if (!d) return null; return daysBetween(today(), d); }
 
 function getDeadlineBadge(end, start) {
-  if (!end) { const d = daysFromStart(start); return { cls: '', text: daysLabel(Math.max(0,d)) + ' в работе' }; }
+  if (!end) { const d = daysFromStart(start); return { cls: 'neutral', text: daysLabel(Math.max(0,d)) + ' в работе', days: d }; }
   const left = daysUntilEnd(end);
-  if (left < 0) return { cls: 'danger', text: 'просрочен на ' + daysLabel(Math.abs(left)) };
-  if (left === 0) return { cls: 'warn', text: 'срок сегодня' };
-  if (left <= 30) return { cls: 'warn', text: 'до конца ' + daysLabel(left) };
-  return { cls: 'ok', text: 'до конца ' + daysLabel(left) };
+  if (left < 0) return { cls: 'danger', text: 'просрочен на ' + daysLabel(Math.abs(left)), days: left };
+  if (left === 0) return { cls: 'warn', text: 'срок сегодня', days: 0 };
+  if (left <= 30) return { cls: 'warn', text: 'до конца ' + daysLabel(left), days: left };
+  return { cls: 'ok', text: 'до конца ' + daysLabel(left), days: left };
 }
 
 function daysLabel(d) {
@@ -399,7 +398,6 @@ function daysLabel(d) {
 
 function getClientName(r) { return String(r.client || '').trim(); }
 function getRequestTitle(r) { return String(r.title || r.request || '').trim(); }
-function getRequestComment(r) { return String(r.comment || '').trim(); }
 
 function generateNewClientName() {
   let base = 'Новый клиент', name = base, n = 1;
@@ -559,7 +557,7 @@ function renderContactPersons(contactPersons) {
     <div class="contact-person-block">
       <div class="cp-header">
         <span>Контактное лицо №${idx + 1}</span>
-        <button class="remove-cp-btn" onclick="removeContactPerson(${idx})"> Удалить</button>
+        <button class="remove-cp-btn" onclick="removeContactPerson(${idx})">✖ Удалить</button>
       </div>
       <div class="cp-field"><label>ФИО</label><input type="text" placeholder="Иванов Иван Иванович" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${idx}, 'name', this.value)"></div>
       <div class="cp-field"><label>Должность</label><input type="text" placeholder="Директор, менеджер..." value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${idx}, 'position', this.value)"></div>
@@ -607,7 +605,7 @@ function renderNotes() {
   container.innerHTML = sorted.map(n => `
     <div class="note-item">
       <div class="note-meta">
-        <span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
+        <span> ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
         <button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button>
       </div>
       <div class="note-text">${escapeHtml(n.text)}</div>
@@ -916,7 +914,7 @@ function renderViewActions() {
     div.appendChild(convBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = '📦 В архив';
+    archBtn.textContent = ' В архив';
     archBtn.addEventListener('click', async function(e) {
       e.preventDefault(); e.stopPropagation();
       await archiveRequest(itemId);
@@ -940,23 +938,29 @@ function renderViewActions() {
 
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
+// ===== ПЛИТКИ С ЦВЕТОВОЙ ИНДИКАЦИЕЙ ДНЕЙ =====
 function renderClientRequests(clientName) {
   const pc = document.getElementById('projectsTiles');
   const rc = document.getElementById('requestsTiles');
   const ap = rows.filter(r => getClientName(r) === clientName && !r.archived);
   const ar = leads.filter(l => getClientName(l) === clientName && !l.archived);
-  if (!ap.length) { pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; }
-  else {
+  
+  if (!ap.length) { 
+    pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; 
+  } else {
     pc.innerHTML = ap.map(r => {
-      const days = daysFromStart(String(r.date||'').trim());
-      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days">' + days + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+      const badge = getDeadlineBadge(r.endDate, r.date);
+      const daysText = badge.days < 0 ? badge.days : badge.days;
+      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span> ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
     }).join('');
   }
-  if (!ar.length) { rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; }
-  else {
+  
+  if (!ar.length) { 
+    rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; 
+  } else {
     rc.innerHTML = ar.map(l => {
       const days = daysFromStart(String(l.date||'').trim());
-      return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
+      return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
     }).join('');
   }
 }
@@ -1003,7 +1007,7 @@ function render() {
     td2.appendChild(div); tr.appendChild(td2);
     const td3 = document.createElement('td');
     if (currentView === 'archive') {
-      const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) restoreProject(arr[0].id); else if (confirm('Вернуть все архивные проекты?')) arr.forEach(r => restoreProject(r.id)); }; td3.appendChild(rb);
+      const rb = document.createElement('button'); rb.textContent = ' Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) restoreProject(arr[0].id); else if (confirm('Вернуть все архивные проекты?')) arr.forEach(r => restoreProject(r.id)); }; td3.appendChild(rb);
       const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) deleteProjectFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные проекты БЕЗВОЗВРАТНО?')) { arr.forEach(r => { deleteRequestFromFirebase(r.id, 'requests'); delete tasks[r.id]; }); rows = rows.filter(r => !(getClientName(r) === c.name && r.archived)); render(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📦 Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && !r.archived); if (arr.length === 1) archiveProject(arr[0].id); else if (confirm('Отправить все активные проекты в архив?')) arr.forEach(r => archiveProject(r.id)); }; td3.appendChild(ab);
@@ -1056,7 +1060,7 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')"> Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
+    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
@@ -1072,7 +1076,7 @@ function renderBase() {
         }
       });
     }
-    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span> Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span> Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
@@ -1222,7 +1226,7 @@ function renderTaskCard(t) {
     else dt = 'Срок: ' + dl;
   }
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
+  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
 }
 
 async function addTask() {
@@ -1284,7 +1288,7 @@ function closeAssigneesModal() { document.getElementById('assigneesModal').style
 function renderAssignees() {
   const list = document.getElementById('assigneeList');
   if (!assignees.length) { list.innerHTML = '<div class="muted">Исполнителей пока нет.</div>'; return; }
-  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span> ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
+  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span>👤 ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
 }
 
 async function addAssignee() {
