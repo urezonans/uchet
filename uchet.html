@@ -175,7 +175,7 @@
 
   <div class="nav-tabs">
     <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
-    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
+    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')"> Заявки</button>
     <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
   </div>
 
@@ -185,12 +185,12 @@
       <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
-      <input id="search" placeholder="Поиск..." style="width: 280px" oninput="render()">
-      <select id="statusFilter" onchange="render()">
+      <input id="search" placeholder="Поиск..." style="width: 280px">
+      <select id="statusFilter">
         <option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option>
       </select>
       <button onclick="addClient()">+ Добавить проект</button>
-      <button class="export-btn" onclick="exportCSV()"> Экспорт</button>
+      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
       <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
       <span id="info" class="muted"></span>
@@ -204,9 +204,9 @@
       <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
     </div>
     <div class="toolbar">
-      <input id="requestSearch" placeholder="Поиск..." style="width: 280px" oninput="renderRequests()">
+      <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
       <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
+      <button class="export-btn" onclick="exportRequestsCSV()"> Экспорт</button>
       <span id="requestInfo" class="muted"></span>
     </div>
     <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
@@ -214,7 +214,7 @@
 
   <div id="baseView" style="display:none;">
     <div class="toolbar">
-      <input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px" oninput="renderBase()">
+      <input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px">
       <span id="baseInfo" class="muted"></span>
     </div>
     <div id="baseList"></div>
@@ -230,7 +230,7 @@
           <button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button>
         </div>
         <div class="client-column-right">
-          <h4>📝 Заметки</h4>
+          <h4> Заметки</h4>
           <div class="note-add-form">
             <textarea id="newNoteText" placeholder="Напишите заметку..."></textarea>
             <button class="production-btn" onclick="addNote()">Добавить</button>
@@ -259,7 +259,7 @@
     <div class="modal modal-large">
       <div class="view-modal-header">
         <div style="width: 100%;">
-          <input type="text" id="viewTitleInput" class="view-title-input" placeholder="Введите название проекта/заявки" onchange="updateViewField('title', this.value)">
+          <input type="text" id="viewTitleInput" class="view-title-input" placeholder="Введите название проекта/заявки">
           <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
             <span id="viewTypeBadge" class="view-type-badge">ТИП</span>
             <span style="font-size:13px;color:#666;">Клиент: <strong id="viewClientName"></strong></span>
@@ -268,13 +268,13 @@
         <button class="close-btn" onclick="closeViewModal()" style="flex-shrink:0;">×</button>
       </div>
       <div class="view-info-grid">
-        <div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate" onchange="updateViewField('date', this.value)"></div></div>
-        <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate" onchange="updateViewField('endDate', this.value)"></div></div>
-        <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus" onchange="updateViewField('status', this.value)"><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select></div></div>
-        <div class="view-info-item"><label>Ответственный</label><div class="value"><input id="viewResponsible" placeholder="Кто выполняет" onchange="updateViewField('responsible', this.value)"></div></div>
+        <div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate"></div></div>
+        <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
+        <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select></div></div>
+        <div class="view-info-item"><label>Ответственный</label><div class="value"><input id="viewResponsible" placeholder="Кто выполняет"></div></div>
         <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
       </div>
-      <div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание" onchange="updateViewField('comment', this.value)"></textarea></div>
+      <div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание"></textarea></div>
       <div class="view-comment-section">
         <h4>💬 Комментарии и заметки</h4>
         <div class="comment-add-form"><textarea id="newCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addComment()">Добавить</button></div>
@@ -287,7 +287,7 @@
   <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
     <div class="modal kanban-modal">
       <div class="modal-header">
-        <h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
+        <h3> Производство: <span id="productionRequestTitle"></span></h3>
         <button class="close-btn" onclick="closeProduction()">×</button>
       </div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
@@ -318,7 +318,7 @@
 
   <div id="assigneesModal" class="modal-overlay" onclick="if (event.target === this) closeAssigneesModal()">
     <div class="modal">
-      <div class="modal-header"><h3> Исполнители</h3><button class="close-btn" onclick="closeAssigneesModal()">×</button></div>
+      <div class="modal-header"><h3>👥 Исполнители</h3><button class="close-btn" onclick="closeAssigneesModal()">×</button></div>
       <label>Добавить исполнителя</label>
       <div style="display:flex;gap:8px;"><input id="newAssigneeName" placeholder="ФИО или должность" style="flex:1;"><button onclick="addAssignee()">Добавить</button></div>
       <div id="assigneeList"></div>
@@ -328,7 +328,7 @@
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -442,6 +442,33 @@ async function ensureClientExists(name) {
   }
   return clients[name];
 }
+
+// ===== ПРИВЯЗКА ОБРАБОТЧИКОВ К ПОЛЯМ ПОИСКА И ФИЛЬТРА =====
+// Это гарантирует мгновенную реакцию без необходимости кликать куда-то ещё
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('statusFilter').addEventListener('change', render);
+document.getElementById('requestSearch').addEventListener('input', renderRequests);
+document.getElementById('baseSearch').addEventListener('input', renderBase);
+
+// Обработчики для полей в модалке просмотра — сохраняют при изменении
+document.getElementById('viewTitleInput').addEventListener('change', function() {
+  if (currentViewRequest && currentViewType) updateViewField('title', this.value);
+});
+document.getElementById('viewDate').addEventListener('change', function() {
+  if (currentViewRequest && currentViewType) updateViewField('date', this.value);
+});
+document.getElementById('viewEndDate').addEventListener('change', function() {
+  if (currentViewRequest && currentViewType) updateViewField('endDate', this.value);
+});
+document.getElementById('viewStatus').addEventListener('change', function() {
+  if (currentViewRequest && currentViewType) updateViewField('status', this.value);
+});
+document.getElementById('viewResponsible').addEventListener('change', function() {
+  if (currentViewRequest && currentViewType) updateViewField('responsible', this.value);
+});
+document.getElementById('viewComment').addEventListener('change', function() {
+  if (currentViewRequest && currentViewType) updateViewField('comment', this.value);
+});
 
 function setupRealtimeListeners() {
   setSyncStatus('syncing', 'Подключение...');
@@ -610,7 +637,7 @@ function renderNotes() {
   container.innerHTML = sorted.map(n => `
     <div class="note-item">
       <div class="note-meta">
-        <span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
+        <span> ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
         <button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button>
       </div>
       <div class="note-text">${escapeHtml(n.text)}</div>
@@ -909,7 +936,7 @@ function renderViewActions() {
   } else {
     const convBtn = document.createElement('button');
     convBtn.className = 'convert-btn';
-    convBtn.textContent = '🔄 В проект';
+    convBtn.textContent = ' В проект';
     convBtn.addEventListener('click', async function(e) {
       e.preventDefault(); e.stopPropagation();
       await convertRequestToProject(itemId);
@@ -964,7 +991,7 @@ function renderClientRequests(clientName) {
   } else {
     rc.innerHTML = ar.map(l => {
       const days = daysFromStart(String(l.date||'').trim());
-      return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
+      return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span> ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
     }).join('');
   }
 }
@@ -1015,7 +1042,7 @@ function render() {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) restoreProject(arr[0].id); else if (confirm('Вернуть все архивные проекты?')) arr.forEach(r => restoreProject(r.id)); }; td3.appendChild(rb);
       const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) deleteProjectFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные проекты БЕЗВОЗВРАТНО?')) { arr.forEach(r => { deleteRequestFromFirebase(r.id, 'requests'); delete tasks[r.id]; }); rows = rows.filter(r => !(getClientName(r) === c.name && r.archived)); render(); } }; td3.appendChild(db);
     } else {
-      const ab = document.createElement('button'); ab.textContent = ' Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
+      const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
     tr.appendChild(td3); tbody.appendChild(tr);
   });
@@ -1050,7 +1077,7 @@ function renderRequests() {
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
+      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
@@ -1073,19 +1100,19 @@ function renderBase() {
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
-          let cpLine = '👤 ' + escapeHtml(cp.name);
+          let cpLine = ' ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
-          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
+          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
           if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
-    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span> Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
