@@ -158,6 +158,10 @@
       border-radius: 10px;
     }
 
+    .modal-large {
+      max-width: 1100px;
+    }
+
     .modal-header {
       display: flex;
       justify-content: space-between;
@@ -200,6 +204,129 @@
     .modal-requests-header label { margin: 0; font-size: 16px; }
 
     #clientRequests { margin-top: 10px; }
+
+    /* Две колонки для плиток */
+    .requests-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 700px) {
+      .requests-columns { grid-template-columns: 1fr; }
+    }
+
+    .requests-column {
+      background: #fafafa;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 200px;
+      transition: all 0.2s;
+    }
+
+    .requests-column.drag-over {
+      background: #e8f5e9;
+      border-color: #5cb85c;
+      border-style: solid;
+    }
+
+    .requests-column.projects-col.drag-over {
+      background: #e3f2fd;
+      border-color: #5bc0de;
+    }
+
+    .requests-column.requests-col.drag-over {
+      background: #f3e5f5;
+      border-color: #9b59b6;
+    }
+
+    .requests-column h4 {
+      margin: 0 0 10px 0;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #ddd;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .requests-column.projects-col h4 { border-bottom-color: #5bc0de; }
+    .requests-column.requests-col h4 { border-bottom-color: #9b59b6; }
+
+    .tiles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .request-tile {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px;
+      cursor: grab;
+      transition: all 0.2s;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .request-tile:active {
+      cursor: grabbing;
+    }
+
+    .request-tile:hover {
+      background: #f4f9ff;
+      border-color: #004a99;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .request-tile.dragging {
+      opacity: 0.5;
+      border: 2px dashed #004a99;
+    }
+
+    .request-tile.project-tile {
+      border-left: 4px solid #5bc0de;
+    }
+
+    .request-tile.request-tile-type {
+      border-left: 4px solid #9b59b6;
+      background: #faf0ff;
+    }
+
+    .request-tile .tile-title {
+      font-weight: bold;
+      font-size: 14px;
+      color: #004a99;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .request-tile .tile-date {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .request-tile .tile-status {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: #f0f0f0;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    .request-tile .tile-empty {
+      color: #999;
+      font-size: 13px;
+      font-style: italic;
+    }
 
     .request-item {
       border: 1px solid #ddd;
@@ -422,9 +549,7 @@
       color: #555;
     }
 
-    .tab:hover {
-      background: #e8e8e8;
-    }
+    .tab:hover { background: #e8e8e8; }
 
     .tab.active {
       background: white;
@@ -488,10 +613,7 @@
       margin-bottom: 12px;
     }
 
-    .kanban-header h3 {
-      margin: 0;
-      font-size: 18px;
-    }
+    .kanban-header h3 { margin: 0; font-size: 18px; }
 
     .kanban-subtitle {
       font-size: 13px;
@@ -680,13 +802,8 @@
       color: #5cb85c;
     }
 
-    .sync-indicator.syncing {
-      color: #f0ad4e;
-    }
-
-    .sync-indicator.error {
-      color: #d9534f;
-    }
+    .sync-indicator.syncing { color: #f0ad4e; }
+    .sync-indicator.error { color: #d9534f; }
 
     .dot {
       width: 8px;
@@ -700,9 +817,7 @@
       50% { opacity: 0.5; }
     }
 
-    .syncing .dot {
-      animation: pulse 1s infinite;
-    }
+    .syncing .dot { animation: pulse 1s infinite; }
 
     .client-base-item {
       padding: 12px;
@@ -756,6 +871,143 @@
       display: flex;
       gap: 6px;
     }
+
+    /* Модалка просмотра заявки/проекта */
+    .view-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .view-modal-header h2 {
+      margin: 0 0 4px 0;
+      font-size: 22px;
+      color: #004a99;
+    }
+
+    .view-modal-header .view-type-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .view-type-badge.project { background: #5bc0de; }
+    .view-type-badge.request { background: #9b59b6; }
+
+    .view-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    .view-info-item label {
+      font-size: 11px;
+      color: #777;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      display: block;
+    }
+
+    .view-info-item .value {
+      font-size: 14px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .view-comment-section {
+      margin-top: 20px;
+      border-top: 2px solid #eee;
+      padding-top: 16px;
+    }
+
+    .view-comment-section h4 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+    }
+
+    .comment-add-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .comment-add-form textarea {
+      flex: 1;
+      min-height: 60px;
+      resize: vertical;
+    }
+
+    .comment-add-form button {
+      align-self: flex-end;
+    }
+
+    .comments-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .comment-item {
+      background: #f9f9f9;
+      border: 1px solid #eee;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .comment-item .comment-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: #777;
+    }
+
+    .comment-item .comment-text {
+      font-size: 14px;
+      color: #222;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .comment-item .comment-delete {
+      background: none;
+      border: none;
+      color: #d9534f;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 6px;
+    }
+
+    .comment-item .comment-delete:hover {
+      text-decoration: underline;
+    }
+
+    .view-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #eee;
+    }
+
+    .drag-hint {
+      font-size: 11px;
+      color: #999;
+      font-weight: normal;
+      margin-left: 8px;
+    }
   </style>
 </head>
 
@@ -782,18 +1034,12 @@
         📋 Активные <span class="count" id="activeCount">0</span>
       </button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">
-        📦 Архив <span class="count" id="archiveCount">0</span>
+         Архив <span class="count" id="archiveCount">0</span>
       </button>
     </div>
 
     <div class="toolbar">
-      <input
-        id="search"
-        placeholder="Поиск по клиенту, проектам..."
-        style="width: 280px"
-        oninput="render()"
-      >
-
+      <input id="search" placeholder="Поиск по клиенту, проектам..." style="width: 280px" oninput="render()">
       <select id="statusFilter" onchange="render()">
         <option value="">Все статусы</option>
         <option>Новая</option>
@@ -801,12 +1047,10 @@
         <option>Выполнена</option>
         <option>Отменена</option>
       </select>
-
       <button onclick="addClient()">+ Добавить проект</button>
       <button class="export-btn" onclick="exportCSV()">📤 Экспорт в CSV</button>
-      <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт из CSV</button>
+      <button class="import-btn" onclick="document.getElementById('importFile').click()"> Импорт из CSV</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
-
       <span id="info" class="muted"></span>
     </div>
 
@@ -818,7 +1062,6 @@
           <th style="width: 110px;">Действия</th>
         </tr>
       </thead>
-
       <tbody id="tbody"></tbody>
     </table>
   </div>
@@ -829,21 +1072,14 @@
         📋 Активные <span class="count" id="requestActiveCount">0</span>
       </button>
       <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">
-        📦 Архив <span class="count" id="requestArchiveCount">0</span>
+         Архив <span class="count" id="requestArchiveCount">0</span>
       </button>
     </div>
 
     <div class="toolbar">
-      <input
-        id="requestSearch"
-        placeholder="Поиск по заявкам..."
-        style="width: 280px"
-        oninput="renderRequests()"
-      >
-
+      <input id="requestSearch" placeholder="Поиск по заявкам..." style="width: 280px" oninput="renderRequests()">
       <button onclick="addRequest()">+ Добавить заявку</button>
       <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт заявок</button>
-
       <span id="requestInfo" class="muted"></span>
     </div>
 
@@ -855,28 +1091,21 @@
           <th style="width: 110px;">Действия</th>
         </tr>
       </thead>
-
       <tbody id="requestsTbody"></tbody>
     </table>
   </div>
 
   <div id="baseView" style="display:none;">
     <div class="toolbar">
-      <input
-        id="baseSearch"
-        placeholder=" Поиск по названию клиента..."
-        style="width: 360px"
-        oninput="renderBase()"
-      >
-
+      <input id="baseSearch" placeholder=" Поиск по названию клиента..." style="width: 360px" oninput="renderBase()">
       <span id="baseInfo" class="muted"></span>
     </div>
-
     <div id="baseList"></div>
   </div>
 
+  <!-- Карточка клиента -->
   <div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
-    <div class="modal">
+    <div class="modal modal-large">
       <div class="modal-header">
         <h3>Карточка клиента</h3>
         <button class="close-btn" onclick="closeClientModal()">×</button>
@@ -894,6 +1123,14 @@
           <label for="clientContactPerson">Контактное лицо</label>
           <input id="clientContactPerson" placeholder="Имя, должность">
         </div>
+        <div>
+          <label for="clientEmail">Email</label>
+          <input id="clientEmail" placeholder="email@example.com">
+        </div>
+        <div>
+          <label for="clientWebsite">Сайт</label>
+          <input id="clientWebsite" placeholder="https://example.com">
+        </div>
       </div>
 
       <div style="margin-top:10px;">
@@ -901,15 +1138,23 @@
         <input id="clientAddress" placeholder="Город, улица, дом, офис">
       </div>
 
-      <div class="modal-requests-header">
-        <label>Все записи клиента (проекты и заявки)</label>
-        <div>
-          <button onclick="addRequestToClient('project')" style="margin-right:4px;">+ Проект</button>
-          <button onclick="addRequestToClient('request')">+ Заявку</button>
+      <div class="requests-columns">
+        <div class="requests-column projects-col" id="projectsColumn" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'project')">
+          <h4>
+            📁 Проекты <span class="drag-hint">(перетащите заявку сюда)</span>
+            <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button>
+          </h4>
+          <div class="tiles-grid" id="projectsTiles"></div>
+        </div>
+
+        <div class="requests-column requests-col" id="requestsColumn" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'request')">
+          <h4>
+            📝 Заявки <span class="drag-hint">(перетащите проект сюда)</span>
+            <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button>
+          </h4>
+          <div class="tiles-grid" id="requestsTiles"></div>
         </div>
       </div>
-
-      <div id="clientRequests"></div>
 
       <div class="modal-actions">
         <button onclick="saveClientModal()">Сохранить и закрыть</button>
@@ -918,6 +1163,71 @@
     </div>
   </div>
 
+  <!-- Модалка просмотра заявки/проекта -->
+  <div id="viewModal" class="modal-overlay" onclick="if (event.target === this) closeViewModal()">
+    <div class="modal modal-large">
+      <div class="view-modal-header">
+        <div>
+          <h2 id="viewTitle">Название</h2>
+          <span id="viewTypeBadge" class="view-type-badge">ТИП</span>
+          <div style="margin-top:4px;font-size:13px;color:#666;">
+            Клиент: <strong id="viewClientName"></strong>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeViewModal()">×</button>
+      </div>
+
+      <div class="view-info-grid">
+        <div class="view-info-item">
+          <label>Дата начала</label>
+          <div class="value" id="viewDate">—</div>
+        </div>
+        <div class="view-info-item" id="viewEndDateBlock">
+          <label>Дата окончания</label>
+          <div class="value" id="viewEndDate">—</div>
+        </div>
+        <div class="view-info-item">
+          <label>Статус</label>
+          <div class="value">
+            <select id="viewStatus" onchange="updateViewField('status', this.value)">
+              <option>Новая</option>
+              <option>В работе</option>
+              <option>Выполнена</option>
+              <option>Отменена</option>
+            </select>
+          </div>
+        </div>
+        <div class="view-info-item">
+          <label>Ответственный</label>
+          <div class="value">
+            <input id="viewResponsible" placeholder="Кто выполняет" onchange="updateViewField('responsible', this.value)">
+          </div>
+        </div>
+        <div class="view-info-item" id="viewDaysBlock" style="grid-column: 1 / -1;">
+          <label>Дней в работе</label>
+          <div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;">
+        <label style="font-weight:bold;">Описание / комментарий к заявке</label>
+        <textarea id="viewComment" rows="4" placeholder="Основное описание заявки/проекта" onchange="updateViewField('comment', this.value)"></textarea>
+      </div>
+
+      <div class="view-comment-section">
+        <h4>💬 Комментарии и заметки</h4>
+        <div class="comment-add-form">
+          <textarea id="newCommentText" placeholder="Напишите комментарий..."></textarea>
+          <button class="production-btn" onclick="addComment()">Добавить</button>
+        </div>
+        <div class="comments-list" id="commentsList"></div>
+      </div>
+
+      <div class="view-actions" id="viewActions"></div>
+    </div>
+  </div>
+
+  <!-- Канбан производства -->
   <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
     <div class="modal kanban-modal">
       <div class="kanban-header">
@@ -929,7 +1239,7 @@
       </div>
 
       <div class="kanban-toolbar">
-        <button onclick="openAssigneesModal()">👥 Исполнители</button>
+        <button onclick="openAssigneesModal()"> Исполнители</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
         <span class="muted" id="productionInfo"></span>
       </div>
@@ -960,22 +1270,10 @@
       </div>
 
       <div class="kanban-board">
-        <div class="kanban-column col-new">
-          <h4>Новые <span class="count" id="count-new">0</span></h4>
-          <div id="col-new"></div>
-        </div>
-        <div class="kanban-column col-work">
-          <h4>В работе <span class="count" id="count-work">0</span></h4>
-          <div id="col-work"></div>
-        </div>
-        <div class="kanban-column col-check">
-          <h4>Проверка <span class="count" id="count-check">0</span></h4>
-          <div id="col-check"></div>
-        </div>
-        <div class="kanban-column col-done">
-          <h4>Готово <span class="count" id="count-done">0</span></h4>
-          <div id="col-done"></div>
-        </div>
+        <div class="kanban-column col-new"><h4>Новые <span class="count" id="count-new">0</span></h4><div id="col-new"></div></div>
+        <div class="kanban-column col-work"><h4>В работе <span class="count" id="count-work">0</span></h4><div id="col-work"></div></div>
+        <div class="kanban-column col-check"><h4>Проверка <span class="count" id="count-check">0</span></h4><div id="col-check"></div></div>
+        <div class="kanban-column col-done"><h4>Готово <span class="count" id="count-done">0</span></h4><div id="col-done"></div></div>
       </div>
     </div>
   </div>
@@ -986,15 +1284,12 @@
         <h3>👥 Исполнители</h3>
         <button class="close-btn" onclick="closeAssigneesModal()">×</button>
       </div>
-
       <label>Добавить исполнителя</label>
       <div style="display:flex;gap:8px;">
         <input id="newAssigneeName" placeholder="ФИО или должность" style="flex:1;">
         <button onclick="addAssignee()">Добавить</button>
       </div>
-
       <div class="assignee-list" id="assigneeList"></div>
-
       <div class="modal-actions">
         <button onclick="closeAssigneesModal()">Закрыть</button>
       </div>
@@ -1004,12 +1299,10 @@
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
       <div class="modal-header">
-        <h3>📊 Статистика загрузки</h3>
+        <h3> Статистика загрузки</h3>
         <button class="close-btn" onclick="closeStatsModal()">×</button>
       </div>
-
       <div id="statsContent"></div>
-
       <div class="modal-actions">
         <button onclick="closeStatsModal()">Закрыть</button>
       </div>
@@ -1018,7 +1311,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-    import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, getDocs } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+    import { getFirestore, collection, doc, setDoc, getDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBr7FYUUm3HXb8vWypUiDS_gIYS8wlYpOU",
@@ -1043,11 +1336,9 @@
     let currentView = 'active';
     let currentRequestView = 'active';
     let currentNavView = 'projects';
-    let unsubscribeClients = null;
-    let unsubscribeRequests = null;
-    let unsubscribeLeads = null;
-    let unsubscribeAssignees = null;
-    let unsubscribeTasks = null;
+    let currentViewRequest = null;
+    let currentViewType = null;
+    let draggedItem = null;
 
     function setSyncStatus(status, message) {
       const indicator = document.getElementById('syncIndicator');
@@ -1061,6 +1352,14 @@
 
     function today() {
       return new Date().toISOString().slice(0, 10);
+    }
+
+    function nowDateTime() {
+      const now = new Date();
+      return {
+        date: now.toLocaleDateString('ru-RU'),
+        time: now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+      };
     }
 
     function parseDate(dateStr) {
@@ -1092,12 +1391,9 @@
         const days = daysFromStart(startDateStr);
         return { cls: '', text: daysLabel(Math.max(0, days)) + ' в работе' };
       }
-
       const daysLeft = daysUntilEnd(endDateStr);
-
       if (daysLeft < 0) {
-        const overdue = Math.abs(daysLeft);
-        return { cls: 'danger', text: 'просрочен на ' + daysLabel(overdue) };
+        return { cls: 'danger', text: 'просрочен на ' + daysLabel(Math.abs(daysLeft)) };
       } else if (daysLeft === 0) {
         return { cls: 'warn', text: 'срок сегодня' };
       } else if (daysLeft <= 30) {
@@ -1187,6 +1483,8 @@
           phone: '', 
           contactPerson: '', 
           address: '',
+          email: '',
+          website: '',
           createdAt: today() 
         };
         await saveClientToFirebase(name, clients[name]);
@@ -1205,9 +1503,7 @@
         render();
         renderRequests();
         renderBase();
-        if (currentClientOldName) {
-          renderClientRequests(currentClientOldName);
-        }
+        if (currentClientOldName) renderClientRequests(currentClientOldName);
         setSyncStatus('synced', 'Синхронизировано');
       }, (error) => {
         console.error('Error listening to clients:', error);
@@ -1220,9 +1516,8 @@
           rows.push({ id: docSnap.id, ...docSnap.data() });
         });
         render();
-        if (currentClientOldName) {
-          renderClientRequests(currentClientOldName);
-        }
+        if (currentClientOldName) renderClientRequests(currentClientOldName);
+        if (currentViewRequest && currentViewType === 'project') refreshViewModal();
         setSyncStatus('synced', 'Синхронизировано');
       }, (error) => {
         console.error('Error listening to requests:', error);
@@ -1235,9 +1530,8 @@
           leads.push({ id: docSnap.id, ...docSnap.data() });
         });
         renderRequests();
-        if (currentClientOldName) {
-          renderClientRequests(currentClientOldName);
-        }
+        if (currentClientOldName) renderClientRequests(currentClientOldName);
+        if (currentViewRequest && currentViewType === 'request') refreshViewModal();
         setSyncStatus('synced', 'Синхронизировано');
       }, (error) => {
         console.error('Error listening to leads:', error);
@@ -1257,12 +1551,8 @@
         snapshot.forEach(docSnap => {
           tasks[docSnap.id] = docSnap.data().tasks || [];
         });
-        if (currentProductionRequest) {
-          renderProduction();
-        }
-        if (currentClientOldName) {
-          renderClientRequests(currentClientOldName);
-        }
+        if (currentProductionRequest) renderProduction();
+        if (currentClientOldName) renderClientRequests(currentClientOldName);
       });
     }
 
@@ -1273,25 +1563,18 @@
         phone: '', 
         contactPerson: '', 
         address: '',
+        email: '',
+        website: '',
         createdAt: today() 
       };
-      
       await saveClientToFirebase(name, clientData);
-      // Не добавляем вручную в clients — listener сделает это сам
-      
-      // Ждём, пока listener обновит clients, затем открываем карточку
-      setTimeout(() => {
-        openClientModalByName(name);
-      }, 300);
+      setTimeout(() => openClientModalByName(name), 300);
     }
 
     async function addRequest() {
       const name = generateNewClientName();
       await ensureClientExists(name);
-      
-      setTimeout(() => {
-        openClientModalByName(name);
-      }, 300);
+      setTimeout(() => openClientModalByName(name), 300);
     }
 
     function getClientList() {
@@ -1365,14 +1648,14 @@
           phone: card.phone || '',
           contactPerson: card.contactPerson || '',
           address: card.address || '',
+          email: card.email || '',
+          website: card.website || '',
           createdAt: card.createdAt || '',
           projectCount,
           requestCount
         };
       });
-      
       list.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
-      
       return list;
     }
 
@@ -1411,6 +1694,8 @@
       document.getElementById('clientPhone').value = stored.phone || '';
       document.getElementById('clientContactPerson').value = stored.contactPerson || '';
       document.getElementById('clientAddress').value = stored.address || '';
+      document.getElementById('clientEmail').value = stored.email || '';
+      document.getElementById('clientWebsite').value = stored.website || '';
       
       renderClientRequests(name);
       document.getElementById('clientModal').style.display = 'block';
@@ -1426,6 +1711,8 @@
       const phone = document.getElementById('clientPhone').value.trim();
       const contactPerson = document.getElementById('clientContactPerson').value.trim();
       const address = document.getElementById('clientAddress').value.trim();
+      const email = document.getElementById('clientEmail').value.trim();
+      const website = document.getElementById('clientWebsite').value.trim();
       
       const oldName = currentClientOldName;
       let createdAt = today();
@@ -1463,6 +1750,8 @@
         phone, 
         contactPerson, 
         address,
+        email,
+        website,
         createdAt 
       };
       await saveClientToFirebase(newName, clients[newName]);
@@ -1492,6 +1781,7 @@
         title: '', 
         request: '', 
         comment: '',
+        comments: [],
         priority: 'Средний', 
         status: 'Новая', 
         responsible: '',
@@ -1499,8 +1789,6 @@
       };
       
       await saveRequestToFirebase(newItem.id, newItem, collectionName);
-      // Не добавляем вручную в локальный массив — listener сделает это сам
-      // Не вызываем render — listener сделает это сам
     }
 
     async function updateRequest(id, field, value) {
@@ -1513,35 +1801,27 @@
       
       item[field] = value;
       await saveRequestToFirebase(id, item, collectionName);
-      // Не вызываем render — listener сделает это сам
     }
 
     async function archiveProject(id) {
       if (!confirm('Отправить проект в архив?')) return;
-      
       const item = rows.find(r => r.id === id);
       if (!item) return;
-      
       item.archived = true;
       await saveRequestToFirebase(id, item, 'requests');
-      // Не вызываем render — listener сделает это сам
     }
 
     async function archiveRequest(id) {
       if (!confirm('Отправить заявку в архив?')) return;
-      
       const item = leads.find(l => l.id === id);
       if (!item) return;
-      
       item.archived = true;
       await saveRequestToFirebase(id, item, 'leads');
-      // Не вызываем render — listener сделает это сам
     }
 
     async function restoreProject(id) {
       const item = rows.find(r => r.id === id);
       if (!item) return;
-      
       item.archived = false;
       await saveRequestToFirebase(id, item, 'requests');
     }
@@ -1549,54 +1829,325 @@
     async function restoreRequest(id) {
       const item = leads.find(l => l.id === id);
       if (!item) return;
-      
       item.archived = false;
       await saveRequestToFirebase(id, item, 'leads');
     }
 
     async function deleteProjectFinal(id) {
-      if (!confirm('Удалить проект БЕЗВОЗВРАТНО? Это действие нельзя отменить.')) return;
-      
+      if (!confirm('Удалить проект БЕЗВОЗВРАТНО?')) return;
       await deleteRequestFromFirebase(id, 'requests');
       rows = rows.filter(r => r.id !== id);
       delete tasks[id];
       render();
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
     }
 
     async function deleteRequestFinal(id) {
-      if (!confirm('Удалить заявку БЕЗВОЗВРАТНО? Это действие нельзя отменить.')) return;
-      
+      if (!confirm('Удалить заявку БЕЗВОЗВРАТНО?')) return;
       await deleteRequestFromFirebase(id, 'leads');
       leads = leads.filter(l => l.id !== id);
       renderRequests();
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
     }
 
     async function convertRequestToProject(requestId) {
-      if (!confirm('Конвертировать заявку в проект? Заявка будет перемещена в раздел проектов.')) return;
-      
+      if (!confirm('Конвертировать заявку в проект?')) return;
       const request = leads.find(l => l.id === requestId);
       if (!request) return;
       
-      const newProject = {
-        ...request,
-        id: uid(),
-        archived: false
-      };
-      
+      const newProject = { ...request, id: uid(), archived: false };
       await saveRequestToFirebase(newProject.id, newProject, 'requests');
       await deleteRequestFromFirebase(requestId, 'leads');
       
-      // Не манипулируем локальными массивами — listeners сделают это сами
+      setTimeout(() => alert('Заявка успешно конвертирована в проект!'), 500);
+    }
+
+    async function convertProjectToRequest(projectId) {
+      if (!confirm('Конвертировать проект в заявку?')) return;
+      const project = rows.find(r => r.id === projectId);
+      if (!project) return;
       
-      setTimeout(() => {
-        alert('Заявка успешно конвертирована в проект!');
-      }, 500);
+      const newRequest = { ...project, id: uid(), archived: false };
+      await saveRequestToFirebase(newRequest.id, newRequest, 'leads');
+      await deleteRequestFromFirebase(projectId, 'requests');
+      
+      setTimeout(() => alert('Проект успешно конвертирован в заявку!'), 500);
+    }
+
+    // === DRAG AND DROP ===
+
+    function handleDragStart(event, id, type) {
+      draggedItem = { id, type };
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', JSON.stringify(draggedItem));
+      event.target.classList.add('dragging');
+    }
+
+    function handleDragEnd(event) {
+      event.target.classList.remove('dragging');
+      draggedItem = null;
+      document.querySelectorAll('.requests-column').forEach(col => {
+        col.classList.remove('drag-over');
+      });
+    }
+
+    function handleDragOver(event) {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      event.currentTarget.classList.add('drag-over');
+    }
+
+    function handleDragLeave(event) {
+      event.currentTarget.classList.remove('drag-over');
+    }
+
+    async function handleDrop(event, targetType) {
+      event.preventDefault();
+      event.currentTarget.classList.remove('drag-over');
+      
+      if (!draggedItem) return;
+      
+      const { id, type } = draggedItem;
+      
+      // Если перетащили в ту же колонку — ничего не делаем
+      if (type === targetType) {
+        draggedItem = null;
+        return;
+      }
+      
+      // Конвертация
+      if (type === 'request' && targetType === 'project') {
+        // Заявка → Проект
+        const request = leads.find(l => l.id === id);
+        if (!request) return;
+        
+        const newProject = { ...request, id: uid(), archived: false };
+        await saveRequestToFirebase(newProject.id, newProject, 'requests');
+        await deleteRequestFromFirebase(id, 'leads');
+        
+        setTimeout(() => {
+          alert('✅ Заявка конвертирована в проект!');
+        }, 300);
+      } else if (type === 'project' && targetType === 'request') {
+        // Проект → Заявка
+        const project = rows.find(r => r.id === id);
+        if (!project) return;
+        
+        const newRequest = { ...project, id: uid(), archived: false };
+        await saveRequestToFirebase(newRequest.id, newRequest, 'leads');
+        await deleteRequestFromFirebase(id, 'requests');
+        
+        setTimeout(() => {
+          alert('✅ Проект конвертирован в заявку!');
+        }, 300);
+      }
+      
+      draggedItem = null;
+    }
+
+    // === МОДАЛКА ПРОСМОТРА ЗАЯВКИ/ПРОЕКТА ===
+
+    function openRequestView(id, type) {
+      const list = type === 'project' ? rows : leads;
+      const item = list.find(r => r.id === id);
+      if (!item) return;
+      
+      currentViewRequest = item;
+      currentViewType = type;
+      
+      document.getElementById('viewTitle').textContent = getRequestTitle(item) || '(без названия)';
+      document.getElementById('viewClientName').textContent = getClientName(item);
+      
+      const badge = document.getElementById('viewTypeBadge');
+      badge.textContent = type === 'project' ? 'ПРОЕКТ' : 'ЗАЯВКА';
+      badge.className = 'view-type-badge ' + type;
+      
+      document.getElementById('viewDate').textContent = item.date || '—';
+      document.getElementById('viewEndDate').textContent = item.endDate || 'не указана';
+      document.getElementById('viewEndDateBlock').style.display = type === 'project' ? 'block' : 'none';
+      document.getElementById('viewDaysBlock').style.display = type === 'project' ? 'block' : 'none';
+      
+      if (type === 'project') {
+        const badgeInfo = getDeadlineBadge(item.endDate, item.date);
+        const daysBadge = document.getElementById('viewDaysBadge');
+        daysBadge.textContent = badgeInfo.text;
+        daysBadge.className = 'days-badge ' + badgeInfo.cls;
+      }
+      
+      document.getElementById('viewStatus').value = item.status || 'Новая';
+      document.getElementById('viewResponsible').value = item.responsible || '';
+      document.getElementById('viewComment').value = item.comment || '';
+      
+      renderViewActions();
+      renderComments();
+      
+      document.getElementById('viewModal').style.display = 'block';
+    }
+
+    function closeViewModal() {
+      document.getElementById('viewModal').style.display = 'none';
+      currentViewRequest = null;
+      currentViewType = null;
+    }
+
+    function refreshViewModal() {
+      if (!currentViewRequest || !currentViewType) return;
+      const list = currentViewType === 'project' ? rows : leads;
+      const updated = list.find(r => r.id === currentViewRequest.id);
+      if (updated) {
+        currentViewRequest = updated;
+        document.getElementById('viewTitle').textContent = getRequestTitle(updated) || '(без названия)';
+        document.getElementById('viewDate').textContent = updated.date || '—';
+        document.getElementById('viewEndDate').textContent = updated.endDate || 'не указана';
+        document.getElementById('viewStatus').value = updated.status || 'Новая';
+        document.getElementById('viewResponsible').value = updated.responsible || '';
+        document.getElementById('viewComment').value = updated.comment || '';
+        
+        if (currentViewType === 'project') {
+          const badgeInfo = getDeadlineBadge(updated.endDate, updated.date);
+          const daysBadge = document.getElementById('viewDaysBadge');
+          daysBadge.textContent = badgeInfo.text;
+          daysBadge.className = 'days-badge ' + badgeInfo.cls;
+        }
+        
+        renderComments();
+      }
+    }
+
+    async function updateViewField(field, value) {
+      if (!currentViewRequest || !currentViewType) return;
+      const collectionName = currentViewType === 'project' ? 'requests' : 'leads';
+      const list = currentViewType === 'project' ? rows : leads;
+      const item = list.find(r => r.id === currentViewRequest.id);
+      if (!item) return;
+      
+      item[field] = value;
+      currentViewRequest[field] = value;
+      await saveRequestToFirebase(item.id, item, collectionName);
+    }
+
+    async function addComment() {
+      if (!currentViewRequest || !currentViewType) return;
+      
+      const text = document.getElementById('newCommentText').value.trim();
+      if (!text) {
+        alert('Введите текст комментария');
+        return;
+      }
+      
+      const collectionName = currentViewType === 'project' ? 'requests' : 'leads';
+      const list = currentViewType === 'project' ? rows : leads;
+      const item = list.find(r => r.id === currentViewRequest.id);
+      if (!item) return;
+      
+      if (!Array.isArray(item.comments)) item.comments = [];
+      
+      const dt = nowDateTime();
+      item.comments.push({
+        id: uid(),
+        text: text,
+        date: dt.date,
+        time: dt.time
+      });
+      
+      currentViewRequest = item;
+      await saveRequestToFirebase(item.id, item, collectionName);
+      
+      document.getElementById('newCommentText').value = '';
+      renderComments();
+    }
+
+    async function deleteComment(commentId) {
+      if (!confirm('Удалить комментарий?')) return;
+      if (!currentViewRequest || !currentViewType) return;
+      
+      const collectionName = currentViewType === 'project' ? 'requests' : 'leads';
+      const list = currentViewType === 'project' ? rows : leads;
+      const item = list.find(r => r.id === currentViewRequest.id);
+      if (!item) return;
+      
+      item.comments = (item.comments || []).filter(c => c.id !== commentId);
+      currentViewRequest = item;
+      await saveRequestToFirebase(item.id, item, collectionName);
+      renderComments();
+    }
+
+    function renderComments() {
+      const list = document.getElementById('commentsList');
+      const comments = (currentViewRequest && currentViewRequest.comments) || [];
+      
+      if (!comments.length) {
+        list.innerHTML = '<div class="muted">Комментариев пока нет. Добавьте первый выше.</div>';
+        return;
+      }
+      
+      const sorted = [...comments].reverse();
+      
+      list.innerHTML = sorted.map(c => `
+        <div class="comment-item">
+          <div class="comment-meta">
+            <span>📅 ${escapeHtml(c.date)} в ${escapeHtml(c.time)}</span>
+            <button class="comment-delete" onclick="deleteComment('${c.id}')">Удалить</button>
+          </div>
+          <div class="comment-text">${escapeHtml(c.text)}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderViewActions() {
+      const actionsDiv = document.getElementById('viewActions');
+      actionsDiv.innerHTML = '';
+      
+      if (!currentViewRequest || !currentViewType) return;
+      
+      if (currentViewType === 'project') {
+        const prodBtn = document.createElement('button');
+        prodBtn.className = 'production-btn';
+        prodBtn.textContent = '🏭 Производство';
+        prodBtn.onclick = () => {
+          closeViewModal();
+          openProduction(currentViewRequest.id);
+        };
+        actionsDiv.appendChild(prodBtn);
+        
+        const archiveBtn = document.createElement('button');
+        archiveBtn.className = 'archive-btn';
+        archiveBtn.textContent = '📦 В архив';
+        archiveBtn.onclick = async () => {
+          await archiveProject(currentViewRequest.id);
+          closeViewModal();
+        };
+        actionsDiv.appendChild(archiveBtn);
+      } else {
+        const convertBtn = document.createElement('button');
+        convertBtn.className = 'convert-btn';
+        convertBtn.textContent = '🔄 В проект';
+        convertBtn.onclick = async () => {
+          await convertRequestToProject(currentViewRequest.id);
+          closeViewModal();
+        };
+        actionsDiv.appendChild(convertBtn);
+        
+        const archiveBtn = document.createElement('button');
+        archiveBtn.className = 'archive-btn';
+        archiveBtn.textContent = '📦 В архив';
+        archiveBtn.onclick = async () => {
+          await archiveRequest(currentViewRequest.id);
+          closeViewModal();
+        };
+        actionsDiv.appendChild(archiveBtn);
+      }
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-final-btn';
+      deleteBtn.textContent = '🗑 Удалить навсегда';
+      deleteBtn.onclick = async () => {
+        if (currentViewType === 'project') {
+          await deleteProjectFinal(currentViewRequest.id);
+        } else {
+          await deleteRequestFinal(currentViewRequest.id);
+        }
+        closeViewModal();
+      };
+      actionsDiv.appendChild(deleteBtn);
     }
 
     function escapeHtml(s) {
@@ -1606,98 +2157,50 @@
     }
 
     function renderClientRequests(clientName) {
-      const box = document.getElementById('clientRequests');
+      const projectsContainer = document.getElementById('projectsTiles');
+      const requestsContainer = document.getElementById('requestsTiles');
       
       const activeProjects = rows.filter(r => getClientName(r) === clientName && !r.archived);
       const activeRequests = leads.filter(l => getClientName(l) === clientName && !l.archived);
-      
-      const allItems = [
-        ...activeProjects.map(r => ({ ...r, itemType: 'project' })),
-        ...activeRequests.map(l => ({ ...l, itemType: 'request' }))
-      ].sort((a, b) => {
-        const dateA = String(a.date || '');
-        const dateB = String(b.date || '');
-        return dateB.localeCompare(dateA);
-      });
 
-      if (!allItems.length) {
-        box.innerHTML = '<div class="muted">У клиента пока нет ни проектов, ни заявок. Нажмите «+ Проект» или «+ Заявку».</div>';
-        return;
+      // Проекты
+      if (!activeProjects.length) {
+        projectsContainer.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>';
+      } else {
+        projectsContainer.innerHTML = activeProjects.map(r => {
+          const activeTasks = (tasks[r.id] || []).filter(t => t.status !== 'done').length;
+          return `
+            <div class="request-tile project-tile" 
+                 draggable="true" 
+                 ondragstart="handleDragStart(event, '${r.id}', 'project')" 
+                 ondragend="handleDragEnd(event)"
+                 onclick="openRequestView('${r.id}', 'project')">
+              <div class="tile-title">${escapeHtml(getRequestTitle(r) || '(без названия)')}</div>
+              <div class="tile-date">📅 ${escapeHtml(r.date || '—')}</div>
+              ${r.status ? `<span class="tile-status">${escapeHtml(r.status)}</span>` : ''}
+            </div>
+          `;
+        }).join('');
       }
 
-      const statuses = ['Новая', 'В работе', 'Выполнена', 'Отменена'];
-
-      box.innerHTML = allItems.map((r, index) => {
-        const isRequest = r.itemType === 'request';
-        const badge = isRequest ? null : getDeadlineBadge(String(r.endDate || '').trim(), String(r.date || '').trim());
-        const activeTasks = !isRequest ? (tasks[r.id] || []).filter(t => t.status !== 'done').length : 0;
-
-        return `
-          <div class="request-item ${isRequest ? 'request-item-type' : ''}">
-            <div class="request-item-header">
-              <div>
-                ${isRequest 
-                  ? `<span class="req-number">Заявка №${index + 1}</span> <span class="request-badge">ЗАЯВКА</span>`
-                  : `<span class="req-number">Проект №${index + 1}</span>`
-                }
-              </div>
-              <div>
-                ${!isRequest ? `<button class="production-btn" onclick="openProduction('${r.id}')">🏭 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}</button>` : ''}
-                ${isRequest ? `<button class="convert-btn" onclick="convertRequestToProject('${r.id}')">🔄 В проект</button>` : ''}
-                ${!isRequest ? `<button class="archive-btn" onclick="archiveProject('${r.id}')"> В архив</button>` : ''}
-                ${isRequest ? `<button class="archive-btn" onclick="archiveRequest('${r.id}')">📦 В архив</button>` : ''}
-              </div>
+      // Заявки
+      if (!activeRequests.length) {
+        requestsContainer.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>';
+      } else {
+        requestsContainer.innerHTML = activeRequests.map(l => {
+          return `
+            <div class="request-tile request-tile-type" 
+                 draggable="true" 
+                 ondragstart="handleDragStart(event, '${l.id}', 'request')" 
+                 ondragend="handleDragEnd(event)"
+                 onclick="openRequestView('${l.id}', 'request')">
+              <div class="tile-title">${escapeHtml(getRequestTitle(l) || '(без названия)')}</div>
+              <div class="tile-date">📅 ${escapeHtml(l.date || '—')}</div>
+              ${l.status ? `<span class="tile-status">${escapeHtml(l.status)}</span>` : ''}
             </div>
-            <div>
-              <label>${isRequest ? 'Наименование заявки' : 'Наименование проекта'}</label>
-              <input value="${escapeHtml(getRequestTitle(r))}" placeholder="Краткое название"
-                onchange="updateRequest('${r.id}', 'title', this.value)">
-            </div>
-            <div class="request-grid" style="margin-top:8px;">
-              ${!isRequest ? `
-              <div>
-                <label>Дней в работе</label>
-                <span class="days-badge ${badge.cls}">${escapeHtml(badge.text)}</span>
-              </div>
-              <div>
-                <label>Дата поступления</label>
-                <input type="date" value="${escapeHtml(r.date)}"
-                  onchange="updateRequest('${r.id}', 'date', this.value)">
-              </div>
-              <div>
-                <label>Дата окончания</label>
-                <input type="date" value="${escapeHtml(r.endDate || '')}"
-                  onchange="updateRequest('${r.id}', 'endDate', this.value)">
-              </div>
-              ` : `
-              <div style="grid-column: 1 / -1;">
-                <label>Дата</label>
-                <input type="date" value="${escapeHtml(r.date)}"
-                  onchange="updateRequest('${r.id}', 'date', this.value)">
-              </div>
-              `}
-              <div>
-                <label>Статус</label>
-                <select onchange="updateRequest('${r.id}', 'status', this.value)">
-                  ${statuses.map(s => `<option ${s === r.status ? 'selected' : ''}>${s}</option>`).join('')}
-                </select>
-              </div>
-            </div>
-            <div class="request-grid" style="margin-top:8px;grid-template-columns:1fr;">
-              <div>
-                <label>Ответственный</label>
-                <input value="${escapeHtml(r.responsible)}" placeholder="Кто выполняет"
-                  onchange="updateRequest('${r.id}', 'responsible', this.value)">
-              </div>
-            </div>
-            <div style="margin-top:8px;">
-              <label>Комментарий</label>
-              <textarea rows="3" placeholder="Подробности, детали, пометки"
-                onchange="updateRequest('${r.id}', 'comment', this.value)">${escapeHtml(getRequestComment(r))}</textarea>
-            </div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
     }
 
     function switchNavView(view) {
@@ -1755,7 +2258,6 @@
           if (statusFilter && r.status !== statusFilter) return false;
           return true;
         });
-
         return { ...client, requests: filteredRequests };
       }).filter(client => client.requests.length > 0);
 
@@ -1769,19 +2271,12 @@
         if (!q) return true;
         const reqText = client.requests.map(r => `${r.date} ${r.endDate} ${r.title} ${r.status}`).join(' ').toLowerCase();
         const card = clients[client.name] || {};
-        const searchText = [
-          client.name,
-          card.phone || '',
-          card.contactPerson || '',
-          card.address || '',
-          reqText
-        ].join(' ').toLowerCase();
+        const searchText = [client.name, card.phone || '', card.contactPerson || '', card.address || '', card.email || '', card.website || '', reqText].join(' ').toLowerCase();
         return searchText.includes(q);
       });
 
       const viewName = currentView === 'active' ? 'Активных' : 'Архивных';
-      document.getElementById('info').textContent = 
-        `${viewName} клиентов: ${visible.length} (всего проектов: ${currentView === 'active' ? activeProjectsTotal : archiveProjectsTotal})`;
+      document.getElementById('info').textContent = `${viewName} клиентов: ${visible.length} (всего проектов: ${currentView === 'active' ? activeProjectsTotal : archiveProjectsTotal})`;
 
       visible.forEach(client => {
         const tr = document.createElement('tr');
@@ -1805,7 +2300,6 @@
             const title = r.title || '(без названия)';
             const status = r.status || '';
             const badge = getDeadlineBadge(r.endDate, r.date);
-
             return `
               <div class="req-line">
                 <span class="req-days ${badge.cls}">${escapeHtml(badge.text)}</span>
@@ -1905,7 +2399,6 @@
           if (currentRequestView === 'archive' && !r.archived) return false;
           return true;
         });
-
         return { ...client, requests: filteredRequests };
       }).filter(client => client.requests.length > 0);
 
@@ -1913,13 +2406,7 @@
         if (!q) return true;
         const requestText = client.requests.map(l => `${l.date} ${l.title} ${l.status}`).join(' ').toLowerCase();
         const card = clients[client.name] || {};
-        const searchText = [
-          client.name,
-          card.phone || '',
-          card.contactPerson || '',
-          card.address || '',
-          requestText
-        ].join(' ').toLowerCase();
+        const searchText = [client.name, card.phone || '', card.contactPerson || '', card.address || '', card.email || '', card.website || '', requestText].join(' ').toLowerCase();
         return searchText.includes(q);
       });
 
@@ -1946,7 +2433,6 @@
             const date = l.date || '';
             const title = l.title || '(без названия)';
             const status = l.status || '';
-
             return `
               <div class="req-line">
                 <span class="req-type-request">ЗАЯВКА</span>
@@ -2054,7 +2540,9 @@
           </div>
           ${client.phone ? `<div class="client-base-info">📞 ${escapeHtml(client.phone)}</div>` : ''}
           ${client.contactPerson ? `<div class="client-base-info">👤 ${escapeHtml(client.contactPerson)}</div>` : ''}
-          ${client.address ? `<div class="client-base-info">📍 ${escapeHtml(client.address)}</div>` : ''}
+          ${client.email ? `<div class="client-base-info">✉️ ${escapeHtml(client.email)}</div>` : ''}
+          ${client.website ? `<div class="client-base-info">🌐 ${escapeHtml(client.website)}</div>` : ''}
+          ${client.address ? `<div class="client-base-info"> ${escapeHtml(client.address)}</div>` : ''}
           <div class="client-base-stats">
             <span>📁 Проектов: ${client.projectCount}</span>
             <span>📝 Заявок: ${client.requestCount}</span>
@@ -2067,7 +2555,7 @@
     }
 
     function exportCSV() {
-      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Адрес', 'Статус срока', 'Дата поступления', 'Дата окончания', 'Наименование проекта', 'Статус проекта', 'Архив'];
+      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Email', 'Сайт', 'Адрес', 'Статус срока', 'Дата поступления', 'Дата окончания', 'Наименование проекта', 'Статус проекта', 'Архив'];
       let list = getClientList();
       list.sort((a, b) => {
         const dateA = a.requests.length ? a.requests[0].date : '';
@@ -2078,20 +2566,18 @@
       const lines = [];
       list.forEach(client => {
         const card = clients[client.name] || {};
-        const phone = card.phone || '';
-        const contactPerson = card.contactPerson || '';
-        const address = card.address || '';
-
         if (!client.requests.length) {
-          lines.push([client.name, phone, contactPerson, address, '', '', '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
+          lines.push([client.name, card.phone || '', card.contactPerson || '', card.email || '', card.website || '', card.address || '', '', '', '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
         } else {
           client.requests.forEach((r, idx) => {
             const badge = getDeadlineBadge(r.endDate, r.date);
             lines.push([
               idx === 0 ? client.name : '',
-              idx === 0 ? phone : '',
-              idx === 0 ? contactPerson : '',
-              idx === 0 ? address : '',
+              idx === 0 ? (card.phone || '') : '',
+              idx === 0 ? (card.contactPerson || '') : '',
+              idx === 0 ? (card.email || '') : '',
+              idx === 0 ? (card.website || '') : '',
+              idx === 0 ? (card.address || '') : '',
               badge.text,
               r.date,
               r.endDate,
@@ -2113,7 +2599,7 @@
     }
 
     function exportRequestsCSV() {
-      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Адрес', 'Дата', 'Наименование заявки', 'Статус заявки', 'Архив'];
+      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Email', 'Сайт', 'Адрес', 'Дата', 'Наименование заявки', 'Статус заявки', 'Архив'];
       let list = getRequestList();
       list.sort((a, b) => {
         const dateA = a.requests.length ? a.requests[0].date : '';
@@ -2124,19 +2610,17 @@
       const lines = [];
       list.forEach(client => {
         const card = clients[client.name] || {};
-        const phone = card.phone || '';
-        const contactPerson = card.contactPerson || '';
-        const address = card.address || '';
-
         if (!client.requests.length) {
-          lines.push([client.name, phone, contactPerson, address, '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
+          lines.push([client.name, card.phone || '', card.contactPerson || '', card.email || '', card.website || '', card.address || '', '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
         } else {
           client.requests.forEach((l, idx) => {
             lines.push([
               idx === 0 ? client.name : '',
-              idx === 0 ? phone : '',
-              idx === 0 ? contactPerson : '',
-              idx === 0 ? address : '',
+              idx === 0 ? (card.phone || '') : '',
+              idx === 0 ? (card.contactPerson || '') : '',
+              idx === 0 ? (card.email || '') : '',
+              idx === 0 ? (card.website || '') : '',
+              idx === 0 ? (card.address || '') : '',
               l.date,
               l.title,
               l.status,
@@ -2156,10 +2640,7 @@
     }
 
     function parseCSV(text) {
-      if (text.charCodeAt(0) === 0xFEFF) {
-        text = text.slice(1);
-      }
-
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
       const rows = [];
       let current = [];
       let field = '';
@@ -2168,41 +2649,23 @@
       for (let i = 0; i < text.length; i++) {
         const ch = text[i];
         const next = text[i + 1];
-
         if (inQuotes) {
-          if (ch === '"' && next === '"') {
-            field += '"';
-            i++;
-          } else if (ch === '"') {
-            inQuotes = false;
-          } else {
-            field += ch;
-          }
+          if (ch === '"' && next === '"') { field += '"'; i++; }
+          else if (ch === '"') { inQuotes = false; }
+          else { field += ch; }
         } else {
-          if (ch === '"') {
-            inQuotes = true;
-          } else if (ch === ';') {
-            current.push(field);
-            field = '';
-          } else if (ch === '\r') {
-          } else if (ch === '\n') {
-            current.push(field);
-            field = '';
-            if (current.length > 1 || current[0] !== '') {
-              rows.push(current);
-            }
+          if (ch === '"') { inQuotes = true; }
+          else if (ch === ';') { current.push(field); field = ''; }
+          else if (ch === '\r') { }
+          else if (ch === '\n') {
+            current.push(field); field = '';
+            if (current.length > 1 || current[0] !== '') rows.push(current);
             current = [];
-          } else {
-            field += ch;
-          }
+          } else { field += ch; }
         }
       }
-
       current.push(field);
-      if (current.length > 1 || current[0] !== '') {
-        rows.push(current);
-      }
-
+      if (current.length > 1 || current[0] !== '') rows.push(current);
       return rows;
     }
 
@@ -2215,18 +2678,10 @@
         try {
           const text = e.target.result;
           const parsed = parseCSV(text);
-
-          if (parsed.length < 2) {
-            alert('Файл пустой или не содержит данных.');
-            return;
-          }
+          if (parsed.length < 2) { alert('Файл пустой или не содержит данных.'); return; }
 
           let clientsAdded = 0;
           let projectsAdded = 0;
-          let lastClientName = '';
-          let lastPhone = '';
-          let lastContactPerson = '';
-          let lastAddress = '';
 
           for (let i = 1; i < parsed.length; i++) {
             const line = parsed[i];
@@ -2235,63 +2690,33 @@
             const clientName = String(line[0] || '').trim();
             const phone = String(line[1] || '').trim();
             const contactPerson = String(line[2] || '').trim();
-            const address = String(line[3] || '').trim();
-            const date = String(line[5] || '').trim();
-            const endDate = String(line[6] || '').trim();
-            const title = String(line[7] || '').trim();
-            const status = String(line[8] || '').trim();
-            const archived = String(line[9] || '').trim().toLowerCase() === 'да';
+            const email = String(line[3] || '').trim();
+            const website = String(line[4] || '').trim();
+            const address = String(line[5] || '').trim();
+            const date = String(line[7] || '').trim();
+            const endDate = String(line[8] || '').trim();
+            const title = String(line[9] || '').trim();
+            const status = String(line[10] || '').trim();
+            const archived = String(line[11] || '').trim().toLowerCase() === 'да';
 
             if (clientName) {
-              lastClientName = clientName;
-              lastPhone = phone;
-              lastContactPerson = contactPerson;
-              lastAddress = address;
-
               if (!clients[clientName]) {
                 clients[clientName] = {
-                  name: clientName,
-                  phone: phone,
-                  contactPerson: contactPerson,
-                  address: address,
+                  name: clientName, phone, contactPerson, address, email, website,
                   createdAt: date || today()
                 };
                 await saveClientToFirebase(clientName, clients[clientName]);
                 clientsAdded++;
-              } else {
-                const updated = false;
-                if (phone && !clients[clientName].phone) {
-                  clients[clientName].phone = phone;
-                  updated = true;
-                }
-                if (contactPerson && !clients[clientName].contactPerson) {
-                  clients[clientName].contactPerson = contactPerson;
-                  updated = true;
-                }
-                if (address && !clients[clientName].address) {
-                  clients[clientName].address = address;
-                  updated = true;
-                }
-                if (updated) {
-                  await saveClientToFirebase(clientName, clients[clientName]);
-                }
               }
             }
 
             if (title || date || endDate) {
               const newProject = {
-                id: uid(),
-                date: date || today(),
-                endDate: endDate || '',
-                client: lastClientName,
-                contact: lastPhone,
-                title: title,
-                request: '',
-                comment: '',
-                priority: 'Средний',
-                status: status || 'Новая',
-                responsible: '',
-                archived: archived
+                id: uid(), date: date || today(), endDate: endDate || '',
+                client: clientName, contact: phone,
+                title: title, request: '', comment: '', comments: [],
+                priority: 'Средний', status: status || 'Новая',
+                responsible: '', archived: archived
               };
               await saveRequestToFirebase(newProject.id, newProject, 'requests');
               rows.push(newProject);
@@ -2300,25 +2725,13 @@
           }
 
           render();
-
-          alert(
-            'Импорт завершён!\n\n' +
-            'Добавлено клиентов: ' + clientsAdded + '\n' +
-            'Добавлено проектов: ' + projectsAdded
-          );
-
+          alert('Импорт завершён!\n\nДобавлено клиентов: ' + clientsAdded + '\nДобавлено проектов: ' + projectsAdded);
         } catch (err) {
           alert('Ошибка при импорте: ' + err.message);
         }
-
         event.target.value = '';
       };
-
-      reader.onerror = function() {
-        alert('Не удалось прочитать файл.');
-        event.target.value = '';
-      };
-
+      reader.onerror = function() { alert('Не удалось прочитать файл.'); event.target.value = ''; };
       reader.readAsText(file, 'UTF-8');
     }
 
@@ -2329,17 +2742,11 @@
 
     async function openProduction(requestId) {
       const request = rows.find(r => r.id === requestId);
-      if (!request || request.archived) {
-        alert('Нельзя открыть производство для архивного проекта.');
-        return;
-      }
-
+      if (!request || request.archived) { alert('Нельзя открыть производство для архивного проекта.'); return; }
       currentProductionRequest = requestId;
-      
       document.getElementById('productionRequestTitle').textContent = getRequestTitle(request) || '(без названия)';
       document.getElementById('productionClientName').textContent = getClientName(request);
       document.getElementById('productionModal').style.display = 'block';
-      
       renderProduction();
     }
 
@@ -2368,7 +2775,6 @@
       const defaultDeadline = new Date();
       defaultDeadline.setDate(defaultDeadline.getDate() + 7);
       document.getElementById('newTaskDeadline').value = defaultDeadline.toISOString().slice(0, 10);
-
       document.getElementById('newTaskTitle').value = '';
       document.getElementById('newTaskComment').value = '';
 
@@ -2385,12 +2791,7 @@
         const count = document.getElementById('count-' + status);
         const list = columns[status];
         count.textContent = list.length;
-
-        if (!list.length) {
-          col.innerHTML = '<div class="muted">Пусто</div>';
-          return;
-        }
-
+        if (!list.length) { col.innerHTML = '<div class="muted">Пусто</div>'; return; }
         col.innerHTML = list.map(t => renderTaskCard(t)).join('');
       });
 
@@ -2406,20 +2807,11 @@
       let deadlineClass = '';
 
       if (deadline) {
-        if (daysLeft === null) {
-          deadlineText = '';
-        } else if (daysLeft < 0) {
-          deadlineText = `Просрочено на ${Math.abs(daysLeft)} дн.`;
-          deadlineClass = 'overdue';
-        } else if (daysLeft === 0) {
-          deadlineText = 'Срок сегодня';
-          deadlineClass = 'soon';
-        } else if (daysLeft <= 3) {
-          deadlineText = `Осталось ${daysLeft} дн.`;
-          deadlineClass = 'soon';
-        } else {
-          deadlineText = `Срок: ${deadline}`;
-        }
+        if (daysLeft === null) deadlineText = '';
+        else if (daysLeft < 0) { deadlineText = `Просрочено на ${Math.abs(daysLeft)} дн.`; deadlineClass = 'overdue'; }
+        else if (daysLeft === 0) { deadlineText = 'Срок сегодня'; deadlineClass = 'soon'; }
+        else if (daysLeft <= 3) { deadlineText = `Осталось ${daysLeft} дн.`; deadlineClass = 'soon'; }
+        else deadlineText = `Срок: ${deadline}`;
       }
 
       const statusOrder = ['new', 'work', 'check', 'done'];
@@ -2448,76 +2840,47 @@
     async function addTask() {
       const requestId = currentProductionRequest;
       if (!requestId) return;
-
       const title = document.getElementById('newTaskTitle').value.trim();
       const assignee = document.getElementById('newTaskAssignee').value;
       const deadline = document.getElementById('newTaskDeadline').value;
       const comment = document.getElementById('newTaskComment').value.trim();
-
       if (!title) { alert('Введите название задания'); return; }
       if (!assignee) { alert('Выберите исполнителя.'); return; }
 
       const requestTasks = getRequestTasks(requestId);
-      const newTask = {
-        id: uid(), title, assignee, deadline, comment,
-        status: 'new', createdAt: today()
-      };
-      
-      requestTasks.push(newTask);
+      requestTasks.push({ id: uid(), title, assignee, deadline, comment, status: 'new', createdAt: today() });
       await saveTasksToFirebase(requestId, requestTasks);
       tasks[requestId] = requestTasks;
       renderProduction();
-      
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
     }
 
     async function moveTask(taskId, direction) {
       const requestId = currentProductionRequest;
       if (!requestId) return;
-
       const requestTasks = getRequestTasks(requestId);
       const task = requestTasks.find(t => t.id === taskId);
       if (!task) return;
-
       const statusOrder = ['new', 'work', 'check', 'done'];
       const currentIndex = statusOrder.indexOf(task.status);
       const newIndex = currentIndex + direction;
-
       if (newIndex < 0 || newIndex >= statusOrder.length) return;
-
       task.status = statusOrder[newIndex];
       await saveTasksToFirebase(requestId, requestTasks);
       renderProduction();
-      
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
     }
 
     async function editTask(taskId) {
       const requestId = currentProductionRequest;
       if (!requestId) return;
-
       const requestTasks = getRequestTasks(requestId);
       const task = requestTasks.find(t => t.id === taskId);
       if (!task) return;
-
-      const newTitle = prompt('Название задания:', task.title);
-      if (newTitle === null) return;
-      const newAssignee = prompt('Исполнитель:', task.assignee);
-      if (newAssignee === null) return;
-      const newDeadline = prompt('Срок (ГГГГ-ММ-ДД):', task.deadline || '');
-      if (newDeadline === null) return;
-      const newComment = prompt('Комментарий:', task.comment || '');
-      if (newComment === null) return;
-
-      task.title = newTitle.trim();
-      task.assignee = newAssignee.trim();
-      task.deadline = newDeadline.trim();
-      task.comment = newComment.trim();
-
+      const newTitle = prompt('Название задания:', task.title); if (newTitle === null) return;
+      const newAssignee = prompt('Исполнитель:', task.assignee); if (newAssignee === null) return;
+      const newDeadline = prompt('Срок (ГГГГ-ММ-ДД):', task.deadline || ''); if (newDeadline === null) return;
+      const newComment = prompt('Комментарий:', task.comment || ''); if (newComment === null) return;
+      task.title = newTitle.trim(); task.assignee = newAssignee.trim();
+      task.deadline = newDeadline.trim(); task.comment = newComment.trim();
       await saveTasksToFirebase(requestId, requestTasks);
       renderProduction();
     }
@@ -2526,14 +2889,9 @@
       if (!confirm('Удалить задание?')) return;
       const requestId = currentProductionRequest;
       if (!requestId) return;
-      
       tasks[requestId] = getRequestTasks(requestId).filter(t => t.id !== taskId);
       await saveTasksToFirebase(requestId, tasks[requestId]);
       renderProduction();
-      
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
     }
 
     async function openAssigneesModal() {
@@ -2547,11 +2905,7 @@
 
     function renderAssignees() {
       const list = document.getElementById('assigneeList');
-      if (!assignees.length) {
-        list.innerHTML = '<div class="muted">Исполнителей пока нет. Добавьте первого.</div>';
-        return;
-      }
-
+      if (!assignees.length) { list.innerHTML = '<div class="muted">Исполнителей пока нет. Добавьте первого.</div>'; return; }
       list.innerHTML = assignees.map(name => {
         const load = getAssigneeLoad(name);
         return `
@@ -2571,7 +2925,6 @@
       const name = input.value.trim();
       if (!name) return;
       if (assignees.includes(name)) { alert('Такой исполнитель уже есть'); return; }
-      
       assignees.push(name);
       await saveAssigneesToFirebase();
       input.value = '';
@@ -2586,43 +2939,27 @@
     }
 
     function getAssigneeLoad(assigneeName) {
-      let total = 0;
-      let active = 0;
+      let total = 0; let active = 0;
       Object.values(tasks).forEach(requestTasks => {
         requestTasks.forEach(t => {
-          if (t.assignee === assigneeName) {
-            total++;
-            if (t.status !== 'done') active++;
-          }
+          if (t.assignee === assigneeName) { total++; if (t.status !== 'done') active++; }
         });
       });
       return { total, active };
     }
 
-    function openStatsModal() {
-      document.getElementById('statsModal').style.display = 'block';
-      renderStats();
-    }
-
-    function closeStatsModal() {
-      document.getElementById('statsModal').style.display = 'none';
-    }
+    function openStatsModal() { document.getElementById('statsModal').style.display = 'block'; renderStats(); }
+    function closeStatsModal() { document.getElementById('statsModal').style.display = 'none'; }
 
     function renderStats() {
       const requestId = currentProductionRequest;
       if (!requestId) return;
-
       const requestTasks = getRequestTasks(requestId);
       const content = document.getElementById('statsContent');
-
       const total = requestTasks.length;
       const done = requestTasks.filter(t => t.status === 'done').length;
       const active = requestTasks.filter(t => t.status !== 'done').length;
-      const overdue = requestTasks.filter(t => {
-        if (t.status === 'done') return false;
-        const days = daysUntilEnd(t.deadline);
-        return days !== null && days < 0;
-      }).length;
+      const overdue = requestTasks.filter(t => { if (t.status === 'done') return false; const days = daysUntilEnd(t.deadline); return days !== null && days < 0; }).length;
 
       let html = `
         <div class="stats-grid">
@@ -2634,33 +2971,27 @@
         <h4 style="margin-top:20px;">Загрузка исполнителей</h4>
       `;
 
-      if (!assignees.length) {
-        html += '<div class="muted">Исполнителей пока нет.</div>';
-      } else {
+      if (!assignees.length) { html += '<div class="muted">Исполнителей пока нет.</div>'; }
+      else {
         const maxLoad = Math.max(1, ...assignees.map(a => getAssigneeLoad(a).active));
         html += '<div style="margin-top:10px;">';
         assignees.forEach(name => {
           const load = getAssigneeLoad(name);
           const percent = Math.round((load.active / maxLoad) * 100);
           let barClass = '';
-          if (percent > 80) barClass = 'danger';
-          else if (percent > 50) barClass = 'warn';
-
+          if (percent > 80) barClass = 'danger'; else if (percent > 50) barClass = 'warn';
           html += `
             <div style="margin-bottom:12px;">
               <div style="display:flex;justify-content:space-between;">
                 <span><strong>${escapeHtml(name)}</strong></span>
                 <span class="muted">${load.active} активных / ${load.total} всего</span>
               </div>
-              <div class="load-bar">
-                <div class="load-bar-fill ${barClass}" style="width:${percent}%;"></div>
-              </div>
+              <div class="load-bar"><div class="load-bar-fill ${barClass}" style="width:${percent}%;"></div></div>
             </div>
           `;
         });
         html += '</div>';
       }
-
       content.innerHTML = html;
     }
 
@@ -2681,6 +3012,17 @@
     window.deleteProjectFinal = deleteProjectFinal;
     window.deleteRequestFinal = deleteRequestFinal;
     window.convertRequestToProject = convertRequestToProject;
+    window.convertProjectToRequest = convertProjectToRequest;
+    window.handleDragStart = handleDragStart;
+    window.handleDragEnd = handleDragEnd;
+    window.handleDragOver = handleDragOver;
+    window.handleDragLeave = handleDragLeave;
+    window.handleDrop = handleDrop;
+    window.openRequestView = openRequestView;
+    window.closeViewModal = closeViewModal;
+    window.updateViewField = updateViewField;
+    window.addComment = addComment;
+    window.deleteComment = deleteComment;
     window.exportCSV = exportCSV;
     window.exportRequestsCSV = exportRequestsCSV;
     window.importCSV = importCSV;
