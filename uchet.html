@@ -331,6 +331,18 @@
 
     .restore-btn:hover { background: #27ae60; }
 
+    .delete-final-btn {
+      background: #d9534f;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .delete-final-btn:hover { background: #c9302c; }
+
     .convert-btn {
       background: #9b59b6;
       color: white;
@@ -739,6 +751,11 @@
       padding: 2px 8px;
       border-radius: 10px;
     }
+
+    .client-base-actions {
+      display: flex;
+      gap: 6px;
+    }
   </style>
 </head>
 
@@ -765,7 +782,7 @@
         📋 Активные <span class="count" id="activeCount">0</span>
       </button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">
-        📦 Архив <span class="count" id="archiveCount">0</span>
+         Архив <span class="count" id="archiveCount">0</span>
       </button>
     </div>
 
@@ -787,7 +804,7 @@
 
       <button onclick="addClient()">+ Добавить проект</button>
       <button class="export-btn" onclick="exportCSV()">📤 Экспорт в CSV</button>
-      <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт из CSV</button>
+      <button class="import-btn" onclick="document.getElementById('importFile').click()"> Импорт из CSV</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
 
       <span id="info" class="muted"></span>
@@ -807,6 +824,15 @@
   </div>
 
   <div id="requestsView" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')">
+        📋 Активные <span class="count" id="requestActiveCount">0</span>
+      </button>
+      <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">
+        📦 Архив <span class="count" id="requestArchiveCount">0</span>
+      </button>
+    </div>
+
     <div class="toolbar">
       <input
         id="requestSearch"
@@ -816,7 +842,7 @@
       >
 
       <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт заявок</button>
+      <button class="export-btn" onclick="exportRequestsCSV()"> Экспорт заявок</button>
 
       <span id="requestInfo" class="muted"></span>
     </div>
@@ -838,7 +864,7 @@
     <div class="toolbar">
       <input
         id="baseSearch"
-        placeholder="🔍 Поиск по названию клиента..."
+        placeholder=" Поиск по названию клиента..."
         style="width: 360px"
         oninput="renderBase()"
       >
@@ -904,7 +930,7 @@
 
       <div class="kanban-toolbar">
         <button onclick="openAssigneesModal()">👥 Исполнители</button>
-        <button onclick="openStatsModal()"> Статистика</button>
+        <button onclick="openStatsModal()">📊 Статистика</button>
         <span class="muted" id="productionInfo"></span>
       </div>
 
@@ -978,7 +1004,7 @@
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
       <div class="modal-header">
-        <h3> Статистика загрузки</h3>
+        <h3>📊 Статистика загрузки</h3>
         <button class="close-btn" onclick="closeStatsModal()">×</button>
       </div>
 
@@ -1008,13 +1034,14 @@
     const db = getFirestore(app);
 
     let rows = []; // проекты
-    let leads = []; // заявки (бывшие лиды)
+    let leads = []; // заявки
     let clients = {};
     let assignees = [];
     let tasks = {};
     let currentClientOldName = '';
     let currentProductionRequest = null;
     let currentView = 'active';
+    let currentRequestView = 'active';
     let currentNavView = 'projects';
     let unsubscribeClients = null;
     let unsubscribeRequests = null;
@@ -1311,7 +1338,8 @@
             id: l.id,
             date: String(l.date || '').trim(),
             title: getRequestTitle(l),
-            status: String(l.status || '').trim()
+            status: String(l.status || '').trim(),
+            archived: !!l.archived
           }))
           .sort((a, b) => b.date.localeCompare(a.date));
 
@@ -1323,7 +1351,7 @@
       const list = Object.keys(clients).map(name => {
         const card = clients[name];
         const projectCount = rows.filter(r => getClientName(r) === name && !r.archived).length;
-        const requestCount = leads.filter(l => getClientName(l) === name).length;
+        const requestCount = leads.filter(l => getClientName(l) === name && !l.archived).length;
         
         return {
           name: name,
@@ -1341,25 +1369,29 @@
       return list;
     }
 
-    async function deleteClient(name) {
+    async function deleteClientFromBase(name) {
       if (!name) return;
-      if (!confirm('Удалить клиента и все его проекты и заявки?')) return;
+      if (!confirm(`Удалить клиента "${name}" и все его проекты и заявки БЕЗВОЗВРАТНО?`)) return;
       
       delete clients[name];
       await deleteDoc(doc(db, 'clients', name));
       
-      const clientRequests = rows.filter(r => getClientName(r) === name);
-      for (const req of clientRequests) {
-        await deleteRequestFromFirebase(req.id, 'requests');
+      const clientProjects = rows.filter(r => getClientName(r) === name);
+      for (const proj of clientProjects) {
+        await deleteRequestFromFirebase(proj.id, 'requests');
       }
       
-      const clientLeads = leads.filter(l => getClientName(l) === name);
-      for (const lead of clientLeads) {
-        await deleteRequestFromFirebase(lead.id, 'leads');
+      const clientRequests = leads.filter(l => getClientName(l) === name);
+      for (const req of clientRequests) {
+        await deleteRequestFromFirebase(req.id, 'leads');
       }
       
       rows = rows.filter(r => getClientName(r) !== name);
       leads = leads.filter(l => getClientName(l) !== name);
+      
+      render();
+      renderRequests();
+      renderBase();
     }
 
     function openClientModalByName(name) {
@@ -1489,7 +1521,7 @@
       }
     }
 
-    async function archiveRequest(id) {
+    async function archiveProject(id) {
       if (!confirm('Отправить проект в архив?')) return;
       
       const item = rows.find(r => r.id === id);
@@ -1503,13 +1535,59 @@
       }
     }
 
-    async function restoreRequest(id) {
+    async function archiveRequest(id) {
+      if (!confirm('Отправить заявку в архив?')) return;
+      
+      const item = leads.find(l => l.id === id);
+      if (!item) return;
+      
+      item.archived = true;
+      await saveRequestToFirebase(id, item, 'leads');
+      renderRequests();
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
+    }
+
+    async function restoreProject(id) {
       const item = rows.find(r => r.id === id);
       if (!item) return;
       
       item.archived = false;
       await saveRequestToFirebase(id, item, 'requests');
       render();
+    }
+
+    async function restoreRequest(id) {
+      const item = leads.find(l => l.id === id);
+      if (!item) return;
+      
+      item.archived = false;
+      await saveRequestToFirebase(id, item, 'leads');
+      renderRequests();
+    }
+
+    async function deleteProjectFinal(id) {
+      if (!confirm('Удалить проект БЕЗВОЗВРАТНО? Это действие нельзя отменить.')) return;
+      
+      await deleteRequestFromFirebase(id, 'requests');
+      rows = rows.filter(r => r.id !== id);
+      delete tasks[id];
+      render();
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
+    }
+
+    async function deleteRequestFinal(id) {
+      if (!confirm('Удалить заявку БЕЗВОЗВРАТНО? Это действие нельзя отменить.')) return;
+      
+      await deleteRequestFromFirebase(id, 'leads');
+      leads = leads.filter(l => l.id !== id);
+      renderRequests();
+      if (currentClientOldName) {
+        renderClientRequests(currentClientOldName);
+      }
     }
 
     async function convertRequestToProject(requestId) {
@@ -1539,29 +1617,6 @@
       alert('Заявка успешно конвертирована в проект!');
     }
 
-    async function removeRequestFromClient(id) {
-      const isRequest = leads.some(l => l.id === id);
-      const collectionName = isRequest ? 'leads' : 'requests';
-      const list = isRequest ? leads : rows;
-      
-      const label = isRequest ? 'заявку' : 'проект';
-      if (!confirm(`Удалить ${label} БЕЗВОЗВРАТНО?`)) return;
-      
-      await deleteRequestFromFirebase(id, collectionName);
-      const index = list.findIndex(r => r.id === id);
-      if (index > -1) {
-        list.splice(index, 1);
-      }
-      if (!isRequest) {
-        delete tasks[id];
-      }
-      render();
-      renderRequests();
-      if (currentClientOldName) {
-        renderClientRequests(currentClientOldName);
-      }
-    }
-
     function escapeHtml(s) {
       return String(s ?? '').replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -1572,11 +1627,11 @@
       const box = document.getElementById('clientRequests');
       
       const activeProjects = rows.filter(r => getClientName(r) === clientName && !r.archived);
-      const clientRequests = leads.filter(l => getClientName(l) === clientName);
+      const activeRequests = leads.filter(l => getClientName(l) === clientName && !l.archived);
       
       const allItems = [
         ...activeProjects.map(r => ({ ...r, itemType: 'project' })),
-        ...clientRequests.map(l => ({ ...l, itemType: 'request' }))
+        ...activeRequests.map(l => ({ ...l, itemType: 'request' }))
       ].sort((a, b) => {
         const dateA = String(a.date || '');
         const dateB = String(b.date || '');
@@ -1607,7 +1662,8 @@
               <div>
                 ${!isRequest ? `<button class="production-btn" onclick="openProduction('${r.id}')">🏭 Производство${activeTasks > 0 ? ' (' + activeTasks + ')' : ''}</button>` : ''}
                 ${isRequest ? `<button class="convert-btn" onclick="convertRequestToProject('${r.id}')">🔄 В проект</button>` : ''}
-                ${!isRequest ? `<button class="archive-btn" onclick="archiveRequest('${r.id}')">📦 В архив</button>` : ''}
+                ${!isRequest ? `<button class="archive-btn" onclick="archiveProject('${r.id}')"> В архив</button>` : ''}
+                ${isRequest ? `<button class="archive-btn" onclick="archiveRequest('${r.id}')"> В архив</button>` : ''}
               </div>
             </div>
             <div>
@@ -1657,9 +1713,6 @@
               <textarea rows="3" placeholder="Подробности, детали, пометки"
                 onchange="updateRequest('${r.id}', 'comment', this.value)">${escapeHtml(getRequestComment(r))}</textarea>
             </div>
-            <div class="request-actions">
-              <button onclick="removeRequestFromClient('${r.id}')">🗑 Удалить навсегда</button>
-            </div>
           </div>
         `;
       }).join('');
@@ -1685,6 +1738,13 @@
       document.getElementById('tabActive').classList.toggle('active', view === 'active');
       document.getElementById('tabArchive').classList.toggle('active', view === 'archive');
       render();
+    }
+
+    function switchRequestView(view) {
+      currentRequestView = view;
+      document.getElementById('tabRequestActive').classList.toggle('active', view === 'active');
+      document.getElementById('tabRequestArchive').classList.toggle('active', view === 'archive');
+      renderRequests();
     }
 
     function render() {
@@ -1789,21 +1849,22 @@
           restoreBtn.onclick = function () {
             const archivedRequests = rows.filter(r => getClientName(r) === client.name && r.archived);
             if (archivedRequests.length === 1) {
-              restoreRequest(archivedRequests[0].id);
+              restoreProject(archivedRequests[0].id);
             } else {
               if (confirm('Вернуть все архивные проекты этого клиента?')) {
-                archivedRequests.forEach(r => restoreRequest(r.id));
+                archivedRequests.forEach(r => restoreProject(r.id));
               }
             }
           };
           tdActions.appendChild(restoreBtn);
 
           const delBtn = document.createElement('button');
-          delBtn.textContent = '🗑 Удалить';
+          delBtn.textContent = ' Удалить';
+          delBtn.className = 'delete-final-btn';
           delBtn.onclick = function () {
             const archivedRequests = rows.filter(r => getClientName(r) === client.name && r.archived);
             if (archivedRequests.length === 1) {
-              removeRequestFromClient(archivedRequests[0].id);
+              deleteProjectFinal(archivedRequests[0].id);
             } else {
               if (confirm('Удалить ВСЕ архивные проекты этого клиента БЕЗВОЗВРАТНО?')) {
                 archivedRequests.forEach(r => {
@@ -1817,10 +1878,20 @@
           };
           tdActions.appendChild(delBtn);
         } else {
-          const deleteButton = document.createElement('button');
-          deleteButton.textContent = 'Удалить';
-          deleteButton.onclick = function () { deleteClient(client.name); };
-          tdActions.appendChild(deleteButton);
+          const archiveBtn = document.createElement('button');
+          archiveBtn.textContent = ' Архив';
+          archiveBtn.className = 'archive-btn';
+          archiveBtn.onclick = function () {
+            const activeRequests = rows.filter(r => getClientName(r) === client.name && !r.archived);
+            if (activeRequests.length === 1) {
+              archiveProject(activeRequests[0].id);
+            } else {
+              if (confirm('Отправить все активные проекты этого клиента в архив?')) {
+                activeRequests.forEach(r => archiveProject(r.id));
+              }
+            }
+          };
+          tdActions.appendChild(archiveBtn);
         }
         tr.appendChild(tdActions);
 
@@ -1834,6 +1905,27 @@
       tbody.innerHTML = '';
 
       let list = getRequestList();
+
+      let activeRequestsTotal = 0;
+      let archiveRequestsTotal = 0;
+      list.forEach(client => {
+        client.requests.forEach(r => {
+          if (r.archived) archiveRequestsTotal++;
+          else activeRequestsTotal++;
+        });
+      });
+      document.getElementById('requestActiveCount').textContent = activeRequestsTotal;
+      document.getElementById('requestArchiveCount').textContent = archiveRequestsTotal;
+
+      list = list.map(client => {
+        let filteredRequests = client.requests.filter(r => {
+          if (currentRequestView === 'active' && r.archived) return false;
+          if (currentRequestView === 'archive' && !r.archived) return false;
+          return true;
+        });
+
+        return { ...client, requests: filteredRequests };
+      }).filter(client => client.requests.length > 0);
 
       const visible = list.filter(client => {
         if (!q) return true;
@@ -1890,10 +1982,57 @@
         tr.appendChild(tdRequests);
 
         const tdActions = document.createElement('td');
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = 'Удалить';
-        deleteButton.onclick = function () { deleteClient(client.name); };
-        tdActions.appendChild(deleteButton);
+        if (currentRequestView === 'archive') {
+          const restoreBtn = document.createElement('button');
+          restoreBtn.textContent = '↩ Вернуть';
+          restoreBtn.className = 'restore-btn';
+          restoreBtn.style.marginRight = '4px';
+          restoreBtn.onclick = function () {
+            const archivedRequests = leads.filter(l => getClientName(l) === client.name && l.archived);
+            if (archivedRequests.length === 1) {
+              restoreRequest(archivedRequests[0].id);
+            } else {
+              if (confirm('Вернуть все архивные заявки этого клиента?')) {
+                archivedRequests.forEach(l => restoreRequest(l.id));
+              }
+            }
+          };
+          tdActions.appendChild(restoreBtn);
+
+          const delBtn = document.createElement('button');
+          delBtn.textContent = '🗑 Удалить';
+          delBtn.className = 'delete-final-btn';
+          delBtn.onclick = function () {
+            const archivedRequests = leads.filter(l => getClientName(l) === client.name && l.archived);
+            if (archivedRequests.length === 1) {
+              deleteRequestFinal(archivedRequests[0].id);
+            } else {
+              if (confirm('Удалить ВСЕ архивные заявки этого клиента БЕЗВОЗВРАТНО?')) {
+                archivedRequests.forEach(l => {
+                  deleteRequestFromFirebase(l.id, 'leads');
+                });
+                leads = leads.filter(l => !(getClientName(l) === client.name && l.archived));
+                renderRequests();
+              }
+            }
+          };
+          tdActions.appendChild(delBtn);
+        } else {
+          const archiveBtn = document.createElement('button');
+          archiveBtn.textContent = ' Архив';
+          archiveBtn.className = 'archive-btn';
+          archiveBtn.onclick = function () {
+            const activeRequests = leads.filter(l => getClientName(l) === client.name && !l.archived);
+            if (activeRequests.length === 1) {
+              archiveRequest(activeRequests[0].id);
+            } else {
+              if (confirm('Отправить все активные заявки этого клиента в архив?')) {
+                activeRequests.forEach(l => archiveRequest(l.id));
+              }
+            }
+          };
+          tdActions.appendChild(archiveBtn);
+        }
         tr.appendChild(tdActions);
 
         tbody.appendChild(tr);
@@ -1922,19 +2061,22 @@
       visible.forEach(client => {
         const div = document.createElement('div');
         div.className = 'client-base-item';
-        div.onclick = function () { openClientModalByName(client.name); };
 
         div.innerHTML = `
           <div class="client-base-header">
             <span class="client-base-name">${escapeHtml(client.name)}</span>
+            <div class="client-base-actions">
+              <button class="production-btn" onclick="event.stopPropagation(); openClientModalByName('${escapeHtml(client.name)}')">📋 Открыть</button>
+              <button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase('${escapeHtml(client.name)}')">🗑 Удалить клиента</button>
+            </div>
           </div>
           ${client.phone ? `<div class="client-base-info">📞 ${escapeHtml(client.phone)}</div>` : ''}
-          ${client.contactPerson ? `<div class="client-base-info"> ${escapeHtml(client.contactPerson)}</div>` : ''}
+          ${client.contactPerson ? `<div class="client-base-info">👤 ${escapeHtml(client.contactPerson)}</div>` : ''}
           ${client.address ? `<div class="client-base-info">📍 ${escapeHtml(client.address)}</div>` : ''}
           <div class="client-base-stats">
             <span>📁 Проектов: ${client.projectCount}</span>
             <span>📝 Заявок: ${client.requestCount}</span>
-            <span> Добавлен: ${client.createdAt}</span>
+            <span>📅 Добавлен: ${client.createdAt}</span>
           </div>
         `;
 
@@ -1989,7 +2131,7 @@
     }
 
     function exportRequestsCSV() {
-      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Адрес', 'Дата', 'Наименование заявки', 'Статус заявки'];
+      const headers = ['Клиент', 'Телефон', 'Контактное лицо', 'Адрес', 'Дата', 'Наименование заявки', 'Статус заявки', 'Архив'];
       let list = getRequestList();
       list.sort((a, b) => {
         const dateA = a.requests.length ? a.requests[0].date : '';
@@ -2005,7 +2147,7 @@
         const address = card.address || '';
 
         if (!client.requests.length) {
-          lines.push([client.name, phone, contactPerson, address, '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
+          lines.push([client.name, phone, contactPerson, address, '', '', '', ''].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
         } else {
           client.requests.forEach((l, idx) => {
             lines.push([
@@ -2015,7 +2157,8 @@
               idx === 0 ? address : '',
               l.date,
               l.title,
-              l.status
+              l.status,
+              l.archived ? 'Да' : ''
             ].map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';'));
           });
         }
@@ -2543,20 +2686,24 @@
 
     window.addClient = addClient;
     window.addRequest = addRequest;
-    window.deleteClient = deleteClient;
+    window.deleteClientFromBase = deleteClientFromBase;
     window.openClientModalByName = openClientModalByName;
     window.closeClientModal = closeClientModal;
     window.saveClientModal = saveClientModal;
     window.addRequestToClient = addRequestToClient;
     window.updateRequest = updateRequest;
+    window.archiveProject = archiveProject;
     window.archiveRequest = archiveRequest;
+    window.restoreProject = restoreProject;
     window.restoreRequest = restoreRequest;
+    window.deleteProjectFinal = deleteProjectFinal;
+    window.deleteRequestFinal = deleteRequestFinal;
     window.convertRequestToProject = convertRequestToProject;
-    window.removeRequestFromClient = removeRequestFromClient;
     window.exportCSV = exportCSV;
     window.exportRequestsCSV = exportRequestsCSV;
     window.importCSV = importCSV;
     window.switchView = switchView;
+    window.switchRequestView = switchRequestView;
     window.switchNavView = switchNavView;
     window.openProduction = openProduction;
     window.closeProduction = closeProduction;
