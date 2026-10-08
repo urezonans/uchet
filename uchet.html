@@ -97,11 +97,11 @@
     .view-comment-section h4 { margin: 0 0 12px 0; font-size: 16px; }
     .comment-add-form { display: flex; gap: 8px; margin-bottom: 16px; }
     .comment-add-form textarea { flex: 1; min-height: 60px; resize: vertical; }
-    .comments-list { max-height: 400px; overflow-y: auto; }
-    .comment-item { background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px; }
-    .comment-item .comment-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; color: #777; }
-    .comment-item .comment-text { font-size: 14px; color: #222; white-space: pre-wrap; word-break: break-word; }
-    .comment-item .comment-delete { background: none; border: none; color: #d9534f; cursor: pointer; font-size: 12px; padding: 2px 6px; }
+    .comments-list, .notes-list { max-height: 400px; overflow-y: auto; }
+    .comment-item, .note-item { background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+    .comment-item .comment-meta, .note-item .note-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; color: #777; }
+    .comment-item .comment-text, .note-item .note-text { font-size: 14px; color: #222; white-space: pre-wrap; word-break: break-word; }
+    .comment-item .comment-delete, .note-item .note-delete { background: none; border: none; color: #d9534f; cursor: pointer; font-size: 12px; padding: 2px 6px; }
     .view-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; }
     .client-base-item { padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: white; cursor: pointer; transition: all 0.2s; }
     .client-base-item:hover { background: #f4f9ff; border-color: #b7d4ff; }
@@ -220,11 +220,40 @@
       min-height: 200px;
     }
     .client-column-right {
-      background: #f9f9f9;
-      border: 1px dashed #ddd;
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
       border-radius: 6px;
       padding: 12px;
       min-height: 200px;
+    }
+    .client-column-right h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #004a99;
+      border-bottom: 2px solid #ffe58f;
+      padding-bottom: 6px;
+    }
+    .note-add-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .note-add-form textarea {
+      flex: 1;
+      min-height: 50px;
+      resize: vertical;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: Arial, sans-serif;
+    }
+    .note-add-form textarea:focus {
+      border-color: #004a99;
+      outline: none;
+    }
+    .note-add-form button {
+      align-self: flex-end;
     }
   </style>
 </head>
@@ -233,14 +262,14 @@
   <h2>Учёт клиентов и проектов <span class="cloud-badge">☁ Облако</span> <span id="syncIndicator" class="sync-indicator"><span class="dot"></span><span>Подключение...</span></span></h2>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')"> Проекты</button>
+    <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
     <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
-    <button class="nav-tab" id="navBase" onclick="switchNavView('base')"> База клиентов</button>
+    <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
   </div>
 
   <div id="projectsView">
     <div class="tabs">
-      <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
+      <button class="tab active" id="tabActive" onclick="switchView('active')"> Активные <span class="count" id="activeCount">0</span></button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
@@ -250,7 +279,7 @@
       </select>
       <button onclick="addClient()">+ Добавить проект</button>
       <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
-      <button class="import-btn" onclick="document.getElementById('importFile').click()"> Импорт</button>
+      <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
       <span id="info" class="muted"></span>
     </div>
@@ -290,7 +319,12 @@
           <button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button>
         </div>
         <div class="client-column-right">
-          <div class="muted">Правый столбец (пока пусто)</div>
+          <h4>📝 Заметки</h4>
+          <div class="note-add-form">
+            <textarea id="newNoteText" placeholder="Напишите заметку..."></textarea>
+            <button class="production-btn" onclick="addNote()">Добавить</button>
+          </div>
+          <div class="notes-list" id="notesList"></div>
         </div>
       </div>
       
@@ -347,7 +381,7 @@
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
         <button onclick="openAssigneesModal()">👥 Исполнители</button>
-        <button onclick="openStatsModal()"> Статистика</button>
+        <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
       <div class="add-task-form">
         <h4>➕ Новое задание</h4>
@@ -372,7 +406,7 @@
 
   <div id="assigneesModal" class="modal-overlay" onclick="if (event.target === this) closeAssigneesModal()">
     <div class="modal">
-      <div class="modal-header"><h3> Исполнители</h3><button class="close-btn" onclick="closeAssigneesModal()">×</button></div>
+      <div class="modal-header"><h3>👥 Исполнители</h3><button class="close-btn" onclick="closeAssigneesModal()">×</button></div>
       <label>Добавить исполнителя</label>
       <div style="display:flex;gap:8px;"><input id="newAssigneeName" placeholder="ФИО или должность" style="flex:1;"><button onclick="addAssignee()">Добавить</button></div>
       <div id="assigneeList"></div>
@@ -382,7 +416,7 @@
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -492,7 +526,7 @@ async function saveTasksToFirebase(id, list) {
 
 async function ensureClientExists(name) {
   if (!clients[name]) {
-    clients[name] = { name, contactPersons: [], createdAt: today() };
+    clients[name] = { name, contactPersons: [], notes: [], createdAt: today() };
     await saveClientToFirebase(name, clients[name]);
   }
   return clients[name];
@@ -504,7 +538,10 @@ function setupRealtimeListeners() {
     clients = {};
     snap.forEach(d => { clients[d.id] = d.data(); });
     render(); renderRequests(); renderBase();
-    if (currentClientOldName) renderClientRequests(currentClientOldName);
+    if (currentClientOldName) {
+      renderClientRequests(currentClientOldName);
+      renderNotes();
+    }
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -540,7 +577,7 @@ function setupRealtimeListeners() {
 
 async function addClient() {
   const name = generateNewClientName();
-  await saveClientToFirebase(name, { name, contactPersons: [], createdAt: today() });
+  await saveClientToFirebase(name, { name, contactPersons: [], notes: [], createdAt: today() });
   setTimeout(() => openClientModalByName(name), 300);
 }
 
@@ -578,6 +615,7 @@ function getBaseList() {
     return { 
       name, 
       contactPersons: c.contactPersons || [],
+      notes: c.notes || [],
       createdAt: c.createdAt||'', 
       projectCount: rows.filter(r => getClientName(r) === name && !r.archived).length, 
       requestCount: leads.filter(l => getClientName(l) === name && !l.archived).length 
@@ -603,6 +641,7 @@ function openClientModalByName(name) {
   const s = clients[name] || {};
   document.getElementById('clientName').value = s.name || name;
   renderContactPersons(s.contactPersons || []);
+  renderNotes();
   renderClientRequests(name);
   document.getElementById('clientModal').style.display = 'block';
 }
@@ -679,6 +718,69 @@ function removeContactPerson(idx) {
   renderContactPersons(s.contactPersons);
 }
 
+// ===== ЗАМЕТКИ КЛИЕНТА =====
+
+function renderNotes() {
+  const container = document.getElementById('notesList');
+  if (!container) return;
+  const s = clients[currentClientOldName] || {};
+  const notes = s.notes || [];
+  
+  if (!notes.length) {
+    container.innerHTML = '<div class="muted">Заметок пока нет.</div>';
+    return;
+  }
+  
+  // Новые сверху
+  const sorted = [...notes].reverse();
+  
+  container.innerHTML = sorted.map(n => `
+    <div class="note-item">
+      <div class="note-meta">
+        <span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
+        <button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button>
+      </div>
+      <div class="note-text">${escapeHtml(n.text)}</div>
+    </div>
+  `).join('');
+}
+
+async function addNote() {
+  const text = document.getElementById('newNoteText').value.trim();
+  if (!text) { alert('Введите текст заметки'); return; }
+  if (!currentClientOldName) return;
+  
+  const s = clients[currentClientOldName] || {};
+  if (!s.notes) s.notes = [];
+  
+  const dt = nowDateTime();
+  s.notes.push({
+    id: uid(),
+    text: text,
+    date: dt.date,
+    time: dt.time
+  });
+  clients[currentClientOldName] = s;
+  
+  await saveClientToFirebase(currentClientOldName, s);
+  document.getElementById('newNoteText').value = '';
+  renderNotes();
+}
+
+async function deleteNote(noteId) {
+  if (!confirm('Удалить заметку?')) return;
+  if (!currentClientOldName) return;
+  
+  const s = clients[currentClientOldName] || {};
+  if (!s.notes) return;
+  
+  s.notes = s.notes.filter(n => n.id !== noteId);
+  clients[currentClientOldName] = s;
+  
+  await saveClientToFirebase(currentClientOldName, s);
+  renderNotes();
+}
+
 function closeClientModal() { document.getElementById('clientModal').style.display = 'none'; currentClientOldName = ''; }
 
 async function applyClientForm() {
@@ -693,7 +795,7 @@ async function applyClientForm() {
     if (clients[oldName]) { delete clients[oldName]; await deleteDoc(doc(db, 'clients', oldName)); }
   }
   const s = clients[newName] || {};
-  clients[newName] = { name: newName, contactPersons: s.contactPersons || [], createdAt };
+  clients[newName] = { name: newName, contactPersons: s.contactPersons || [], notes: s.notes || [], createdAt };
   await saveClientToFirebase(newName, clients[newName]);
   currentClientOldName = newName;
   return newName;
@@ -784,17 +886,9 @@ async function convertProjectToRequest(id) {
 }
 
 async function openProduction(id) {
-  console.log('openProduction вызвана с id:', id);
   const r = rows.find(r => r.id === id);
-  console.log('Найден проект:', r);
-  if (!r) {
-    alert('Проект не найден.');
-    return;
-  }
-  if (r.archived) {
-    alert('Нельзя открыть производство для архивного проекта.');
-    return;
-  }
+  if (!r) { alert('Проект не найден.'); return; }
+  if (r.archived) { alert('Нельзя открыть производство для архивного проекта.'); return; }
   currentProductionRequest = id;
   const titleEl = document.getElementById('productionRequestTitle');
   if (titleEl) titleEl.textContent = getRequestTitle(r) || '(без названия)';
@@ -804,9 +898,6 @@ async function openProduction(id) {
   if (modal) {
     modal.style.display = 'block';
     renderProduction();
-  } else {
-    console.error('Модалка productionModal не найдена!');
-    alert('Ошибка: модалка производства не найдена в HTML');
   }
 }
 
@@ -817,7 +908,6 @@ function closeProduction() {
 }
 
 function openRequestView(id, type) {
-  console.log('openRequestView:', id, type);
   const list = type === 'project' ? rows : leads;
   const item = list.find(r => r.id === id);
   if (!item) { alert('Запись не найдена'); return; }
@@ -927,36 +1017,29 @@ function renderViewActions() {
   const itemId = currentViewRequest.id;
   const itemType = currentViewType;
   
-  console.log('renderViewActions:', itemId, itemType);
-  
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
-    prodBtn.textContent = '🏭 Производство';
+    prodBtn.textContent = ' Производство';
     prodBtn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log('КЛИК ПО ПРОИЗВОДСТВУ, id:', itemId);
       const savedId = itemId;
       document.getElementById('viewModal').style.display = 'none';
       currentViewRequest = null;
       currentViewType = null;
-      setTimeout(function() {
-        openProduction(savedId);
-      }, 200);
+      setTimeout(function() { openProduction(savedId); }, 200);
     });
     div.appendChild(prodBtn);
     
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = ' В архив';
+    archBtn.textContent = '📦 В архив';
     archBtn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       await archiveProject(itemId);
       document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null;
-      currentViewType = null;
+      currentViewRequest = null; currentViewType = null;
     });
     div.appendChild(archBtn);
     
@@ -964,12 +1047,10 @@ function renderViewActions() {
     convBtn.className = 'convert-btn';
     convBtn.textContent = '🔄 В заявку';
     convBtn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       await convertProjectToRequest(itemId);
       document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null;
-      currentViewType = null;
+      currentViewRequest = null; currentViewType = null;
     });
     div.appendChild(convBtn);
   } else {
@@ -977,12 +1058,10 @@ function renderViewActions() {
     convBtn.className = 'convert-btn';
     convBtn.textContent = '🔄 В проект';
     convBtn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       await convertRequestToProject(itemId);
       document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null;
-      currentViewType = null;
+      currentViewRequest = null; currentViewType = null;
     });
     div.appendChild(convBtn);
     
@@ -990,12 +1069,10 @@ function renderViewActions() {
     archBtn.className = 'archive-btn';
     archBtn.textContent = '📦 В архив';
     archBtn.addEventListener('click', async function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       await archiveRequest(itemId);
       document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null;
-      currentViewType = null;
+      currentViewRequest = null; currentViewType = null;
     });
     div.appendChild(archBtn);
   }
@@ -1004,13 +1081,11 @@ function renderViewActions() {
   delBtn.className = 'delete-final-btn';
   delBtn.textContent = '🗑 Удалить навсегда';
   delBtn.addEventListener('click', async function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     if (itemType === 'project') await deleteProjectFinal(itemId);
     else await deleteRequestFinal(itemId);
     document.getElementById('viewModal').style.display = 'none';
-    currentViewRequest = null;
-    currentViewType = null;
+    currentViewRequest = null; currentViewType = null;
   });
   div.appendChild(delBtn);
 }
@@ -1073,7 +1148,7 @@ function render() {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) restoreProject(arr[0].id); else if (confirm('Вернуть все архивные проекты?')) arr.forEach(r => restoreProject(r.id)); }; td3.appendChild(rb);
       const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) deleteProjectFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные проекты БЕЗВОЗВРАТНО?')) { arr.forEach(r => { deleteRequestFromFirebase(r.id, 'requests'); delete tasks[r.id]; }); rows = rows.filter(r => !(getClientName(r) === c.name && r.archived)); render(); } }; td3.appendChild(db);
     } else {
-      const ab = document.createElement('button'); ab.textContent = ' Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && !r.archived); if (arr.length === 1) archiveProject(arr[0].id); else if (confirm('Отправить все активные проекты в архив?')) arr.forEach(r => archiveProject(r.id)); }; td3.appendChild(ab);
+      const ab = document.createElement('button'); ab.textContent = '📦 Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = rows.filter(r => getClientName(r) === c.name && !r.archived); if (arr.length === 1) archiveProject(arr[0].id); else if (confirm('Отправить все активные проекты в архив?')) arr.forEach(r => archiveProject(r.id)); }; td3.appendChild(ab);
     }
     tr.appendChild(td3); tbody.appendChild(tr);
   });
@@ -1106,7 +1181,7 @@ function renderRequests() {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
       const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
-      const ab = document.createElement('button'); ab.textContent = '📦 Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && !l.archived); if (arr.length === 1) archiveRequest(arr[0].id); else if (confirm('Отправить все активные заявки в архив?')) arr.forEach(l => archiveRequest(l.id)); }; td3.appendChild(ab);
+      const ab = document.createElement('button'); ab.textContent = ' Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && !l.archived); if (arr.length === 1) archiveRequest(arr[0].id); else if (confirm('Отправить все активные заявки в архив?')) arr.forEach(l => archiveRequest(l.id)); }; td3.appendChild(ab);
     }
     tr.appendChild(td3); tbody.appendChild(tr);
   });
@@ -1130,9 +1205,9 @@ function renderBase() {
           let cpLine = '👤 ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
-          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone1) + '</div>';
+          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
-          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone3) + '</div>';
+          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
           if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
@@ -1233,11 +1308,8 @@ async function importCSV(event) {
             const websiteMatch = rest.match(/\{([^}]+)\}/);
             const addressMatch = rest.match(/@(.+)$/);
             contactPersons.push({ 
-              name, 
-              position, 
-              phone1: phones[0]||'', 
-              phone2: phones[1]||'', 
-              phone3: phones[2]||'',
+              name, position, 
+              phone1: phones[0]||'', phone2: phones[1]||'', phone3: phones[2]||'',
               email: emailMatch ? emailMatch[1].trim() : '',
               website: websiteMatch ? websiteMatch[1].trim() : '',
               address: addressMatch ? addressMatch[1].trim() : ''
@@ -1245,7 +1317,7 @@ async function importCSV(event) {
           });
         }
         if (cn) {
-          if (!clients[cn]) { clients[cn] = { name: cn, contactPersons, createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
+          if (!clients[cn]) { clients[cn] = { name: cn, contactPersons, notes: [], createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
         }
         if (ti || dt || ed) {
           const np = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: '', title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
@@ -1298,7 +1370,7 @@ function renderTaskCard(t) {
     else dt = 'Срок: ' + dl;
   }
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">️</button></div></div>';
+  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
 }
 
 async function addTask() {
@@ -1451,6 +1523,8 @@ window.closeStatsModal = closeStatsModal;
 window.addContactPerson = addContactPerson;
 window.removeContactPerson = removeContactPerson;
 window.updateContactPerson = updateContactPerson;
+window.addNote = addNote;
+window.deleteNote = deleteNote;
 </script>
 
 </body>
