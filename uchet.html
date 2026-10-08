@@ -167,6 +167,20 @@
     .note-add-form { display: flex; gap: 8px; margin-bottom: 12px; }
     .note-add-form textarea { flex: 1; min-height: 50px; resize: vertical; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; }
     .note-add-form textarea:focus { border-color: #004a99; outline: none; }
+    
+    .employee-list { margin-top: 12px; }
+    .employee-row { display: flex; align-items: center; padding: 10px 12px; background: white; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; cursor: pointer; transition: all 0.15s; }
+    .employee-row:hover { background: #f4f9ff; border-color: #004a99; }
+    .employee-row .emp-name { font-weight: bold; font-size: 15px; color: #004a99; min-width: 180px; }
+    .employee-row .emp-position { font-size: 13px; color: #666; flex: 1; }
+    .employee-row .emp-projects { font-size: 12px; color: #888; margin-right: 12px; white-space: nowrap; }
+    .employee-row .emp-delete { background: #d9534f; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .employee-row .emp-delete:hover { background: #c9302c; }
+    .employee-page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
+    .employee-page-header h2 { margin: 0; color: #004a99; }
+    .employee-page-header .emp-info { font-size: 14px; color: #666; }
+    .add-employee-form { display: flex; gap: 8px; margin-bottom: 16px; padding: 12px; background: #f0f8ff; border-radius: 6px; flex-wrap: wrap; }
+    .add-employee-form input { flex: 1; min-width: 150px; }
   </style>
 </head>
 <body>
@@ -175,14 +189,15 @@
 
   <div class="nav-tabs">
     <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
-    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')"> Заявки</button>
+    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
     <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
+    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
   </div>
 
   <div id="projectsView">
     <div class="tabs">
       <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
-      <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
+      <button class="tab" id="tabArchive" onclick="switchView('archive')"> Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
       <input id="search" placeholder="Поиск..." style="width: 280px">
@@ -190,7 +205,7 @@
         <option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option>
       </select>
       <button onclick="addClient()">+ Добавить проект</button>
-      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
+      <button class="export-btn" onclick="exportCSV()"> Экспорт</button>
       <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
       <span id="info" class="muted"></span>
@@ -206,7 +221,7 @@
     <div class="toolbar">
       <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
       <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()"> Экспорт</button>
+      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
       <span id="requestInfo" class="muted"></span>
     </div>
     <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
@@ -220,6 +235,21 @@
     <div id="baseList"></div>
   </div>
 
+  <div id="employeesView" style="display:none;">
+    <div class="toolbar">
+      <input id="employeeSearch" placeholder="🔍 Поиск сотрудника..." style="width: 280px">
+      <button onclick="showAddEmployeeForm()">+ Добавить сотрудника</button>
+      <span id="employeeInfo" class="muted"></span>
+    </div>
+    <div id="addEmployeeForm" class="add-employee-form" style="display:none;">
+      <input id="newEmployeeName" placeholder="ФИО сотрудника">
+      <input id="newEmployeePosition" placeholder="Должность">
+      <button class="production-btn" onclick="addEmployee()">Добавить</button>
+      <button onclick="hideAddEmployeeForm()">Отмена</button>
+    </div>
+    <div id="employeeList" class="employee-list"></div>
+  </div>
+
   <div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
     <div class="modal modal-large">
       <div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
@@ -230,7 +260,7 @@
           <button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button>
         </div>
         <div class="client-column-right">
-          <h4> Заметки</h4>
+          <h4>📝 Заметки</h4>
           <div class="note-add-form">
             <textarea id="newNoteText" placeholder="Напишите заметку..."></textarea>
             <button class="production-btn" onclick="addNote()">Добавить</button>
@@ -271,7 +301,7 @@
         <div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate"></div></div>
         <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
         <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select></div></div>
-        <div class="view-info-item"><label>Ответственный</label><div class="value"><input id="viewResponsible" placeholder="Кто выполняет"></div></div>
+        <div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
         <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
       </div>
       <div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание"></textarea></div>
@@ -284,6 +314,28 @@
     </div>
   </div>
 
+  <div id="employeePageModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeePage()">
+    <div class="modal modal-large">
+      <div class="employee-page-header">
+        <div>
+          <h2 id="employeePageName">Имя сотрудника</h2>
+          <div class="emp-info" id="employeePagePosition">Должность</div>
+        </div>
+        <button class="close-btn" onclick="closeEmployeePage()">×</button>
+      </div>
+      <div class="requests-columns" style="margin-top:0;">
+        <div class="requests-column projects-col">
+          <h4>📁 Проекты сотрудника</h4>
+          <div class="tiles-grid" id="employeeProjectsTiles"></div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="delete-final-btn" onclick="deleteEmployee()">🗑 Удалить сотрудника</button>
+        <button onclick="closeEmployeePage()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
   <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
     <div class="modal kanban-modal">
       <div class="modal-header">
@@ -292,14 +344,14 @@
       </div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-        <button onclick="openAssigneesModal()">👥 Исполнители</button>
+        <button onclick="openEmployeesModal()">👷 Сотрудники</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
       <div class="add-task-form">
         <h4>➕ Новое задание</h4>
         <div class="form-row">
           <div><label>Название</label><input id="newTaskTitle" placeholder="Название задания"></div>
-          <div><label>Исполнитель</label><select id="newTaskAssignee"></select></div>
+          <div><label>Исполнитель</label><select id="newTaskAssignee"><option value="">— Выберите —</option></select></div>
         </div>
         <div class="form-row">
           <div><label>Срок</label><input id="newTaskDeadline" type="date"></div>
@@ -316,19 +368,20 @@
     </div>
   </div>
 
-  <div id="assigneesModal" class="modal-overlay" onclick="if (event.target === this) closeAssigneesModal()">
+  <div id="employeesModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeesModal()">
     <div class="modal">
-      <div class="modal-header"><h3>👥 Исполнители</h3><button class="close-btn" onclick="closeAssigneesModal()">×</button></div>
-      <label>Добавить исполнителя</label>
-      <div style="display:flex;gap:8px;"><input id="newAssigneeName" placeholder="ФИО или должность" style="flex:1;"><button onclick="addAssignee()">Добавить</button></div>
-      <div id="assigneeList"></div>
-      <div class="modal-actions"><button onclick="closeAssigneesModal()">Закрыть</button></div>
+      <div class="modal-header"><h3> Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
+      <p class="muted" style="margin-top:0;">Список сотрудников синхронизирован с вкладкой "Персонал".</p>
+      <div id="employeesModalList"></div>
+      <div class="modal-actions">
+        <button onclick="closeEmployeesModal()">Закрыть</button>
+      </div>
     </div>
   </div>
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -354,7 +407,7 @@ const db = getFirestore(app);
 let rows = [];
 let leads = [];
 let clients = {};
-let assignees = [];
+let employees = [];
 let tasks = {};
 let currentClientOldName = '';
 let currentProductionRequest = null;
@@ -363,7 +416,8 @@ let currentRequestView = 'active';
 let currentNavView = 'projects';
 let currentViewRequest = null;
 let currentViewType = null;
-let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeAssignees = null, unsubscribeTasks = null;
+let currentEmployeeId = null;
+let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null;
 
 function setSyncStatus(status, message) {
   const indicator = document.getElementById('syncIndicator');
@@ -427,8 +481,13 @@ async function deleteRequestFromFirebase(id, col = 'requests') {
   } catch (e) { console.error(e); }
 }
 
-async function saveAssigneesToFirebase() {
-  try { await setDoc(doc(db, 'settings', 'assignees'), { list: assignees }); } catch (e) { console.error(e); }
+async function saveEmployeeToFirebase(id, data) {
+  try { await setDoc(doc(db, 'employees', id), data); setSyncStatus('synced', 'Синхронизировано'); }
+  catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
+}
+
+async function deleteEmployeeFromFirebase(id) {
+  try { await deleteDoc(doc(db, 'employees', id)); } catch (e) { console.error(e); }
 }
 
 async function saveTasksToFirebase(id, list) {
@@ -443,14 +502,12 @@ async function ensureClientExists(name) {
   return clients[name];
 }
 
-// ===== ПРИВЯЗКА ОБРАБОТЧИКОВ К ПОЛЯМ ПОИСКА И ФИЛЬТРА =====
-// Это гарантирует мгновенную реакцию без необходимости кликать куда-то ещё
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('statusFilter').addEventListener('change', render);
 document.getElementById('requestSearch').addEventListener('input', renderRequests);
 document.getElementById('baseSearch').addEventListener('input', renderBase);
+document.getElementById('employeeSearch').addEventListener('input', renderEmployees);
 
-// Обработчики для полей в модалке просмотра — сохраняют при изменении
 document.getElementById('viewTitleInput').addEventListener('change', function() {
   if (currentViewRequest && currentViewType) updateViewField('title', this.value);
 });
@@ -477,6 +534,7 @@ function setupRealtimeListeners() {
     snap.forEach(d => { clients[d.id] = d.data(); });
     render(); renderRequests(); renderBase();
     if (currentClientOldName) { renderClientRequests(currentClientOldName); renderNotes(); }
+    if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -486,6 +544,7 @@ function setupRealtimeListeners() {
     render();
     if (currentClientOldName) renderClientRequests(currentClientOldName);
     if (currentViewRequest && currentViewType === 'project') refreshViewModal();
+    if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -498,15 +557,22 @@ function setupRealtimeListeners() {
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
-  unsubscribeAssignees = onSnapshot(doc(db, 'settings', 'assignees'), d => {
-    assignees = d.exists() ? (d.data().list || []) : [];
-  });
+  unsubscribeEmployees = onSnapshot(collection(db, 'employees'), snap => {
+    employees = [];
+    snap.forEach(d => { employees.push({ id: d.id, ...d.data() }); });
+    renderEmployees();
+    if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
+    if (currentProductionRequest) renderProduction();
+    if (currentViewRequest && currentViewType) refreshViewModalResponsibleSelect();
+    setSyncStatus('synced', 'Синхронизировано');
+  }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
   unsubscribeTasks = onSnapshot(collection(db, 'tasks'), snap => {
     tasks = {};
     snap.forEach(d => { tasks[d.id] = d.data().tasks || []; });
     if (currentProductionRequest) renderProduction();
     if (currentClientOldName) renderClientRequests(currentClientOldName);
+    if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
   });
 }
 
@@ -637,7 +703,7 @@ function renderNotes() {
   container.innerHTML = sorted.map(n => `
     <div class="note-item">
       <div class="note-meta">
-        <span> ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
+        <span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
         <button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button>
       </div>
       <div class="note-text">${escapeHtml(n.text)}</div>
@@ -813,12 +879,30 @@ function openRequestView(id, type) {
     const db = document.getElementById('viewDaysBadge');
     db.textContent = b.text; db.className = 'days-badge ' + b.cls;
   }
-  document.getElementById('viewStatus').value = item.status || 'Новая';
+  fillResponsibleSelect();
   document.getElementById('viewResponsible').value = item.responsible || '';
   document.getElementById('viewComment').value = item.comment || '';
   renderViewActions();
   renderComments();
   document.getElementById('viewModal').style.display = 'block';
+}
+
+function fillResponsibleSelect() {
+  const sel = document.getElementById('viewResponsible');
+  const currentValue = sel.value;
+  sel.innerHTML = '<option value="">— Не назначен —</option>';
+  employees.forEach(emp => {
+    const opt = document.createElement('option');
+    opt.value = emp.name;
+    opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
+    sel.appendChild(opt);
+  });
+  sel.value = currentValue;
+}
+
+function refreshViewModalResponsibleSelect() {
+  if (!currentViewRequest || !currentViewType) return;
+  fillResponsibleSelect();
 }
 
 function closeViewModal() { 
@@ -836,7 +920,7 @@ function refreshViewModal() {
   document.getElementById('viewTitleInput').value = getRequestTitle(u) || '';
   document.getElementById('viewDate').value = u.date || '';
   document.getElementById('viewEndDate').value = u.endDate || '';
-  document.getElementById('viewStatus').value = u.status || 'Новая';
+  fillResponsibleSelect();
   document.getElementById('viewResponsible').value = u.responsible || '';
   document.getElementById('viewComment').value = u.comment || '';
   if (currentViewType === 'project') {
@@ -904,7 +988,7 @@ function renderViewActions() {
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
-    prodBtn.textContent = ' Производство';
+    prodBtn.textContent = '🏭 Производство';
     prodBtn.addEventListener('click', function(e) {
       e.preventDefault(); e.stopPropagation();
       const savedId = itemId;
@@ -1001,12 +1085,15 @@ function switchNavView(view) {
   document.getElementById('navProjects').classList.toggle('active', view === 'projects');
   document.getElementById('navRequests').classList.toggle('active', view === 'requests');
   document.getElementById('navBase').classList.toggle('active', view === 'base');
+  document.getElementById('navEmployees').classList.toggle('active', view === 'employees');
   document.getElementById('projectsView').style.display = view === 'projects' ? 'block' : 'none';
   document.getElementById('requestsView').style.display = view === 'requests' ? 'block' : 'none';
   document.getElementById('baseView').style.display = view === 'base' ? 'block' : 'none';
+  document.getElementById('employeesView').style.display = view === 'employees' ? 'block' : 'none';
   if (view === 'projects') render();
   if (view === 'requests') renderRequests();
   if (view === 'base') renderBase();
+  if (view === 'employees') renderEmployees();
 }
 
 function switchView(view) { currentView = view; document.getElementById('tabActive').classList.toggle('active', view === 'active'); document.getElementById('tabArchive').classList.toggle('active', view === 'archive'); render(); }
@@ -1040,7 +1127,7 @@ function render() {
     const td3 = document.createElement('td');
     if (currentView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) restoreProject(arr[0].id); else if (confirm('Вернуть все архивные проекты?')) arr.forEach(r => restoreProject(r.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) deleteProjectFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные проекты БЕЗВОЗВРАТНО?')) { arr.forEach(r => { deleteRequestFromFirebase(r.id, 'requests'); delete tasks[r.id]; }); rows = rows.filter(r => !(getClientName(r) === c.name && r.archived)); render(); } }; td3.appendChild(db);
+      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = rows.filter(r => getClientName(r) === c.name && r.archived); if (arr.length === 1) deleteProjectFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные проекты БЕЗВОЗВРАТНО?')) { arr.forEach(r => { deleteRequestFromFirebase(r.id, 'requests'); delete tasks[r.id]; }); rows = rows.filter(r => !(getClientName(r) === c.name && r.archived)); render(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
@@ -1106,17 +1193,168 @@ function renderBase() {
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
-          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">️ ' + escapeHtml(cp.email) + '</div>';
+          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
           if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
-    html += '<div class="client-base-stats"><span> Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span> Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
   });
+}
+
+// ===== СОТРУДНИКИ =====
+
+function renderEmployees() {
+  const q = document.getElementById('employeeSearch').value.trim().toLowerCase();
+  const container = document.getElementById('employeeList');
+  container.innerHTML = '';
+  
+  const visible = employees.filter(e => {
+    if (!q) return true;
+    return (e.name || '').toLowerCase().includes(q) || (e.position || '').toLowerCase().includes(q);
+  });
+  
+  document.getElementById('employeeInfo').textContent = 'Всего сотрудников: ' + visible.length;
+  
+  if (!visible.length) {
+    container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Сотрудники не найдены. Добавьте первого.</div>';
+    return;
+  }
+  
+  visible.forEach(emp => {
+    const empProjects = getEmployeeProjects(emp.name).length;
+    const row = document.createElement('div');
+    row.className = 'employee-row';
+    row.onclick = (e) => {
+      if (e.target.classList.contains('emp-delete')) return;
+      openEmployeePage(emp.id);
+    };
+    row.innerHTML = `
+      <div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div>
+      <div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div>
+      <div class="emp-projects">📁 Проектов: ${empProjects}</div>
+      <button class="emp-delete" onclick="quickDeleteEmployee('${emp.id}', '${escapeHtml(emp.name)}')">✖</button>
+    `;
+    container.appendChild(row);
+  });
+}
+
+// Получает проекты сотрудника: где он ответственный ИЛИ где есть его задания
+function getEmployeeProjects(empName) {
+  return rows.filter(r => {
+    if (r.archived) return false;
+    // Если сотрудник указан как ответственный
+    if (r.responsible === empName) return true;
+    // Если у проекта есть задания с этим исполнителем
+    const projectTasks = tasks[r.id] || [];
+    return projectTasks.some(t => t.assignee === empName);
+  });
+}
+
+async function quickDeleteEmployee(empId, empName) {
+  if (!confirm('Удалить сотрудника "' + empName + '"?')) return;
+  await deleteEmployeeFromFirebase(empId);
+}
+
+function showAddEmployeeForm() {
+  document.getElementById('addEmployeeForm').style.display = 'flex';
+  document.getElementById('newEmployeeName').value = '';
+  document.getElementById('newEmployeePosition').value = '';
+  document.getElementById('newEmployeeName').focus();
+}
+
+function hideAddEmployeeForm() {
+  document.getElementById('addEmployeeForm').style.display = 'none';
+}
+
+async function addEmployee() {
+  const name = document.getElementById('newEmployeeName').value.trim();
+  const position = document.getElementById('newEmployeePosition').value.trim();
+  if (!name) { alert('Введите имя сотрудника'); return; }
+  if (employees.some(e => e.name.toLowerCase() === name.toLowerCase())) {
+    alert('Сотрудник с таким именем уже существует');
+    return;
+  }
+  const newEmp = { id: uid(), name, position, createdAt: today() };
+  await saveEmployeeToFirebase(newEmp.id, newEmp);
+  hideAddEmployeeForm();
+}
+
+async function deleteEmployee() {
+  if (!currentEmployeeId) return;
+  const emp = employees.find(e => e.id === currentEmployeeId);
+  if (!emp) return;
+  if (!confirm('Удалить сотрудника "' + emp.name + '"?')) return;
+  await deleteEmployeeFromFirebase(currentEmployeeId);
+  closeEmployeePage();
+}
+
+function openEmployeePage(empId) {
+  const emp = employees.find(e => e.id === empId);
+  if (!emp) return;
+  currentEmployeeId = empId;
+  document.getElementById('employeePageName').textContent = emp.name || 'Без имени';
+  document.getElementById('employeePagePosition').textContent = emp.position || 'Должность не указана';
+  renderEmployeeProjects(empId);
+  document.getElementById('employeePageModal').style.display = 'block';
+}
+
+function renderEmployeeProjects(empId) {
+  const emp = employees.find(e => e.id === empId);
+  if (!emp) return;
+  
+  const container = document.getElementById('employeeProjectsTiles');
+  const empProjects = getEmployeeProjects(emp.name);
+  
+  if (!empProjects.length) {
+    container.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">У сотрудника нет активных проектов</div>';
+    return;
+  }
+  
+  container.innerHTML = empProjects.map(r => {
+    const badge = getDeadlineBadge(r.endDate, r.date);
+    const daysText = badge.days < 0 ? badge.days : badge.days;
+    const isResponsible = r.responsible === emp.name;
+    const hasTasks = (tasks[r.id] || []).some(t => t.assignee === emp.name);
+    const roleLabel = isResponsible ? ' (ответственный)' : (hasTasks ? ' (исполнитель)' : '');
+    return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + roleLabel + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+  }).join('');
+}
+
+function closeEmployeePage() {
+  document.getElementById('employeePageModal').style.display = 'none';
+  currentEmployeeId = null;
+}
+
+function openEmployeesModal() {
+  renderEmployeesModal();
+  document.getElementById('employeesModal').style.display = 'block';
+}
+
+function closeEmployeesModal() {
+  document.getElementById('employeesModal').style.display = 'none';
+}
+
+function renderEmployeesModal() {
+  const container = document.getElementById('employeesModalList');
+  if (!employees.length) {
+    container.innerHTML = '<div class="muted">Сотрудников пока нет. Добавьте первого во вкладке "Персонал".</div>';
+    return;
+  }
+  container.innerHTML = employees.map(emp => {
+    const empProjects = getEmployeeProjects(emp.name).length;
+    return `
+      <div class="employee-row" style="cursor:default;">
+        <div class="emp-name">${escapeHtml(emp.name)}</div>
+        <div class="emp-position">${escapeHtml(emp.position || '—')}</div>
+        <div class="emp-projects">📁 Проектов: ${empProjects}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 function formatContactPersonsForCSV(cps) {
@@ -1231,10 +1469,20 @@ function getRequestTasks(id) { if (!tasks[id]) tasks[id] = []; return tasks[id];
 function renderProduction() {
   const id = currentProductionRequest;
   if (!id) return;
+  
   const sel = document.getElementById('newTaskAssignee');
-  sel.innerHTML = '';
-  if (!assignees.length) sel.innerHTML = '<option value="">— Сначала добавьте исполнителей —</option>';
-  else assignees.forEach(a => { const o = document.createElement('option'); o.value = a; o.textContent = a; sel.appendChild(o); });
+  sel.innerHTML = '<option value="">— Выберите сотрудника —</option>';
+  if (!employees.length) {
+    sel.innerHTML = '<option value="">— Сначала добавьте сотрудников во вкладке "Персонал" —</option>';
+  } else {
+    employees.forEach(emp => {
+      const opt = document.createElement('option');
+      opt.value = emp.name;
+      opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
+      sel.appendChild(opt);
+    });
+  }
+  
   const dd = new Date(); dd.setDate(dd.getDate() + 7);
   document.getElementById('newTaskDeadline').value = dd.toISOString().slice(0,10);
   document.getElementById('newTaskTitle').value = '';
@@ -1262,7 +1510,7 @@ function renderTaskCard(t) {
     else dt = 'Срок: ' + dl;
   }
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
+  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div> ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
 }
 
 async function addTask() {
@@ -1273,7 +1521,15 @@ async function addTask() {
   const dl = document.getElementById('newTaskDeadline').value;
   const co = document.getElementById('newTaskComment').value.trim();
   if (!ti) { alert('Введите название'); return; }
-  if (!as) { alert('Выберите исполнителя'); return; }
+  if (!as) { alert('Выберите исполнителя (сотрудника)'); return; }
+  
+  // Автоматически назначаем исполнителя ответственным за проект, если поле пустое
+  const project = rows.find(r => r.id === id);
+  if (project && !project.responsible) {
+    project.responsible = as;
+    await saveRequestToFirebase(id, project, 'requests');
+  }
+  
   const rt = getRequestTasks(id);
   rt.push({ id: uid(), title: ti, assignee: as, deadline: dl, comment: co, status: 'new', createdAt: today() });
   await saveTasksToFirebase(id, rt);
@@ -1301,7 +1557,8 @@ async function editTask(tid) {
   const t = rt.find(x => x.id === tid);
   if (!t) return;
   const nt = prompt('Название:', t.title); if (nt === null) return;
-  const na = prompt('Исполнитель:', t.assignee); if (na === null) return;
+  const empNames = employees.map(e => e.name).join('\n');
+  const na = prompt('Исполнитель (выберите из списка):\n' + empNames + '\n\nВведите имя:', t.assignee); if (na === null) return;
   const nd = prompt('Срок (ГГГГ-ММ-ДД):', t.deadline || ''); if (nd === null) return;
   const nc = prompt('Комментарий:', t.comment || ''); if (nc === null) return;
   t.title = nt.trim(); t.assignee = na.trim(); t.deadline = nd.trim(); t.comment = nc.trim();
@@ -1318,35 +1575,6 @@ async function deleteTask(tid) {
   renderProduction();
 }
 
-async function openAssigneesModal() { document.getElementById('assigneesModal').style.display = 'block'; renderAssignees(); }
-function closeAssigneesModal() { document.getElementById('assigneesModal').style.display = 'none'; }
-
-function renderAssignees() {
-  const list = document.getElementById('assigneeList');
-  if (!assignees.length) { list.innerHTML = '<div class="muted">Исполнителей пока нет.</div>'; return; }
-  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span> ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
-}
-
-async function addAssignee() {
-  const input = document.getElementById('newAssigneeName');
-  const n = input.value.trim();
-  if (!n) return;
-  if (assignees.includes(n)) { alert('Такой уже есть'); return; }
-  assignees.push(n);
-  await saveAssigneesToFirebase();
-  input.value = '';
-  renderAssignees();
-}
-
-async function removeAssignee(n) {
-  if (!confirm('Удалить исполнителя "' + n + '"?')) return;
-  assignees = assignees.filter(a => a !== n);
-  await saveAssigneesToFirebase();
-  renderAssignees();
-}
-
-function getAssigneeLoad(n) { let t = 0, a = 0; Object.values(tasks).forEach(rt => rt.forEach(x => { if (x.assignee === n) { t++; if (x.status !== 'done') a++; } })); return { total: t, active: a }; }
-
 function openStatsModal() { document.getElementById('statsModal').style.display = 'block'; renderStats(); }
 function closeStatsModal() { document.getElementById('statsModal').style.display = 'none'; }
 
@@ -1355,20 +1583,28 @@ function renderStats() {
   if (!id) return;
   const rt = getRequestTasks(id);
   const total = rt.length, done = rt.filter(t => t.status === 'done').length, active = rt.filter(t => t.status !== 'done').length, overdue = rt.filter(t => { if (t.status === 'done') return false; const d = daysUntilEnd(t.deadline); return d !== null && d < 0; }).length;
-  let html = '<div class="stats-grid"><div class="stat-card"><div class="stat-value">' + total + '</div><div class="stat-label">Всего заданий</div></div><div class="stat-card"><div class="stat-value">' + active + '</div><div class="stat-label">В работе</div></div><div class="stat-card"><div class="stat-value">' + done + '</div><div class="stat-label">Выполнено</div></div><div class="stat-card"><div class="stat-value" style="color:#d9534f;">' + overdue + '</div><div class="stat-label">Просрочено</div></div></div><h4 style="margin-top:20px;">Загрузка исполнителей</h4>';
-  if (!assignees.length) html += '<div class="muted">Исполнителей пока нет.</div>';
+  let html = '<div class="stats-grid"><div class="stat-card"><div class="stat-value">' + total + '</div><div class="stat-label">Всего заданий</div></div><div class="stat-card"><div class="stat-value">' + active + '</div><div class="stat-label">В работе</div></div><div class="stat-card"><div class="stat-value">' + done + '</div><div class="stat-label">Выполнено</div></div><div class="stat-card"><div class="stat-value" style="color:#d9534f;">' + overdue + '</div><div class="stat-label">Просрочено</div></div></div><h4 style="margin-top:20px;">Загрузка сотрудников</h4>';
+  if (!employees.length) html += '<div class="muted">Сотрудников пока нет.</div>';
   else {
-    const max = Math.max(1, ...assignees.map(a => getAssigneeLoad(a).active));
+    const max = Math.max(1, ...employees.map(a => getEmployeeLoad(a.name).active));
     html += '<div style="margin-top:10px;">';
-    assignees.forEach(n => {
-      const l = getAssigneeLoad(n);
+    employees.forEach(emp => {
+      const l = getEmployeeLoad(emp.name);
       const p = Math.round((l.active / max) * 100);
       let bc = ''; if (p > 80) bc = 'danger'; else if (p > 50) bc = 'warn';
-      html += '<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><span><strong>' + escapeHtml(n) + '</strong></span><span class="muted">' + l.active + ' активных / ' + l.total + ' всего</span></div><div class="load-bar"><div class="load-bar-fill ' + bc + '" style="width:' + p + '%;"></div></div></div>';
+      html += '<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;"><span><strong>' + escapeHtml(emp.name) + '</strong>' + (emp.position ? ' <span class="muted">(' + escapeHtml(emp.position) + ')</span>' : '') + '</span><span class="muted">' + l.active + ' активных / ' + l.total + ' всего</span></div><div class="load-bar"><div class="load-bar-fill ' + bc + '" style="width:' + p + '%;"></div></div></div>';
     });
     html += '</div>';
   }
   document.getElementById('statsContent').innerHTML = html;
+}
+
+function getEmployeeLoad(empName) { 
+  let t = 0, a = 0; 
+  Object.values(tasks).forEach(rt => rt.forEach(x => { 
+    if (x.assignee === empName) { t++; if (x.status !== 'done') a++; } 
+  })); 
+  return { total: t, active: a }; 
 }
 
 setupRealtimeListeners();
@@ -1406,10 +1642,8 @@ window.addTask = addTask;
 window.moveTask = moveTask;
 window.editTask = editTask;
 window.deleteTask = deleteTask;
-window.openAssigneesModal = openAssigneesModal;
-window.closeAssigneesModal = closeAssigneesModal;
-window.addAssignee = addAssignee;
-window.removeAssignee = removeAssignee;
+window.openEmployeesModal = openEmployeesModal;
+window.closeEmployeesModal = closeEmployeesModal;
 window.openStatsModal = openStatsModal;
 window.closeStatsModal = closeStatsModal;
 window.addContactPerson = addContactPerson;
@@ -1417,6 +1651,13 @@ window.removeContactPerson = removeContactPerson;
 window.updateContactPerson = updateContactPerson;
 window.addNote = addNote;
 window.deleteNote = deleteNote;
+window.showAddEmployeeForm = showAddEmployeeForm;
+window.hideAddEmployeeForm = hideAddEmployeeForm;
+window.addEmployee = addEmployee;
+window.deleteEmployee = deleteEmployee;
+window.quickDeleteEmployee = quickDeleteEmployee;
+window.openEmployeePage = openEmployeePage;
+window.closeEmployeePage = closeEmployeePage;
 </script>
 
 </body>
