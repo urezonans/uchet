@@ -73,8 +73,8 @@
     .import-btn { background: #5cb85c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     .export-btn { background: #f0ad4e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
     .cloud-badge { background: #5cb85c; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-    .client-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    @media (max-width: 600px) { .client-info-grid { grid-template-columns: 1fr; } }
+    .client-info-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
+    @media (max-width: 700px) { .client-info-grid { grid-template-columns: 1fr; } }
     .tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 2px solid #ddd; }
     .tab { padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-bottom: none; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 14px; font-weight: bold; color: #555; }
     .tab:hover { background: #e8e8e8; }
@@ -108,9 +108,14 @@
     .client-base-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .client-base-name { font-weight: bold; font-size: 15px; color: #004a99; }
     .client-base-info { font-size: 13px; color: #666; margin-bottom: 3px; }
-    .client-base-stats { display: flex; gap: 12px; font-size: 12px; color: #555; margin-top: 6px; }
+    .client-base-stats { display: flex; gap: 12px; font-size: 12px; color: #555; margin-top: 6px; flex-wrap: wrap; }
     .client-base-stats span { background: #f0f0f0; padding: 2px 8px; border-radius: 10px; }
     .client-base-actions { display: flex; gap: 6px; }
+    .contact-person-row { display: flex; gap: 8px; margin-bottom: 6px; align-items: center; }
+    .contact-person-row input { flex: 1; }
+    .contact-person-row button { background: #d9534f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .add-contact-btn { background: #5cb85c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 6px; }
+    .add-contact-btn:hover { background: #449d44; }
     .sync-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #5cb85c; }
     .sync-indicator.syncing { color: #f0ad4e; }
     .sync-indicator.error { color: #d9534f; }
@@ -144,14 +149,6 @@
     .load-bar-fill { height: 100%; background: #5cb85c; }
     .load-bar-fill.warn { background: #f0ad4e; }
     .load-bar-fill.danger { background: #d9534f; }
-    /* Стили для контактных лиц */
-    .contact-person-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; padding: 6px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; }
-    .contact-person-row input { flex: 1; }
-    .contact-person-row button { flex-shrink: 0; }
-    .add-contact-btn { background: #5cb85c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; margin-top: 8px; }
-    .add-contact-btn:hover { background: #449d44; }
-    .remove-contact-btn { background: #d9534f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-    .remove-contact-btn:hover { background: #c9302c; }
   </style>
 </head>
 <body>
@@ -159,14 +156,14 @@
   <h2>Учёт клиентов и проектов <span class="cloud-badge">☁ Облако</span> <span id="syncIndicator" class="sync-indicator"><span class="dot"></span><span>Подключение...</span></span></h2>
 
   <div class="nav-tabs">
-    <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
+    <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')"> Проекты</button>
     <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
-    <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
+    <button class="nav-tab" id="navBase" onclick="switchNavView('base')"> База клиентов</button>
   </div>
 
   <div id="projectsView">
     <div class="tabs">
-      <button class="tab active" id="tabActive" onclick="switchView('active')"> Активные <span class="count" id="activeCount">0</span></button>
+      <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
@@ -210,29 +207,29 @@
       <div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
       <label for="clientName">Имя клиента / Название компании</label><input id="clientName">
       
+      <label style="margin-top:14px;">Телефоны</label>
       <div class="client-info-grid">
         <div><label for="clientPhone1">Телефон 1</label><input id="clientPhone1" placeholder="+7 900 000-00-00"></div>
         <div><label for="clientPhone2">Телефон 2</label><input id="clientPhone2" placeholder="+7 900 000-00-00"></div>
         <div><label for="clientPhone3">Телефон 3</label><input id="clientPhone3" placeholder="+7 900 000-00-00"></div>
-        <div><label for="clientEmail">Email</label><input id="clientEmail" placeholder="email@example.com"></div>
       </div>
-      
-      <div style="margin-top:10px;">
+
+      <div class="client-info-grid" style="grid-template-columns:1fr 1fr;">
+        <div><label for="clientEmail">Email</label><input id="clientEmail" placeholder="email@example.com"></div>
+        <div><label for="clientWebsite">Сайт</label><input id="clientWebsite" placeholder="https://example.com"></div>
+      </div>
+
+      <div style="margin-top:10px;"><label for="clientAddress">Адрес</label><input id="clientAddress" placeholder="Город, улица, дом, офис"></div>
+
+      <div style="margin-top:14px;">
         <label>Контактные лица</label>
         <div id="contactPersonsList"></div>
         <button class="add-contact-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button>
       </div>
-      
-      <div style="margin-top:10px;">
-        <label for="clientWebsite">Сайт</label><input id="clientWebsite" placeholder="https://example.com">
-      </div>
-      <div style="margin-top:10px;">
-        <label for="clientAddress">Адрес</label><input id="clientAddress" placeholder="Город, улица, дом, офис">
-      </div>
-      
+
       <div class="requests-columns">
         <div class="requests-column projects-col">
-          <h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
+          <h4> Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
           <div class="tiles-grid" id="projectsTiles"></div>
         </div>
         <div class="requests-column requests-col">
@@ -278,7 +275,7 @@
     <div class="modal kanban-modal">
       <div class="modal-header"><h3>🏭 Производство: <span id="productionRequestTitle"></span></h3><button class="close-btn" onclick="closeProduction()">×</button></div>
       <div class="kanban-toolbar">
-        <button onclick="openAssigneesModal()">👥 Исполнители</button>
+        <button onclick="openAssigneesModal()"> Исполнители</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
       <div class="add-task-form">
@@ -314,7 +311,7 @@
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -349,6 +346,7 @@ let currentRequestView = 'active';
 let currentNavView = 'projects';
 let currentViewRequest = null;
 let currentViewType = null;
+let tempContactPersons = [];
 let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeAssignees = null, unsubscribeTasks = null;
 
 function setSyncStatus(status, message) {
@@ -387,7 +385,6 @@ function daysLabel(d) {
 
 function getClientName(r) { return String(r.client || '').trim(); }
 function getRequestTitle(r) { return String(r.title || r.request || '').trim(); }
-function getRequestComment(r) { return String(r.comment || '').trim(); }
 
 function generateNewClientName() {
   let base = 'Новый клиент', name = base, n = 1;
@@ -422,7 +419,7 @@ async function saveTasksToFirebase(id, list) {
 
 async function ensureClientExists(name) {
   if (!clients[name]) {
-    clients[name] = { name, phone1: '', phone2: '', phone3: '', contactPersons: [], email: '', website: '', address: '', createdAt: today() };
+    clients[name] = { name, phones: ['', '', ''], contactPersons: [], address: '', email: '', website: '', createdAt: today() };
     await saveClientToFirebase(name, clients[name]);
   }
   return clients[name];
@@ -470,7 +467,7 @@ function setupRealtimeListeners() {
 
 async function addClient() {
   const name = generateNewClientName();
-  await saveClientToFirebase(name, { name, phone1: '', phone2: '', phone3: '', contactPersons: [], email: '', website: '', address: '', createdAt: today() });
+  await saveClientToFirebase(name, { name, phones: ['', '', ''], contactPersons: [], address: '', email: '', website: '', createdAt: today() });
   setTimeout(() => openClientModalByName(name), 300);
 }
 
@@ -505,15 +502,15 @@ function getRequestList() {
 function getBaseList() {
   return Object.keys(clients).map(name => {
     const c = clients[name];
+    const phones = c.phones || (c.phone ? [c.phone] : []);
+    const contactPersons = c.contactPersons || (c.contactPerson ? [{ name: c.contactPerson, position: '' }] : []);
     return { 
       name, 
-      phone1: c.phone1||'', 
-      phone2: c.phone2||'', 
-      phone3: c.phone3||'',
-      contactPersons: c.contactPersons || [],
+      phones,
+      contactPersons,
+      address: c.address||'', 
       email: c.email||'', 
       website: c.website||'', 
-      address: c.address||'', 
       createdAt: c.createdAt||'', 
       projectCount: rows.filter(r => getClientName(r) === name && !r.archived).length, 
       requestCount: leads.filter(l => getClientName(l) === name && !l.archived).length 
@@ -538,71 +535,69 @@ function openClientModalByName(name) {
   currentClientOldName = name;
   const s = clients[name] || {};
   document.getElementById('clientName').value = s.name || name;
-  document.getElementById('clientPhone1').value = s.phone1 || '';
-  document.getElementById('clientPhone2').value = s.phone2 || '';
-  document.getElementById('clientPhone3').value = s.phone3 || '';
+  
+  // Телефоны (с обратной совместимостью)
+  const phones = s.phones || (s.phone ? [s.phone] : ['', '', '']);
+  document.getElementById('clientPhone1').value = phones[0] || '';
+  document.getElementById('clientPhone2').value = phones[1] || '';
+  document.getElementById('clientPhone3').value = phones[2] || '';
+  
+  document.getElementById('clientAddress').value = s.address || '';
   document.getElementById('clientEmail').value = s.email || '';
   document.getElementById('clientWebsite').value = s.website || '';
-  document.getElementById('clientAddress').value = s.address || '';
   
-  // Отображаем контактных лиц
-  renderContactPersons(s.contactPersons || []);
+  // Контактные лица (с обратной совместимостью)
+  tempContactPersons = s.contactPersons 
+    ? s.contactPersons.map(cp => ({ name: cp.name || '', position: cp.position || '' }))
+    : (s.contactPerson ? [{ name: s.contactPerson, position: '' }] : []);
+  renderContactPersons();
   
   renderClientRequests(name);
   document.getElementById('clientModal').style.display = 'block';
 }
 
-function renderContactPersons(contactPersons) {
+function closeClientModal() { document.getElementById('clientModal').style.display = 'none'; currentClientOldName = ''; }
+
+// === Контактные лица ===
+function renderContactPersons() {
   const container = document.getElementById('contactPersonsList');
-  if (!contactPersons.length) {
-    container.innerHTML = '<div class="muted">Контактных лиц пока нет</div>';
+  if (!tempContactPersons.length) {
+    container.innerHTML = '<div class="muted">Контактных лиц пока нет. Нажмите кнопку ниже, чтобы добавить.</div>';
     return;
   }
-  
-  container.innerHTML = contactPersons.map((cp, idx) => `
+  container.innerHTML = tempContactPersons.map((cp, i) => `
     <div class="contact-person-row">
-      <input type="text" placeholder="Имя" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${idx}, 'name', this.value)">
-      <input type="text" placeholder="Должность" value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${idx}, 'position', this.value)">
-      <button class="remove-contact-btn" onclick="removeContactPerson(${idx})">✖</button>
+      <input placeholder="Имя" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${i}, 'name', this.value)">
+      <input placeholder="Должность" value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${i}, 'position', this.value)">
+      <button onclick="removeContactPerson(${i})">✖</button>
     </div>
   `).join('');
 }
 
-function updateContactPerson(idx, field, value) {
-  const s = clients[currentClientOldName] || {};
-  if (!s.contactPersons) s.contactPersons = [];
-  if (!s.contactPersons[idx]) s.contactPersons[idx] = {};
-  s.contactPersons[idx][field] = value;
-  clients[currentClientOldName] = s;
-}
-
 function addContactPerson() {
-  const s = clients[currentClientOldName] || {};
-  if (!s.contactPersons) s.contactPersons = [];
-  s.contactPersons.push({ name: '', position: '' });
-  clients[currentClientOldName] = s;
-  renderContactPersons(s.contactPersons);
+  tempContactPersons.push({ name: '', position: '' });
+  renderContactPersons();
 }
 
-function removeContactPerson(idx) {
-  const s = clients[currentClientOldName] || {};
-  if (!s.contactPersons) return;
-  s.contactPersons.splice(idx, 1);
-  clients[currentClientOldName] = s;
-  renderContactPersons(s.contactPersons);
+function removeContactPerson(i) {
+  tempContactPersons.splice(i, 1);
+  renderContactPersons();
 }
 
-function closeClientModal() { document.getElementById('clientModal').style.display = 'none'; currentClientOldName = ''; }
+function updateContactPerson(i, field, value) {
+  if (tempContactPersons[i]) tempContactPersons[i][field] = value;
+}
 
 async function applyClientForm() {
   const newName = document.getElementById('clientName').value.trim() || 'Без имени';
-  const phone1 = document.getElementById('clientPhone1').value.trim();
-  const phone2 = document.getElementById('clientPhone2').value.trim();
-  const phone3 = document.getElementById('clientPhone3').value.trim();
+  const phones = [
+    document.getElementById('clientPhone1').value.trim(),
+    document.getElementById('clientPhone2').value.trim(),
+    document.getElementById('clientPhone3').value.trim()
+  ];
+  const address = document.getElementById('clientAddress').value.trim();
   const email = document.getElementById('clientEmail').value.trim();
   const website = document.getElementById('clientWebsite').value.trim();
-  const address = document.getElementById('clientAddress').value.trim();
-  
   const oldName = currentClientOldName;
   let createdAt = today();
   if (oldName && clients[oldName] && clients[oldName].createdAt) createdAt = clients[oldName].createdAt;
@@ -613,14 +608,11 @@ async function applyClientForm() {
     leads.forEach(l => { if (getClientName(l) === oldName) { l.client = newName; saveRequestToFirebase(l.id, l, 'leads'); } });
     if (clients[oldName]) { delete clients[oldName]; await deleteDoc(doc(db, 'clients', oldName)); }
   }
-  
-  const s = clients[newName] || {};
   clients[newName] = { 
     name: newName, 
-    phone1, phone2, phone3,
-    contactPersons: s.contactPersons || [],
-    email, website, address, 
-    createdAt 
+    phones,
+    contactPersons: tempContactPersons.map(cp => ({ name: cp.name || '', position: cp.position || '' })),
+    address, email, website, createdAt 
   };
   await saveClientToFirebase(newName, clients[newName]);
   currentClientOldName = newName;
@@ -631,9 +623,9 @@ async function saveClientModal() { await applyClientForm(); closeClientModal(); 
 
 async function addRequestToClient(type) {
   const clientName = await applyClientForm();
-  const phone1 = document.getElementById('clientPhone1').value.trim();
+  const phone = document.getElementById('clientPhone1').value.trim();
   const isReq = type === 'request';
-  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: phone1, title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
+  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: phone, title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
   await saveRequestToFirebase(newItem.id, newItem, isReq ? 'leads' : 'requests');
 }
 
@@ -821,7 +813,7 @@ function renderViewActions() {
     const b2 = document.createElement('button'); b2.className = 'archive-btn'; b2.textContent = '📦 В архив'; b2.onclick = async () => { await archiveProject(itemId); closeViewModal(); }; div.appendChild(b2);
     const b3 = document.createElement('button'); b3.className = 'convert-btn'; b3.textContent = '🔄 В заявку'; b3.onclick = async () => { await convertProjectToRequest(itemId); closeViewModal(); }; div.appendChild(b3);
   } else {
-    const b1 = document.createElement('button'); b1.className = 'convert-btn'; b1.textContent = ' В проект'; b1.onclick = async () => { await convertRequestToProject(itemId); closeViewModal(); }; div.appendChild(b1);
+    const b1 = document.createElement('button'); b1.className = 'convert-btn'; b1.textContent = '🔄 В проект'; b1.onclick = async () => { await convertRequestToProject(itemId); closeViewModal(); }; div.appendChild(b1);
     const b2 = document.createElement('button'); b2.className = 'archive-btn'; b2.textContent = '📦 В архив'; b2.onclick = async () => { await archiveRequest(itemId); closeViewModal(); }; div.appendChild(b2);
   }
   const b4 = document.createElement('button'); b4.className = 'delete-final-btn'; b4.textContent = '🗑 Удалить навсегда'; b4.onclick = async () => { if (itemType === 'project') await deleteProjectFinal(itemId); else await deleteRequestFinal(itemId); closeViewModal(); }; div.appendChild(b4);
@@ -835,7 +827,7 @@ function renderClientRequests(clientName) {
   const ap = rows.filter(r => getClientName(r) === clientName && !r.archived);
   const ar = leads.filter(l => getClientName(l) === clientName && !l.archived);
   if (!ap.length) { pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; }
-  else { pc.innerHTML = ap.map(r => '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"> ' + escapeHtml(r.date || '—') + '</div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join(''); }
+  else { pc.innerHTML = ap.map(r => '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date">📅 ' + escapeHtml(r.date || '—') + '</div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join(''); }
   if (!ar.length) { rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; }
   else { rc.innerHTML = ar.map(l => '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date">📅 ' + escapeHtml(l.date || '—') + '</div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>').join(''); }
 }
@@ -868,7 +860,7 @@ function render() {
   document.getElementById('archiveCount').textContent = arc;
   list = list.map(c => ({ ...c, requests: c.requests.filter(r => { if (currentView === 'active' && r.archived) return false; if (currentView === 'archive' && !r.archived) return false; if (sf && r.status !== sf) return false; return true; }) })).filter(c => c.requests.length > 0);
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
-  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(r => r.date + ' ' + r.endDate + ' ' + r.title + ' ' + r.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone1||'', card.phone2||'', card.phone3||'', card.email||'', card.website||'', rt].join(' ').toLowerCase().includes(q); });
+  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(r => r.date + ' ' + r.endDate + ' ' + r.title + ' ' + r.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone||'', (card.phones||[]).join(' '), (card.contactPersons||[]).map(cp=>cp.name).join(' '), card.address||'', card.email||'', card.website||'', rt].join(' ').toLowerCase().includes(q); });
   document.getElementById('info').textContent = (currentView === 'active' ? 'Активных' : 'Архивных') + ' клиентов: ' + visible.length + ' (всего проектов: ' + (currentView === 'active' ? act : arc) + ')';
   visible.forEach(c => {
     const tr = document.createElement('tr');
@@ -877,8 +869,9 @@ function render() {
     td1.appendChild(btn); tr.appendChild(td1);
     const td2 = document.createElement('td');
     const div = document.createElement('div'); div.className = 'requests-cell';
-    if (c.requests.length) { div.innerHTML = c.requests.map(r => '<div class="req-line"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join(''); }
-    else { div.innerHTML = '<span class="muted">Нет проектов</span>'; }
+    if (c.requests.length) {
+      div.innerHTML = c.requests.map(r => '<div class="req-line"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join('');
+    } else { div.innerHTML = '<span class="muted">Нет проектов</span>'; }
     td2.appendChild(div); tr.appendChild(td2);
     const td3 = document.createElement('td');
     if (currentView === 'archive') {
@@ -901,7 +894,7 @@ function renderRequests() {
   document.getElementById('requestActiveCount').textContent = act;
   document.getElementById('requestArchiveCount').textContent = arc;
   list = list.map(c => ({ ...c, requests: c.requests.filter(r => { if (currentRequestView === 'active' && r.archived) return false; if (currentRequestView === 'archive' && !r.archived) return false; return true; }) })).filter(c => c.requests.length > 0);
-  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone1||'', card.email||'', rt].join(' ').toLowerCase().includes(q); });
+  const visible = list.filter(c => { if (!q) return true; const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase(); const card = clients[c.name] || {}; return [c.name, card.phone||'', (card.phones||[]).join(' '), (card.contactPersons||[]).map(cp=>cp.name).join(' '), card.address||'', card.email||'', card.website||'', rt].join(' ').toLowerCase().includes(q); });
   document.getElementById('requestInfo').textContent = 'Всего клиентов с заявками: ' + visible.length;
   visible.forEach(c => {
     const tr = document.createElement('tr');
@@ -910,8 +903,9 @@ function renderRequests() {
     td1.appendChild(btn); tr.appendChild(td1);
     const td2 = document.createElement('td');
     const div = document.createElement('div'); div.className = 'requests-cell';
-    if (c.requests.length) { div.innerHTML = c.requests.map(l => '<div class="req-line"><span class="req-type-request">ЗАЯВКА</span><span class="req-date">' + escapeHtml(l.date) + '</span><span class="req-title">' + escapeHtml(l.title) + '</span>' + (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>').join(''); }
-    else { div.innerHTML = '<span class="muted">Нет заявок</span>'; }
+    if (c.requests.length) {
+      div.innerHTML = c.requests.map(l => '<div class="req-line"><span class="req-type-request">ЗАЯВКА</span><span class="req-date">' + escapeHtml(l.date) + '</span><span class="req-title">' + escapeHtml(l.title) + '</span>' + (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>').join('');
+    } else { div.innerHTML = '<span class="muted">Нет заявок</span>'; }
     td2.appendChild(div); tr.appendChild(td2);
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
@@ -935,15 +929,11 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
-    if (c.phone1) html += '<div class="client-base-info">📞 ' + escapeHtml(c.phone1) + '</div>';
-    if (c.phone2) html += '<div class="client-base-info">📞 ' + escapeHtml(c.phone2) + '</div>';
-    if (c.phone3) html += '<div class="client-base-info"> ' + escapeHtml(c.phone3) + '</div>';
-    if (c.contactPersons && c.contactPersons.length) {
-      c.contactPersons.forEach(cp => {
-        if (cp.name) html += '<div class="client-base-info">👤 ' + escapeHtml(cp.name) + (cp.position ? ' — ' + escapeHtml(cp.position) : '') + '</div>';
-      });
-    }
+    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')"> Удалить клиента</button></div></div>';
+    c.phones.forEach((ph, i) => { if (ph) html += '<div class="client-base-info">📞 ' + escapeHtml(ph) + (i === 0 ? '' : ' <span style="color:#999;font-size:11px;">(доп.)</span>') + '</div>'; });
+    c.contactPersons.forEach(cp => { 
+      if (cp.name) html += '<div class="client-base-info">👤 ' + escapeHtml(cp.name) + (cp.position ? ' — ' + escapeHtml(cp.position) : '') + '</div>'; 
+    });
     if (c.email) html += '<div class="client-base-info">✉️ ' + escapeHtml(c.email) + '</div>';
     if (c.website) html += '<div class="client-base-info">🌐 ' + escapeHtml(c.website) + '</div>';
     if (c.address) html += '<div class="client-base-info">📍 ' + escapeHtml(c.address) + '</div>';
@@ -955,15 +945,16 @@ function renderBase() {
 }
 
 function exportCSV() {
-  const headers = ['Клиент','Телефон 1','Телефон 2','Телефон 3','Контактные лица','Email','Сайт','Адрес','Статус срока','Дата поступления','Дата окончания','Наименование проекта','Статус проекта','Архив'];
+  const headers = ['Клиент','Телефон1','Телефон2','Телефон3','Контактные лица','Email','Сайт','Адрес','Статус срока','Дата поступления','Дата окончания','Наименование проекта','Статус проекта','Архив'];
   let list = getClientList();
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
   const lines = [];
   list.forEach(c => {
     const card = clients[c.name] || {};
-    const cpText = (card.contactPersons || []).map(cp => (cp.name || '') + (cp.position ? ' (' + cp.position + ')' : '')).join('; ');
-    if (!c.requests.length) lines.push([c.name, card.phone1||'', card.phone2||'', card.phone3||'', cpText, card.email||'', card.website||'', card.address||'', '','','','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
-    else c.requests.forEach((r, i) => { const b = getDeadlineBadge(r.endDate, r.date); lines.push([i===0?c.name:'', i===0?(card.phone1||''):'', i===0?(card.phone2||''):'', i===0?(card.phone3||''):'', i===0?cpText:'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', b.text, r.date, r.endDate, r.title, r.status, r.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
+    const phones = card.phones || (card.phone ? [card.phone] : []);
+    const cps = (card.contactPersons || []).map(cp => (cp.name || '') + (cp.position ? ' (' + cp.position + ')' : '')).join('; ');
+    if (!c.requests.length) lines.push([c.name, phones[0]||'', phones[1]||'', phones[2]||'', cps, card.email||'', card.website||'', card.address||'', '','','','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
+    else c.requests.forEach((r, i) => { const b = getDeadlineBadge(r.endDate, r.date); lines.push([i===0?c.name:'', i===0?(phones[0]||''):'', i===0?(phones[1]||''):'', i===0?(phones[2]||''):'', i===0?cps:'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', b.text, r.date, r.endDate, r.title, r.status, r.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
   });
   const csv = '\uFEFF' + [headers.join(';'), ...lines].join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -971,15 +962,16 @@ function exportCSV() {
 }
 
 function exportRequestsCSV() {
-  const headers = ['Клиент','Телефон 1','Телефон 2','Телефон 3','Контактные лица','Email','Сайт','Адрес','Дата','Наименование заявки','Статус заявки','Архив'];
+  const headers = ['Клиент','Телефон1','Телефон2','Телефон3','Контактные лица','Email','Сайт','Адрес','Дата','Наименование заявки','Статус заявки','Архив'];
   let list = getRequestList();
   list.sort((a,b) => { const da = a.requests.length ? a.requests[0].date : ''; const db = b.requests.length ? b.requests[0].date : ''; return db.localeCompare(da) || a.name.localeCompare(b.name, 'ru'); });
   const lines = [];
   list.forEach(c => {
     const card = clients[c.name] || {};
-    const cpText = (card.contactPersons || []).map(cp => (cp.name || '') + (cp.position ? ' (' + cp.position + ')' : '')).join('; ');
-    if (!c.requests.length) lines.push([c.name, card.phone1||'', card.phone2||'', card.phone3||'', cpText, card.email||'', card.website||'', card.address||'', '','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
-    else c.requests.forEach((l, i) => { lines.push([i===0?c.name:'', i===0?(card.phone1||''):'', i===0?(card.phone2||''):'', i===0?(card.phone3||''):'', i===0?cpText:'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', l.date, l.title, l.status, l.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
+    const phones = card.phones || (card.phone ? [card.phone] : []);
+    const cps = (card.contactPersons || []).map(cp => (cp.name || '') + (cp.position ? ' (' + cp.position + ')' : '')).join('; ');
+    if (!c.requests.length) lines.push([c.name, phones[0]||'', phones[1]||'', phones[2]||'', cps, card.email||'', card.website||'', card.address||'', '','','',''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
+    else c.requests.forEach((l, i) => { lines.push([i===0?c.name:'', i===0?(phones[0]||''):'', i===0?(phones[1]||''):'', i===0?(phones[2]||''):'', i===0?cps:'', i===0?(card.email||''):'', i===0?(card.website||''):'', i===0?(card.address||''):'', l.date, l.title, l.status, l.archived?'Да':''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';')); });
   });
   const csv = '\uFEFF' + [headers.join(';'), ...lines].join('\r\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -1011,10 +1003,11 @@ async function importCSV(event) {
       for (let i = 1; i < parsed.length; i++) {
         const line = parsed[i];
         if (!line || line.length < 7) continue;
-        const cn = String(line[0]||'').trim(), ph1 = String(line[1]||'').trim(), ph2 = String(line[2]||'').trim(), ph3 = String(line[3]||'').trim(), cpText = String(line[4]||'').trim(), em = String(line[5]||'').trim(), ws = String(line[6]||'').trim(), ad = String(line[7]||'').trim(), dt = String(line[9]||'').trim(), ed = String(line[10]||'').trim(), ti = String(line[11]||'').trim(), st = String(line[12]||'').trim(), ar = String(line[13]||'').trim().toLowerCase() === 'да';
-        const contactPersons = cpText ? cpText.split(';').map(s => { const parts = s.trim().split('('); const name = parts[0].trim(); const position = parts[1] ? parts[1].replace(')', '').trim() : ''; return { name, position }; }).filter(cp => cp.name) : [];
+        const cn = String(line[0]||'').trim(), ph1 = String(line[1]||'').trim(), ph2 = String(line[2]||'').trim(), ph3 = String(line[3]||'').trim(), cpsStr = String(line[4]||'').trim(), em = String(line[5]||'').trim(), ws = String(line[6]||'').trim(), ad = String(line[7]||'').trim(), dt = String(line[9]||'').trim(), ed = String(line[10]||'').trim(), ti = String(line[11]||'').trim(), st = String(line[12]||'').trim(), ar = String(line[13]||'').trim().toLowerCase() === 'да';
+        const phones = [ph1, ph2, ph3].filter(p => p);
+        const contactPersons = cpsStr ? cpsStr.split(';').map(s => { const m = s.trim().match(/^(.+?)(?:\s*\((.+)\))?$/); return m ? { name: m[1].trim(), position: (m[2]||'').trim() } : { name: s.trim(), position: '' }; }).filter(cp => cp.name) : [];
         if (cn) {
-          if (!clients[cn]) { clients[cn] = { name: cn, phone1: ph1, phone2: ph2, phone3: ph3, contactPersons, email: em, website: ws, address: ad, createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
+          if (!clients[cn]) { clients[cn] = { name: cn, phones: [ph1||'', ph2||'', ph3||''], contactPersons, address: ad, email: em, website: ws, createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
         }
         if (ti || dt || ed) {
           const np = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: ph1, title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
@@ -1078,7 +1071,7 @@ function renderTaskCard(t) {
     else dt = 'Срок: ' + dl;
   }
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div> ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
+  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
 }
 
 async function addTask() {
@@ -1140,7 +1133,7 @@ function closeAssigneesModal() { document.getElementById('assigneesModal').style
 function renderAssignees() {
   const list = document.getElementById('assigneeList');
   if (!assignees.length) { list.innerHTML = '<div class="muted">Исполнителей пока нет.</div>'; return; }
-  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span>👤 ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;"></button></span></div>'; }).join('');
+  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span> ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
 }
 
 async function addAssignee() {
@@ -1210,6 +1203,9 @@ window.closeViewModal = closeViewModal;
 window.updateViewField = updateViewField;
 window.addComment = addComment;
 window.deleteComment = deleteComment;
+window.addContactPerson = addContactPerson;
+window.removeContactPerson = removeContactPerson;
+window.updateContactPerson = updateContactPerson;
 window.exportCSV = exportCSV;
 window.exportRequestsCSV = exportRequestsCSV;
 window.importCSV = importCSV;
@@ -1228,9 +1224,6 @@ window.addAssignee = addAssignee;
 window.removeAssignee = removeAssignee;
 window.openStatsModal = openStatsModal;
 window.closeStatsModal = closeStatsModal;
-window.addContactPerson = addContactPerson;
-window.removeContactPerson = removeContactPerson;
-window.updateContactPerson = updateContactPerson;
 </script>
 
 </body>
