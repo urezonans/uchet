@@ -52,7 +52,8 @@
     .request-tile.project-tile { border-left: 4px solid #5bc0de; }
     .request-tile.request-tile-type { border-left: 4px solid #9b59b6; background: #faf0ff; }
     .request-tile .tile-title { font-weight: bold; font-size: 14px; color: #004a99; margin-bottom: 6px; word-break: break-word; }
-    .request-tile .tile-date { font-size: 12px; color: #666; }
+    .request-tile .tile-date { font-size: 12px; color: #666; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .request-tile .tile-days { font-size: 22px; font-weight: bold; color: #004a99; line-height: 1; }
     .request-tile .tile-status { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 10px; background: #f0f0f0; color: #555; margin-top: 6px; }
     .request-tile .tile-empty { color: #999; font-size: 13px; font-style: italic; }
     .days-badge { display: inline-block; font-size: 16px; font-weight: bold; color: #fff; background: #888; padding: 4px 12px; border-radius: 12px; margin-top: 4px; }
@@ -91,8 +92,8 @@
     .view-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; padding: 12px; background: #f9f9f9; border-radius: 8px; }
     .view-info-item label { font-size: 11px; color: #777; text-transform: uppercase; margin-bottom: 2px; display: block; }
     .view-info-item .value { font-size: 14px; font-weight: bold; color: #222; }
-    .view-info-item .value input { font-size: 14px; font-weight: bold; color: #222; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; box-sizing: border-box; }
-    .view-info-item .value input:focus { border-color: #004a99; outline: none; }
+    .view-info-item .value input, .view-info-item .value select { font-size: 14px; font-weight: bold; color: #222; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; box-sizing: border-box; background: white; }
+    .view-info-item .value input:focus, .view-info-item .value select:focus { border-color: #004a99; outline: none; }
     .view-comment-section { margin-top: 20px; border-top: 2px solid #eee; padding-top: 16px; }
     .view-comment-section h4 { margin: 0 0 12px 0; font-size: 16px; }
     .comment-add-form { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -144,117 +145,24 @@
     .load-bar-fill { height: 100%; background: #5cb85c; }
     .load-bar-fill.warn { background: #f0ad4e; }
     .load-bar-fill.danger { background: #d9534f; }
-    
-    /* Стили для контактных лиц */
-    .contact-person-block {
-      background: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    .contact-person-block .cp-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #004a99;
-      font-size: 13px;
-    }
-    .contact-person-block .cp-field {
-      margin-bottom: 6px;
-    }
-    .contact-person-block .cp-field label {
-      display: block;
-      font-size: 10px;
-      color: #666;
-      margin-bottom: 2px;
-      font-weight: normal;
-      text-transform: uppercase;
-    }
-    .contact-person-block .cp-field input {
-      width: 100%;
-      padding: 4px 6px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 11px;
-      box-sizing: border-box;
-    }
-    .contact-person-block .cp-field input:focus {
-      border-color: #004a99;
-      outline: none;
-    }
-    .remove-cp-btn {
-      background: #d9534f;
-      color: white;
-      border: none;
-      padding: 4px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 11px;
-    }
+    .contact-person-block { background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+    .contact-person-block .cp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; color: #004a99; font-size: 13px; }
+    .contact-person-block .cp-field { margin-bottom: 6px; }
+    .contact-person-block .cp-field label { display: block; font-size: 10px; color: #666; margin-bottom: 2px; font-weight: normal; text-transform: uppercase; }
+    .contact-person-block .cp-field input { width: 100%; padding: 4px 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; box-sizing: border-box; }
+    .contact-person-block .cp-field input:focus { border-color: #004a99; outline: none; }
+    .remove-cp-btn { background: #d9534f; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
     .remove-cp-btn:hover { background: #c9302c; }
-    .add-cp-btn {
-      background: #5cb85c;
-      color: white;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: bold;
-      margin-top: 8px;
-    }
+    .add-cp-btn { background: #5cb85c; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 8px; }
     .add-cp-btn:hover { background: #449d44; }
-    .client-columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-top: 14px;
-    }
-    @media (max-width: 700px) {
-      .client-columns { grid-template-columns: 1fr; }
-    }
-    .client-column-left {
-      min-height: 200px;
-    }
-    .client-column-right {
-      background: #fffbe6;
-      border: 1px solid #ffe58f;
-      border-radius: 6px;
-      padding: 12px;
-      min-height: 200px;
-    }
-    .client-column-right h4 {
-      margin: 0 0 10px 0;
-      font-size: 14px;
-      color: #004a99;
-      border-bottom: 2px solid #ffe58f;
-      padding-bottom: 6px;
-    }
-    .note-add-form {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .note-add-form textarea {
-      flex: 1;
-      min-height: 50px;
-      resize: vertical;
-      padding: 6px 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 13px;
-      font-family: Arial, sans-serif;
-    }
-    .note-add-form textarea:focus {
-      border-color: #004a99;
-      outline: none;
-    }
-    .note-add-form button {
-      align-self: flex-end;
-    }
+    .client-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+    @media (max-width: 700px) { .client-columns { grid-template-columns: 1fr; } }
+    .client-column-left { min-height: 200px; }
+    .client-column-right { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 12px; min-height: 200px; }
+    .client-column-right h4 { margin: 0 0 10px 0; font-size: 14px; color: #004a99; border-bottom: 2px solid #ffe58f; padding-bottom: 6px; }
+    .note-add-form { display: flex; gap: 8px; margin-bottom: 12px; }
+    .note-add-form textarea { flex: 1; min-height: 50px; resize: vertical; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; }
+    .note-add-form textarea:focus { border-color: #004a99; outline: none; }
   </style>
 </head>
 <body>
@@ -269,7 +177,7 @@
 
   <div id="projectsView">
     <div class="tabs">
-      <button class="tab active" id="tabActive" onclick="switchView('active')"> Активные <span class="count" id="activeCount">0</span></button>
+      <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
@@ -288,13 +196,13 @@
 
   <div id="requestsView" style="display:none;">
     <div class="tabs">
-      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')"> Активные <span class="count" id="requestActiveCount">0</span></button>
+      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')">📋 Активные <span class="count" id="requestActiveCount">0</span></button>
       <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
     </div>
     <div class="toolbar">
       <input id="requestSearch" placeholder="Поиск..." style="width: 280px" oninput="renderRequests()">
       <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()"> Экспорт</button>
+      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
       <span id="requestInfo" class="muted"></span>
     </div>
     <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
@@ -330,7 +238,7 @@
       
       <div class="requests-columns">
         <div class="requests-column projects-col">
-          <h4> Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
+          <h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
           <div class="tiles-grid" id="projectsTiles"></div>
         </div>
         <div class="requests-column requests-col">
@@ -538,10 +446,7 @@ function setupRealtimeListeners() {
     clients = {};
     snap.forEach(d => { clients[d.id] = d.data(); });
     render(); renderRequests(); renderBase();
-    if (currentClientOldName) {
-      renderClientRequests(currentClientOldName);
-      renderNotes();
-    }
+    if (currentClientOldName) { renderClientRequests(currentClientOldName); renderNotes(); }
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -604,7 +509,7 @@ function getRequestList() {
   leads.forEach(l => { const n = getClientName(l); if (n) names.add(n); });
   return Array.from(names).map(name => {
     const cl = leads.filter(l => getClientName(l) === name);
-    const list = cl.map(l => ({ id: l.id, date: String(l.date||'').trim(), title: getRequestTitle(l), status: String(l.status||'').trim(), archived: !!l.archived })).sort((a,b) => b.date.localeCompare(a.date));
+    const list = cl.map(l => ({ id: l.id, date: String(l.date||'').trim(), title: getRequestTitle(l), status: String(l.status||'').trim(), archived: !!l.archived, days: daysFromStart(String(l.date||'').trim()) })).sort((a,b) => b.date.localeCompare(a.date));
     return { name, requests: list, requestCount: cl.length };
   });
 }
@@ -613,9 +518,7 @@ function getBaseList() {
   return Object.keys(clients).map(name => {
     const c = clients[name];
     return { 
-      name, 
-      contactPersons: c.contactPersons || [],
-      notes: c.notes || [],
+      name, contactPersons: c.contactPersons || [], notes: c.notes || [],
       createdAt: c.createdAt||'', 
       projectCount: rows.filter(r => getClientName(r) === name && !r.archived).length, 
       requestCount: leads.filter(l => getClientName(l) === name && !l.archived).length 
@@ -656,40 +559,16 @@ function renderContactPersons(contactPersons) {
     <div class="contact-person-block">
       <div class="cp-header">
         <span>Контактное лицо №${idx + 1}</span>
-        <button class="remove-cp-btn" onclick="removeContactPerson(${idx})">✖ Удалить</button>
+        <button class="remove-cp-btn" onclick="removeContactPerson(${idx})"> Удалить</button>
       </div>
-      <div class="cp-field">
-        <label>ФИО</label>
-        <input type="text" placeholder="Иванов Иван Иванович" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${idx}, 'name', this.value)">
-      </div>
-      <div class="cp-field">
-        <label>Должность</label>
-        <input type="text" placeholder="Директор, менеджер..." value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${idx}, 'position', this.value)">
-      </div>
-      <div class="cp-field">
-        <label>Телефон 1</label>
-        <input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone1 || '')}" onchange="updateContactPerson(${idx}, 'phone1', this.value)">
-      </div>
-      <div class="cp-field">
-        <label>Телефон 2</label>
-        <input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone2 || '')}" onchange="updateContactPerson(${idx}, 'phone2', this.value)">
-      </div>
-      <div class="cp-field">
-        <label>Телефон 3</label>
-        <input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone3 || '')}" onchange="updateContactPerson(${idx}, 'phone3', this.value)">
-      </div>
-      <div class="cp-field">
-        <label>Электронная почта</label>
-        <input type="email" placeholder="email@example.com" value="${escapeHtml(cp.email || '')}" onchange="updateContactPerson(${idx}, 'email', this.value)">
-      </div>
-      <div class="cp-field">
-        <label>Сайт</label>
-        <input type="text" placeholder="https://example.com" value="${escapeHtml(cp.website || '')}" onchange="updateContactPerson(${idx}, 'website', this.value)">
-      </div>
-      <div class="cp-field">
-        <label>Адрес</label>
-        <input type="text" placeholder="Город, улица, дом, офис" value="${escapeHtml(cp.address || '')}" onchange="updateContactPerson(${idx}, 'address', this.value)">
-      </div>
+      <div class="cp-field"><label>ФИО</label><input type="text" placeholder="Иванов Иван Иванович" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${idx}, 'name', this.value)"></div>
+      <div class="cp-field"><label>Должность</label><input type="text" placeholder="Директор, менеджер..." value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${idx}, 'position', this.value)"></div>
+      <div class="cp-field"><label>Телефон 1</label><input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone1 || '')}" onchange="updateContactPerson(${idx}, 'phone1', this.value)"></div>
+      <div class="cp-field"><label>Телефон 2</label><input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone2 || '')}" onchange="updateContactPerson(${idx}, 'phone2', this.value)"></div>
+      <div class="cp-field"><label>Телефон 3</label><input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone3 || '')}" onchange="updateContactPerson(${idx}, 'phone3', this.value)"></div>
+      <div class="cp-field"><label>Электронная почта</label><input type="email" placeholder="email@example.com" value="${escapeHtml(cp.email || '')}" onchange="updateContactPerson(${idx}, 'email', this.value)"></div>
+      <div class="cp-field"><label>Сайт</label><input type="text" placeholder="https://example.com" value="${escapeHtml(cp.website || '')}" onchange="updateContactPerson(${idx}, 'website', this.value)"></div>
+      <div class="cp-field"><label>Адрес</label><input type="text" placeholder="Город, улица, дом, офис" value="${escapeHtml(cp.address || '')}" onchange="updateContactPerson(${idx}, 'address', this.value)"></div>
     </div>
   `).join('');
 }
@@ -718,22 +597,13 @@ function removeContactPerson(idx) {
   renderContactPersons(s.contactPersons);
 }
 
-// ===== ЗАМЕТКИ КЛИЕНТА =====
-
 function renderNotes() {
   const container = document.getElementById('notesList');
   if (!container) return;
   const s = clients[currentClientOldName] || {};
   const notes = s.notes || [];
-  
-  if (!notes.length) {
-    container.innerHTML = '<div class="muted">Заметок пока нет.</div>';
-    return;
-  }
-  
-  // Новые сверху
+  if (!notes.length) { container.innerHTML = '<div class="muted">Заметок пока нет.</div>'; return; }
   const sorted = [...notes].reverse();
-  
   container.innerHTML = sorted.map(n => `
     <div class="note-item">
       <div class="note-meta">
@@ -749,19 +619,11 @@ async function addNote() {
   const text = document.getElementById('newNoteText').value.trim();
   if (!text) { alert('Введите текст заметки'); return; }
   if (!currentClientOldName) return;
-  
   const s = clients[currentClientOldName] || {};
   if (!s.notes) s.notes = [];
-  
   const dt = nowDateTime();
-  s.notes.push({
-    id: uid(),
-    text: text,
-    date: dt.date,
-    time: dt.time
-  });
+  s.notes.push({ id: uid(), text: text, date: dt.date, time: dt.time });
   clients[currentClientOldName] = s;
-  
   await saveClientToFirebase(currentClientOldName, s);
   document.getElementById('newNoteText').value = '';
   renderNotes();
@@ -770,13 +632,10 @@ async function addNote() {
 async function deleteNote(noteId) {
   if (!confirm('Удалить заметку?')) return;
   if (!currentClientOldName) return;
-  
   const s = clients[currentClientOldName] || {};
   if (!s.notes) return;
-  
   s.notes = s.notes.filter(n => n.id !== noteId);
   clients[currentClientOldName] = s;
-  
   await saveClientToFirebase(currentClientOldName, s);
   renderNotes();
 }
@@ -895,10 +754,7 @@ async function openProduction(id) {
   const clientEl = document.getElementById('productionClientName');
   if (clientEl) clientEl.textContent = getClientName(r);
   const modal = document.getElementById('productionModal');
-  if (modal) {
-    modal.style.display = 'block';
-    renderProduction();
-  }
+  if (modal) { modal.style.display = 'block'; renderProduction(); }
 }
 
 function closeProduction() { 
@@ -982,7 +838,7 @@ async function addComment() {
   if (!item) return;
   if (!Array.isArray(item.comments)) item.comments = [];
   const dt = nowDateTime();
-  item.comments.push({ id: uid(), text, date: dt.date, time: dt.time });
+  item.comments.push({ id: uid(), text: text, date: dt.date, time: dt.time });
   currentViewRequest = item;
   await saveRequestToFirebase(item.id, item, col);
   document.getElementById('newCommentText').value = '';
@@ -1013,25 +869,20 @@ function renderViewActions() {
   const div = document.getElementById('viewActions');
   div.innerHTML = '';
   if (!currentViewRequest || !currentViewType) return;
-  
   const itemId = currentViewRequest.id;
   const itemType = currentViewType;
-  
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
-    prodBtn.textContent = ' Производство';
+    prodBtn.textContent = '🏭 Производство';
     prodBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       const savedId = itemId;
       document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null;
-      currentViewType = null;
+      currentViewRequest = null; currentViewType = null;
       setTimeout(function() { openProduction(savedId); }, 200);
     });
     div.appendChild(prodBtn);
-    
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
     archBtn.textContent = '📦 В архив';
@@ -1042,7 +893,6 @@ function renderViewActions() {
       currentViewRequest = null; currentViewType = null;
     });
     div.appendChild(archBtn);
-    
     const convBtn = document.createElement('button');
     convBtn.className = 'convert-btn';
     convBtn.textContent = '🔄 В заявку';
@@ -1064,7 +914,6 @@ function renderViewActions() {
       currentViewRequest = null; currentViewType = null;
     });
     div.appendChild(convBtn);
-    
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
     archBtn.textContent = '📦 В архив';
@@ -1076,7 +925,6 @@ function renderViewActions() {
     });
     div.appendChild(archBtn);
   }
-  
   const delBtn = document.createElement('button');
   delBtn.className = 'delete-final-btn';
   delBtn.textContent = '🗑 Удалить навсегда';
@@ -1098,9 +946,19 @@ function renderClientRequests(clientName) {
   const ap = rows.filter(r => getClientName(r) === clientName && !r.archived);
   const ar = leads.filter(l => getClientName(l) === clientName && !l.archived);
   if (!ap.length) { pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; }
-  else { pc.innerHTML = ap.map(r => '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date">📅 ' + escapeHtml(r.date || '—') + '</div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join(''); }
+  else {
+    pc.innerHTML = ap.map(r => {
+      const days = daysFromStart(String(r.date||'').trim());
+      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days">' + days + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+    }).join('');
+  }
   if (!ar.length) { rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; }
-  else { rc.innerHTML = ar.map(l => '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date">📅 ' + escapeHtml(l.date || '—') + '</div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>').join(''); }
+  else {
+    rc.innerHTML = ar.map(l => {
+      const days = daysFromStart(String(l.date||'').trim());
+      return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
+    }).join('');
+  }
 }
 
 function switchNavView(view) {
@@ -1181,7 +1039,7 @@ function renderRequests() {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
       const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
-      const ab = document.createElement('button'); ab.textContent = ' Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && !l.archived); if (arr.length === 1) archiveRequest(arr[0].id); else if (confirm('Отправить все активные заявки в архив?')) arr.forEach(l => archiveRequest(l.id)); }; td3.appendChild(ab);
+      const ab = document.createElement('button'); ab.textContent = '📦 Архив'; ab.className = 'archive-btn'; ab.onclick = () => { const arr = leads.filter(l => getClientName(l) === c.name && !l.archived); if (arr.length === 1) archiveRequest(arr[0].id); else if (confirm('Отправить все активные заявки в архив?')) arr.forEach(l => archiveRequest(l.id)); }; td3.appendChild(ab);
     }
     tr.appendChild(td3); tbody.appendChild(tr);
   });
@@ -1198,7 +1056,7 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
+    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')"> Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
@@ -1307,13 +1165,7 @@ async function importCSV(event) {
             const emailMatch = rest.match(/<([^>]+)>/);
             const websiteMatch = rest.match(/\{([^}]+)\}/);
             const addressMatch = rest.match(/@(.+)$/);
-            contactPersons.push({ 
-              name, position, 
-              phone1: phones[0]||'', phone2: phones[1]||'', phone3: phones[2]||'',
-              email: emailMatch ? emailMatch[1].trim() : '',
-              website: websiteMatch ? websiteMatch[1].trim() : '',
-              address: addressMatch ? addressMatch[1].trim() : ''
-            });
+            contactPersons.push({ name, position, phone1: phones[0]||'', phone2: phones[1]||'', phone3: phones[2]||'', email: emailMatch ? emailMatch[1].trim() : '', website: websiteMatch ? websiteMatch[1].trim() : '', address: addressMatch ? addressMatch[1].trim() : '' });
           });
         }
         if (cn) {
@@ -1370,7 +1222,7 @@ function renderTaskCard(t) {
     else dt = 'Срок: ' + dl;
   }
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
+  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
 }
 
 async function addTask() {
@@ -1432,7 +1284,7 @@ function closeAssigneesModal() { document.getElementById('assigneesModal').style
 function renderAssignees() {
   const list = document.getElementById('assigneeList');
   if (!assignees.length) { list.innerHTML = '<div class="muted">Исполнителей пока нет.</div>'; return; }
-  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span>👤 ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
+  list.innerHTML = assignees.map(n => { const l = getAssigneeLoad(n); return '<div class="assignee-item"><span> ' + escapeHtml(n) + '</span><span><span class="muted">Заданий: ' + l.active + ' (в работе), всего: ' + l.total + '</span><button onclick="removeAssignee(\'' + escapeHtml(n) + '\')" style="margin-left:8px;">✖</button></span></div>'; }).join('');
 }
 
 async function addAssignee() {
