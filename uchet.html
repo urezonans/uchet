@@ -122,16 +122,12 @@
     .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     .syncing .dot { animation: pulse 1s infinite; }
-    .kanban-modal { max-width: 1200px; }
-    .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    .kanban-modal { max-width: 1400px; }
+    .kanban-board { display: grid; gap: 10px; margin-top: 12px; }
     @media (max-width: 900px) { .kanban-board { grid-template-columns: repeat(2, 1fr); } }
     .kanban-column { background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; padding: 10px; min-height: 300px; }
     .kanban-column h4 { margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid #ddd; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
     .kanban-column h4 .count { background: #ddd; color: #333; padding: 1px 8px; border-radius: 10px; font-size: 12px; }
-    .kanban-column.col-new h4 { border-bottom-color: #5bc0de; }
-    .kanban-column.col-work h4 { border-bottom-color: #f0ad4e; }
-    .kanban-column.col-check h4 { border-bottom-color: #9b59b6; }
-    .kanban-column.col-done h4 { border-bottom-color: #5cb85c; }
     .task-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 8px; margin-bottom: 8px; position: relative; }
     .task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .task-card .task-title { font-weight: bold; margin-bottom: 4px; word-break: break-word; font-size: 13px; }
@@ -271,7 +267,6 @@
     .day-event-item .evt-days.neutral { color: #888; }
     .day-empty { padding: 30px; text-align: center; color: #999; font-style: italic; }
 
-    /* ===== ТАБЕЛЬ РАБОЧЕГО ВРЕМЕНИ ===== */
     .timesheet-container { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
     .timesheet-table { border-collapse: collapse; width: 100%; min-width: 800px; }
     .timesheet-table th { background: #f0f0f0; padding: 8px 4px; text-align: center; font-size: 11px; font-weight: bold; color: #555; border: 1px solid #ddd; position: sticky; top: 0; z-index: 10; }
@@ -289,13 +284,29 @@
     .timesheet-table tr.weekend td.employee-cell { background: #fafafa; }
 
     .timesheet-entry-modal .entry-list { max-height: 400px; overflow-y: auto; }
-    .timesheet-entry-modal .entry-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: #fafafa; }
+    .timesheet-entry-modal .entry-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: #fafafa; cursor: pointer; transition: background 0.15s; }
+    .timesheet-entry-modal .entry-item:hover { background: #f4f9ff; }
     .timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
     .timesheet-entry-modal .entry-item .entry-client { font-size: 11px; color: #666; }
     .timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
     .timesheet-entry-modal .entry-item input[type="number"]:focus { border-color: #004a99; outline: none; }
     .timesheet-entry-modal .entry-total { margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color: #004a99; }
     .timesheet-entry-modal .entry-total span { font-size: 24px; }
+
+    /* Настройка этапов канбана */
+    .stages-list { margin: 12px 0; }
+    .stage-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; }
+    .stage-item .stage-order { font-weight: bold; color: #004a99; min-width: 24px; text-align: center; }
+    .stage-item input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .stage-item input:focus { border-color: #004a99; outline: none; }
+    .stage-item button { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px; }
+    .stage-item .stage-up, .stage-item .stage-down { background: #f0f0f0; }
+    .stage-item .stage-up:hover, .stage-item .stage-down:hover { background: #e0e0e0; }
+    .stage-item .stage-remove { background: #d9534f; color: white; }
+    .stage-item .stage-remove:hover { background: #c9302c; }
+    .add-stage-form { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+    .add-stage-form input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .add-stage-form input:focus { border-color: #004a99; outline: none; }
   </style>
 </head>
 <body>
@@ -313,7 +324,7 @@
 
   <div id="projectsView">
     <div class="tabs">
-      <button class="tab active" id="tabActive" onclick="switchView('active')"> Активные <span class="count" id="activeCount">0</span></button>
+      <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
@@ -380,9 +391,7 @@
         <button id="calViewList" onclick="setCalendarView('list')">📋 Список</button>
       </div>
       <div class="cal-filter">
-        <select id="calEmployeeFilter">
-          <option value="">Все сотрудники</option>
-        </select>
+        <select id="calEmployeeFilter"><option value="">Все сотрудники</option></select>
         <input id="calClientFilter" placeholder="🔍 Поиск по клиенту..." style="width: 200px">
       </div>
     </div>
@@ -399,9 +408,7 @@
         <button onclick="timesheetToday()">Сегодня</button>
       </div>
       <div class="cal-filter">
-        <select id="tsEmployeeFilter" onchange="renderTimesheet()">
-          <option value="">Все сотрудники</option>
-        </select>
+        <select id="tsEmployeeFilter" onchange="renderTimesheet()"><option value="">Все сотрудники</option></select>
       </div>
     </div>
     <div class="timesheet-container" id="timesheetContainer"></div>
@@ -412,33 +419,18 @@
       <div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
       <label for="clientName">Наименование клиента</label><input id="clientName">
       <div class="client-columns">
-        <div class="client-column-left">
-          <div id="contactPersonsList"></div>
-          <button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button>
-        </div>
+        <div class="client-column-left"><div id="contactPersonsList"></div><button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button></div>
         <div class="client-column-right">
           <h4>📝 Заметки</h4>
-          <div class="note-add-form">
-            <textarea id="newNoteText" placeholder="Напишите заметку..."></textarea>
-            <button class="production-btn" onclick="addNote()">Добавить</button>
-          </div>
+          <div class="note-add-form"><textarea id="newNoteText" placeholder="Напишите заметку..."></textarea><button class="production-btn" onclick="addNote()">Добавить</button></div>
           <div class="notes-list" id="notesList"></div>
         </div>
       </div>
       <div class="requests-columns">
-        <div class="requests-column projects-col">
-          <h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4>
-          <div class="tiles-grid" id="projectsTiles"></div>
-        </div>
-        <div class="requests-column requests-col">
-          <h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4>
-          <div class="tiles-grid" id="requestsTiles"></div>
-        </div>
+        <div class="requests-column projects-col"><h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
+        <div class="requests-column requests-col"><h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4><div class="tiles-grid" id="requestsTiles"></div></div>
       </div>
-      <div class="modal-actions">
-        <button onclick="saveClientModal()">Сохранить и закрыть</button>
-        <button onclick="closeClientModal()">Закрыть</button>
-      </div>
+      <div class="modal-actions"><button onclick="saveClientModal()">Сохранить и закрыть</button><button onclick="closeClientModal()">Закрыть</button></div>
     </div>
   </div>
 
@@ -483,10 +475,7 @@
         <button class="close-btn" onclick="closeEmployeePage()" style="flex-shrink:0;margin-left:12px;">×</button>
       </div>
       <div class="requests-columns" style="margin-top:0;">
-        <div class="requests-column projects-col">
-          <h4>📁 Проекты сотрудника</h4>
-          <div class="tiles-grid" id="employeeProjectsTiles"></div>
-        </div>
+        <div class="requests-column projects-col"><h4>📁 Проекты сотрудника</h4><div class="tiles-grid" id="employeeProjectsTiles"></div></div>
       </div>
       <div class="modal-actions">
         <button class="production-btn" onclick="saveEmployeeChanges()">💾 Сохранить изменения</button>
@@ -504,7 +493,8 @@
       </div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-        <button onclick="openEmployeesModal()">👷 Сотрудники</button>
+        <button class="production-btn" onclick="openStagesModal()">⚙️ Этапы</button>
+        <button onclick="openEmployeesModal()"> Сотрудники</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
       <div class="add-task-form">
@@ -519,11 +509,25 @@
         </div>
         <button onclick="addTask()">Добавить задание</button>
       </div>
-      <div class="kanban-board">
-        <div class="kanban-column col-new"><h4>Новые <span class="count" id="count-new">0</span></h4><div id="col-new"></div></div>
-        <div class="kanban-column col-work"><h4>В работе <span class="count" id="count-work">0</span></h4><div id="col-work"></div></div>
-        <div class="kanban-column col-check"><h4>Проверка <span class="count" id="count-check">0</span></h4><div id="col-check"></div></div>
-        <div class="kanban-column col-done"><h4>Готово <span class="count" id="count-done">0</span></h4><div id="col-done"></div></div>
+      <div class="kanban-board" id="kanbanBoard"></div>
+    </div>
+  </div>
+
+  <div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>⚙️ Настройка этапов канбана</h3>
+        <button class="close-btn" onclick="closeStagesModal()">×</button>
+      </div>
+      <p class="muted" style="margin-top:0;">Перетащите этапы для изменения порядка. Измените названия. Удалите ненужные.</p>
+      <div class="stages-list" id="stagesList"></div>
+      <div class="add-stage-form">
+        <input id="newStageName" placeholder="Название нового этапа">
+        <button class="production-btn" onclick="addKanbanStage()">+ Добавить этап</button>
+      </div>
+      <div class="modal-actions">
+        <button class="production-btn" onclick="saveStagesAndClose()">💾 Сохранить и закрыть</button>
+        <button onclick="closeStagesModal()">Отмена</button>
       </div>
     </div>
   </div>
@@ -533,9 +537,7 @@
       <div class="modal-header"><h3>👷 Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
       <p class="muted" style="margin-top:0;">Список сотрудников синхронизирован с вкладкой "Персонал".</p>
       <div id="employeesModalList"></div>
-      <div class="modal-actions">
-        <button onclick="closeEmployeesModal()">Закрыть</button>
-      </div>
+      <div class="modal-actions"><button onclick="closeEmployeesModal()">Закрыть</button></div>
     </div>
   </div>
 
@@ -549,62 +551,38 @@
 
   <div id="dayEventsModal" class="modal-overlay" onclick="if (event.target === this) closeDayEventsModal()">
     <div class="modal">
-      <div class="day-modal-header">
-        <h3 id="dayModalTitle">События дня</h3>
-        <div class="day-subtitle" id="dayModalSubtitle"></div>
-      </div>
+      <div class="day-modal-header"><h3 id="dayModalTitle">События дня</h3><div class="day-subtitle" id="dayModalSubtitle"></div></div>
       <div class="day-events-list" id="dayEventsList"></div>
-      <div class="modal-actions">
-        <button onclick="closeDayEventsModal()">Закрыть</button>
-      </div>
+      <div class="modal-actions"><button onclick="closeDayEventsModal()">Закрыть</button></div>
     </div>
   </div>
 
   <div id="taskCommentsModal" class="modal-overlay" onclick="if (event.target === this) closeTaskCommentsModal()">
     <div class="modal">
-      <div class="modal-header">
-        <h3>💬 Комментарии к заданию: <span id="taskCommentsTitle"></span></h3>
-        <button class="close-btn" onclick="closeTaskCommentsModal()">×</button>
-      </div>
-      <div class="comment-add-form">
-        <textarea id="newTaskCommentText" placeholder="Напишите комментарий..."></textarea>
-        <button class="production-btn" onclick="addTaskComment()">Добавить</button>
-      </div>
+      <div class="modal-header"><h3>💬 Комментарии к заданию: <span id="taskCommentsTitle"></span></h3><button class="close-btn" onclick="closeTaskCommentsModal()">×</button></div>
+      <div class="comment-add-form"><textarea id="newTaskCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addTaskComment()">Добавить</button></div>
       <div class="comments-list" id="taskCommentsList"></div>
-      <div class="modal-actions">
-        <button onclick="closeTaskCommentsModal()">Закрыть</button>
-      </div>
+      <div class="modal-actions"><button onclick="closeTaskCommentsModal()">Закрыть</button></div>
     </div>
   </div>
 
   <div id="timesheetEntryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetEntryModal()">
     <div class="modal">
-      <div class="modal-header">
-        <h3>⏱️ Учет времени: <span id="tsEntryEmployeeName"></span></h3>
-        <button class="close-btn" onclick="closeTimesheetEntryModal()">×</button>
-      </div>
+      <div class="modal-header"><h3>️ Учет времени: <span id="tsEntryEmployeeName"></span></h3><button class="close-btn" onclick="closeTimesheetEntryModal()">×</button></div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Дата: <strong id="tsEntryDate"></strong></div>
       <div class="entry-list" id="tsEntryList"></div>
       <div class="entry-total">Всего часов: <span id="tsEntryTotal">0</span></div>
-      <div class="modal-actions">
-        <button class="production-btn" onclick="saveTimesheetEntry()">💾 Сохранить</button>
-        <button onclick="closeTimesheetEntryModal()">Отмена</button>
-      </div>
+      <div class="modal-actions"><button class="production-btn" onclick="saveTimesheetEntry()">💾 Сохранить</button><button onclick="closeTimesheetEntryModal()">Отмена</button></div>
     </div>
   </div>
 
   <div id="timesheetMonthSummaryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetMonthSummary()">
     <div class="modal">
-      <div class="modal-header">
-        <h3> Итого за месяц: <span id="tsMonthSummaryEmployee"></span></h3>
-        <button class="close-btn" onclick="closeTimesheetMonthSummary()">×</button>
-      </div>
+      <div class="modal-header"><h3> Итого за месяц: <span id="tsMonthSummaryEmployee"></span></h3><button class="close-btn" onclick="closeTimesheetMonthSummary()">×</button></div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;" id="tsMonthSummaryPeriod"></div>
       <div id="tsMonthSummaryList"></div>
       <div class="entry-total">Всего часов за месяц: <span id="tsMonthSummaryTotal">0</span></div>
-      <div class="modal-actions">
-        <button onclick="closeTimesheetMonthSummary()">Закрыть</button>
-      </div>
+      <div class="modal-actions"><button onclick="closeTimesheetMonthSummary()">Закрыть</button></div>
     </div>
   </div>
 
@@ -631,6 +609,7 @@ let clients = {};
 let employees = [];
 let tasks = {};
 let timesheets = {};
+let kanbanStages = [];
 let currentClientOldName = '';
 let currentProductionRequest = null;
 let currentView = 'active';
@@ -645,17 +624,14 @@ let timesheetDate = new Date();
 let currentTaskCommentsTaskId = null;
 let currentTaskCommentsProjectId = null;
 let currentTsEntry = null;
-let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null, unsubscribeTimesheets = null;
+let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null, unsubscribeTimesheets = null, unsubscribeStages = null;
 
 const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const WEEKDAY_NAMES = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 function setSyncStatus(status, message) {
   const indicator = document.getElementById('syncIndicator');
-  if (indicator) {
-    indicator.className = 'sync-indicator ' + status;
-    indicator.querySelector('span:last-child').textContent = message;
-  }
+  if (indicator) { indicator.className = 'sync-indicator ' + status; indicator.querySelector('span:last-child').textContent = message; }
 }
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
@@ -696,39 +672,19 @@ function generateNewClientName() {
   return name;
 }
 
-async function saveClientToFirebase(name, data) {
-  try { await setDoc(doc(db, 'clients', name), data); setSyncStatus('synced', 'Синхронизировано'); }
-  catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
-}
+async function saveClientToFirebase(name, data) { try { await setDoc(doc(db, 'clients', name), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
+async function saveRequestToFirebase(id, data, col = 'requests') { try { await setDoc(doc(db, col, id), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
+async function deleteRequestFromFirebase(id, col = 'requests') { try { await deleteDoc(doc(db, col, id)); if (col === 'requests') await deleteDoc(doc(db, 'tasks', id)); } catch (e) { console.error(e); } }
+async function saveEmployeeToFirebase(id, data) { try { await setDoc(doc(db, 'employees', id), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
+async function deleteEmployeeFromFirebase(id) { try { await deleteDoc(doc(db, 'employees', id)); } catch (e) { console.error(e); } }
+async function saveTasksToFirebase(id, list) { try { await setDoc(doc(db, 'tasks', id), { tasks: list }); } catch (e) { console.error(e); } }
+async function saveTimesheetToFirebase(id, data) { try { await setDoc(doc(db, 'timesheets', id), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
 
-async function saveRequestToFirebase(id, data, col = 'requests') {
-  try { await setDoc(doc(db, col, id), data); setSyncStatus('synced', 'Синхронизировано'); }
-  catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
-}
-
-async function deleteRequestFromFirebase(id, col = 'requests') {
+async function saveKanbanStagesToFirebase() {
   try {
-    await deleteDoc(doc(db, col, id));
-    if (col === 'requests') await deleteDoc(doc(db, 'tasks', id));
-  } catch (e) { console.error(e); }
-}
-
-async function saveEmployeeToFirebase(id, data) {
-  try { await setDoc(doc(db, 'employees', id), data); setSyncStatus('synced', 'Синхронизировано'); }
-  catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
-}
-
-async function deleteEmployeeFromFirebase(id) {
-  try { await deleteDoc(doc(db, 'employees', id)); } catch (e) { console.error(e); }
-}
-
-async function saveTasksToFirebase(id, list) {
-  try { await setDoc(doc(db, 'tasks', id), { tasks: list }); } catch (e) { console.error(e); }
-}
-
-async function saveTimesheetToFirebase(id, data) {
-  try { await setDoc(doc(db, 'timesheets', id), data); setSyncStatus('synced', 'Синхронизировано'); }
-  catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
+    await setDoc(doc(db, 'settings', 'kanban_stages'), { stages: kanbanStages });
+    setSyncStatus('synced', 'Синхронизировано');
+  } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
 }
 
 async function ensureClientExists(name) {
@@ -747,24 +703,12 @@ document.getElementById('employeeSearch').addEventListener('input', renderEmploy
 document.getElementById('calEmployeeFilter').addEventListener('change', renderCalendar);
 document.getElementById('calClientFilter').addEventListener('input', renderCalendar);
 
-document.getElementById('viewTitleInput').addEventListener('change', function() {
-  if (currentViewRequest && currentViewType) updateViewField('title', this.value);
-});
-document.getElementById('viewDate').addEventListener('change', function() {
-  if (currentViewRequest && currentViewType) updateViewField('date', this.value);
-});
-document.getElementById('viewEndDate').addEventListener('change', function() {
-  if (currentViewRequest && currentViewType) updateViewField('endDate', this.value);
-});
-document.getElementById('viewStatus').addEventListener('change', function() {
-  if (currentViewRequest && currentViewType) updateViewField('status', this.value);
-});
-document.getElementById('viewResponsible').addEventListener('change', function() {
-  if (currentViewRequest && currentViewType) updateViewField('responsible', this.value);
-});
-document.getElementById('viewComment').addEventListener('change', function() {
-  if (currentViewRequest && currentViewType) updateViewField('comment', this.value);
-});
+document.getElementById('viewTitleInput').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('title', this.value); });
+document.getElementById('viewDate').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('date', this.value); });
+document.getElementById('viewEndDate').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('endDate', this.value); });
+document.getElementById('viewStatus').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('status', this.value); });
+document.getElementById('viewResponsible').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('responsible', this.value); });
+document.getElementById('viewComment').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('comment', this.value); });
 
 function setupRealtimeListeners() {
   setSyncStatus('syncing', 'Подключение...');
@@ -827,6 +771,21 @@ function setupRealtimeListeners() {
     snap.forEach(d => { timesheets[d.id] = d.data(); });
     if (currentNavView === 'timesheet') renderTimesheet();
   });
+
+  unsubscribeStages = onSnapshot(doc(db, 'settings', 'kanban_stages'), d => {
+    if (d.exists()) {
+      kanbanStages = d.data().stages || [];
+    } else {
+      kanbanStages = [
+        { id: uid(), name: 'Новые', order: 0 },
+        { id: uid(), name: 'В работе', order: 1 },
+        { id: uid(), name: 'Проверка', order: 2 },
+        { id: uid(), name: 'Готово', order: 3 }
+      ];
+      saveKanbanStagesToFirebase();
+    }
+    if (currentProductionRequest) renderProduction();
+  });
 }
 
 async function addClient() {
@@ -866,12 +825,7 @@ function getRequestList() {
 function getBaseList() {
   return Object.keys(clients).map(name => {
     const c = clients[name];
-    return { 
-      name, contactPersons: c.contactPersons || [], notes: c.notes || [],
-      createdAt: c.createdAt||'', 
-      projectCount: rows.filter(r => getClientName(r) === name && !r.archived).length, 
-      requestCount: leads.filter(l => getClientName(l) === name && !l.archived).length 
-    };
+    return { name, contactPersons: c.contactPersons || [], notes: c.notes || [], createdAt: c.createdAt||'', projectCount: rows.filter(r => getClientName(r) === name && !r.archived).length, requestCount: leads.filter(l => getClientName(l) === name && !l.archived).length };
   }).sort((a,b) => a.name.localeCompare(b.name, 'ru'));
 }
 
@@ -900,16 +854,10 @@ function openClientModalByName(name) {
 
 function renderContactPersons(contactPersons) {
   const container = document.getElementById('contactPersonsList');
-  if (!contactPersons || !contactPersons.length) {
-    container.innerHTML = '<div class="muted">Контактных лиц пока нет. Нажмите кнопку ниже, чтобы добавить.</div>';
-    return;
-  }
+  if (!contactPersons || !contactPersons.length) { container.innerHTML = '<div class="muted">Контактных лиц пока нет. Нажмите кнопку ниже, чтобы добавить.</div>'; return; }
   container.innerHTML = contactPersons.map((cp, idx) => `
     <div class="contact-person-block">
-      <div class="cp-header">
-        <span>Контактное лицо №${idx + 1}</span>
-        <button class="remove-cp-btn" onclick="removeContactPerson(${idx})">✖ Удалить</button>
-      </div>
+      <div class="cp-header"><span>Контактное лицо №${idx + 1}</span><button class="remove-cp-btn" onclick="removeContactPerson(${idx})">✖ Удалить</button></div>
       <div class="cp-field"><label>ФИО</label><input type="text" placeholder="Иванов Иван Иванович" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${idx}, 'name', this.value)"></div>
       <div class="cp-field"><label>Должность</label><input type="text" placeholder="Директор, менеджер..." value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${idx}, 'position', this.value)"></div>
       <div class="cp-field"><label>Телефон 1</label><input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone1 || '')}" onchange="updateContactPerson(${idx}, 'phone1', this.value)"></div>
@@ -922,29 +870,9 @@ function renderContactPersons(contactPersons) {
   `).join('');
 }
 
-function updateContactPerson(idx, field, value) {
-  const s = clients[currentClientOldName] || {};
-  if (!s.contactPersons) s.contactPersons = [];
-  if (!s.contactPersons[idx]) s.contactPersons[idx] = {};
-  s.contactPersons[idx][field] = value;
-  clients[currentClientOldName] = s;
-}
-
-function addContactPerson() {
-  const s = clients[currentClientOldName] || {};
-  if (!s.contactPersons) s.contactPersons = [];
-  s.contactPersons.push({ name: '', position: '', phone1: '', phone2: '', phone3: '', email: '', website: '', address: '' });
-  clients[currentClientOldName] = s;
-  renderContactPersons(s.contactPersons);
-}
-
-function removeContactPerson(idx) {
-  const s = clients[currentClientOldName] || {};
-  if (!s.contactPersons) return;
-  s.contactPersons.splice(idx, 1);
-  clients[currentClientOldName] = s;
-  renderContactPersons(s.contactPersons);
-}
+function updateContactPerson(idx, field, value) { const s = clients[currentClientOldName] || {}; if (!s.contactPersons) s.contactPersons = []; if (!s.contactPersons[idx]) s.contactPersons[idx] = {}; s.contactPersons[idx][field] = value; clients[currentClientOldName] = s; }
+function addContactPerson() { const s = clients[currentClientOldName] || {}; if (!s.contactPersons) s.contactPersons = []; s.contactPersons.push({ name: '', position: '', phone1: '', phone2: '', phone3: '', email: '', website: '', address: '' }); clients[currentClientOldName] = s; renderContactPersons(s.contactPersons); }
+function removeContactPerson(idx) { const s = clients[currentClientOldName] || {}; if (!s.contactPersons) return; s.contactPersons.splice(idx, 1); clients[currentClientOldName] = s; renderContactPersons(s.contactPersons); }
 
 function renderNotes() {
   const container = document.getElementById('notesList');
@@ -952,16 +880,7 @@ function renderNotes() {
   const s = clients[currentClientOldName] || {};
   const notes = s.notes || [];
   if (!notes.length) { container.innerHTML = '<div class="muted">Заметок пока нет.</div>'; return; }
-  const sorted = [...notes].reverse();
-  container.innerHTML = sorted.map(n => `
-    <div class="note-item">
-      <div class="note-meta">
-        <span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
-        <button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button>
-      </div>
-      <div class="note-text">${escapeHtml(n.text)}</div>
-    </div>
-  `).join('');
+  container.innerHTML = [...notes].reverse().map(n => `<div class="note-item"><div class="note-meta"><span> ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span><button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button></div><div class="note-text">${escapeHtml(n.text)}</div></div>`).join('');
 }
 
 async function addNote() {
@@ -1028,55 +947,17 @@ async function updateRequest(id, field, value) {
   await saveRequestToFirebase(id, item, col);
 }
 
-async function archiveProject(id) {
-  if (!confirm('Отправить проект в архив?')) return;
-  const item = rows.find(r => r.id === id);
-  if (!item) return;
-  item.archived = true;
-  await saveRequestToFirebase(id, item, 'requests');
-}
+async function archiveProject(id) { if (!confirm('Отправить проект в архив?')) return; const item = rows.find(r => r.id === id); if (!item) return; item.archived = true; await saveRequestToFirebase(id, item, 'requests'); }
+async function archiveRequest(id) { if (!confirm('Отправить заявку в архив?')) return; const item = leads.find(l => l.id === id); if (!item) return; item.archived = true; await saveRequestToFirebase(id, item, 'leads'); }
+async function restoreProject(id) { const item = rows.find(r => r.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'requests'); }
+async function restoreRequest(id) { const item = leads.find(l => l.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'leads'); }
 
-async function archiveRequest(id) {
-  if (!confirm('Отправить заявку в архив?')) return;
-  const item = leads.find(l => l.id === id);
-  if (!item) return;
-  item.archived = true;
-  await saveRequestToFirebase(id, item, 'leads');
-}
-
-async function restoreProject(id) {
-  const item = rows.find(r => r.id === id);
-  if (!item) return;
-  item.archived = false;
-  await saveRequestToFirebase(id, item, 'requests');
-}
-
-async function restoreRequest(id) {
-  const item = leads.find(l => l.id === id);
-  if (!item) return;
-  item.archived = false;
-  await saveRequestToFirebase(id, item, 'leads');
-}
-
-async function deleteProjectFinal(id) {
-  if (!confirm('Удалить проект БЕЗВОЗВРАТНО?')) return;
-  await deleteRequestFromFirebase(id, 'requests');
-  rows = rows.filter(r => r.id !== id);
-  delete tasks[id];
-  render();
-}
-
-async function deleteRequestFinal(id) {
-  if (!confirm('Удалить заявку БЕЗВОЗВРАТНО?')) return;
-  await deleteRequestFromFirebase(id, 'leads');
-  leads = leads.filter(l => l.id !== id);
-  renderRequests();
-}
+async function deleteProjectFinal(id) { if (!confirm('Удалить проект БЕЗВОЗВРАТНО?')) return; await deleteRequestFromFirebase(id, 'requests'); rows = rows.filter(r => r.id !== id); delete tasks[id]; render(); }
+async function deleteRequestFinal(id) { if (!confirm('Удалить заявку БЕЗВОЗВРАТНО?')) return; await deleteRequestFromFirebase(id, 'leads'); leads = leads.filter(l => l.id !== id); renderRequests(); }
 
 async function convertRequestToProject(id) {
   if (!confirm('Конвертировать заявку в проект?')) return;
-  const req = leads.find(l => l.id === id);
-  if (!req) return;
+  const req = leads.find(l => l.id === id); if (!req) return;
   const newProj = { ...req, id: uid(), archived: false };
   await saveRequestToFirebase(newProj.id, newProj, 'requests');
   await deleteRequestFromFirebase(id, 'leads');
@@ -1085,8 +966,7 @@ async function convertRequestToProject(id) {
 
 async function convertProjectToRequest(id) {
   if (!confirm('Конвертировать проект в заявку?')) return;
-  const proj = rows.find(r => r.id === id);
-  if (!proj) return;
+  const proj = rows.find(r => r.id === id); if (!proj) return;
   const newReq = { ...proj, id: uid(), archived: false };
   await saveRequestToFirebase(newReq.id, newReq, 'leads');
   await deleteRequestFromFirebase(id, 'requests');
@@ -1106,18 +986,13 @@ async function openProduction(id) {
   if (modal) { modal.style.display = 'block'; renderProduction(); }
 }
 
-function closeProduction() { 
-  const modal = document.getElementById('productionModal');
-  if (modal) modal.style.display = 'none'; 
-  currentProductionRequest = null; 
-}
+function closeProduction() { const modal = document.getElementById('productionModal'); if (modal) modal.style.display = 'none'; currentProductionRequest = null; }
 
 function openRequestView(id, type) {
   const list = type === 'project' ? rows : leads;
   const item = list.find(r => r.id === id);
   if (!item) { alert('Запись не найдена'); return; }
-  currentViewRequest = item;
-  currentViewType = type;
+  currentViewRequest = item; currentViewType = type;
   document.getElementById('viewTitleInput').value = getRequestTitle(item) || '';
   document.getElementById('viewClientName').textContent = getClientName(item);
   const badge = document.getElementById('viewTypeBadge');
@@ -1153,16 +1028,8 @@ function fillResponsibleSelect() {
   sel.value = currentValue;
 }
 
-function refreshViewModalResponsibleSelect() {
-  if (!currentViewRequest || !currentViewType) return;
-  fillResponsibleSelect();
-}
-
-function closeViewModal() { 
-  document.getElementById('viewModal').style.display = 'none'; 
-  currentViewRequest = null; 
-  currentViewType = null; 
-}
+function refreshViewModalResponsibleSelect() { if (!currentViewRequest || !currentViewType) return; fillResponsibleSelect(); }
+function closeViewModal() { document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; }
 
 function refreshViewModal() {
   if (!currentViewRequest || !currentViewType) return;
@@ -1190,8 +1057,7 @@ async function updateViewField(field, value) {
   const list = currentViewType === 'project' ? rows : leads;
   const item = list.find(r => r.id === currentViewRequest.id);
   if (!item) return;
-  item[field] = value;
-  currentViewRequest[field] = value;
+  item[field] = value; currentViewRequest[field] = value;
   await saveRequestToFirebase(item.id, item, col);
 }
 
@@ -1229,7 +1095,7 @@ function renderComments() {
   const list = document.getElementById('commentsList');
   const comments = (currentViewRequest && currentViewRequest.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span> ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 function renderViewActions() {
@@ -1242,66 +1108,34 @@ function renderViewActions() {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
     prodBtn.textContent = '🏭 Производство';
-    prodBtn.addEventListener('click', function(e) {
-      e.preventDefault(); e.stopPropagation();
-      const savedId = itemId;
-      document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null; currentViewType = null;
-      setTimeout(function() { openProduction(savedId); }, 200);
-    });
+    prodBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); const savedId = itemId; document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; setTimeout(function() { openProduction(savedId); }, 200); });
     div.appendChild(prodBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
     archBtn.textContent = '📦 В архив';
-    archBtn.addEventListener('click', async function(e) {
-      e.preventDefault(); e.stopPropagation();
-      await archiveProject(itemId);
-      document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null; currentViewType = null;
-    });
+    archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveProject(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(archBtn);
     const convBtn = document.createElement('button');
     convBtn.className = 'convert-btn';
     convBtn.textContent = '🔄 В заявку';
-    convBtn.addEventListener('click', async function(e) {
-      e.preventDefault(); e.stopPropagation();
-      await convertProjectToRequest(itemId);
-      document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null; currentViewType = null;
-    });
+    convBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await convertProjectToRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(convBtn);
   } else {
     const convBtn = document.createElement('button');
     convBtn.className = 'convert-btn';
-    convBtn.textContent = ' В проект';
-    convBtn.addEventListener('click', async function(e) {
-      e.preventDefault(); e.stopPropagation();
-      await convertRequestToProject(itemId);
-      document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null; currentViewType = null;
-    });
+    convBtn.textContent = '🔄 В проект';
+    convBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await convertRequestToProject(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(convBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
     archBtn.textContent = '📦 В архив';
-    archBtn.addEventListener('click', async function(e) {
-      e.preventDefault(); e.stopPropagation();
-      await archiveRequest(itemId);
-      document.getElementById('viewModal').style.display = 'none';
-      currentViewRequest = null; currentViewType = null;
-    });
+    archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(archBtn);
   }
   const delBtn = document.createElement('button');
   delBtn.className = 'delete-final-btn';
   delBtn.textContent = '🗑 Удалить навсегда';
-  delBtn.addEventListener('click', async function(e) {
-    e.preventDefault(); e.stopPropagation();
-    if (itemType === 'project') await deleteProjectFinal(itemId);
-    else await deleteRequestFinal(itemId);
-    document.getElementById('viewModal').style.display = 'none';
-    currentViewRequest = null; currentViewType = null;
-  });
+  delBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); if (itemType === 'project') await deleteProjectFinal(itemId); else await deleteRequestFinal(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
   div.appendChild(delBtn);
 }
 
@@ -1312,25 +1146,10 @@ function renderClientRequests(clientName) {
   const rc = document.getElementById('requestsTiles');
   const ap = rows.filter(r => getClientName(r) === clientName && !r.archived);
   const ar = leads.filter(l => getClientName(l) === clientName && !l.archived);
-  
-  if (!ap.length) { 
-    pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; 
-  } else {
-    pc.innerHTML = ap.map(r => {
-      const badge = getDeadlineBadge(r.endDate, r.date);
-      const daysText = badge.days < 0 ? badge.days : badge.days;
-      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
-    }).join('');
-  }
-  
-  if (!ar.length) { 
-    rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; 
-  } else {
-    rc.innerHTML = ar.map(l => {
-      const days = daysFromStart(String(l.date||'').trim());
-      return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span> ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
-    }).join('');
-  }
+  if (!ap.length) { pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; }
+  else { pc.innerHTML = ap.map(r => { const badge = getDeadlineBadge(r.endDate, r.date); const daysText = badge.days < 0 ? badge.days : badge.days; return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>'; }).join(''); }
+  if (!ar.length) { rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; }
+  else { rc.innerHTML = ar.map(l => { const days = daysFromStart(String(l.date||'').trim()); return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>'; }).join(''); }
 }
 
 function switchNavView(view) {
@@ -1379,9 +1198,8 @@ function render() {
     td1.appendChild(btn); tr.appendChild(td1);
     const td2 = document.createElement('td');
     const div = document.createElement('div'); div.className = 'requests-cell';
-    if (c.requests.length) {
-      div.innerHTML = c.requests.map(r => '<div class="req-line" onclick="openRequestView(\'' + r.id + '\', \'project\')"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join('');
-    } else { div.innerHTML = '<span class="muted">Нет проектов</span>'; }
+    if (c.requests.length) { div.innerHTML = c.requests.map(r => '<div class="req-line" onclick="openRequestView(\'' + r.id + '\', \'project\')"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>').join(''); }
+    else { div.innerHTML = '<span class="muted">Нет проектов</span>'; }
     td2.appendChild(div); tr.appendChild(td2);
     const td3 = document.createElement('td');
     if (currentView === 'archive') {
@@ -1413,17 +1231,13 @@ function renderRequests() {
     td1.appendChild(btn); tr.appendChild(td1);
     const td2 = document.createElement('td');
     const div = document.createElement('div'); div.className = 'requests-cell';
-    if (c.requests.length) {
-      div.innerHTML = c.requests.map(l => {
-        const days = l.days !== undefined ? l.days : daysFromStart(String(l.date||'').trim());
-        return '<div class="req-line" onclick="openRequestView(\'' + l.id + '\', \'request\')"><span class="req-days neutral">' + days + '</span><span class="req-date">' + escapeHtml(l.date) + '</span><span class="req-title">' + escapeHtml(l.title) + '</span>' + (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>';
-      }).join('');
-    } else { div.innerHTML = '<span class="muted">Нет заявок</span>'; }
+    if (c.requests.length) { div.innerHTML = c.requests.map(l => { const days = l.days !== undefined ? l.days : daysFromStart(String(l.date||'').trim()); return '<div class="req-line" onclick="openRequestView(\'' + l.id + '\', \'request\')"><span class="req-days neutral">' + days + '</span><span class="req-date">' + escapeHtml(l.date) + '</span><span class="req-title">' + escapeHtml(l.title) + '</span>' + (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>'; }).join(''); }
+    else { div.innerHTML = '<span class="muted">Нет заявок</span>'; }
     td2.appendChild(div); tr.appendChild(td2);
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
+      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
@@ -1454,7 +1268,7 @@ function renderBase() {
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
-          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.address) + '</div>';
+          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
@@ -1469,26 +1283,15 @@ function renderEmployees() {
   const q = document.getElementById('employeeSearch').value.trim().toLowerCase();
   const container = document.getElementById('employeeList');
   container.innerHTML = '';
-  const visible = employees.filter(e => {
-    if (!q) return true;
-    return (e.name || '').toLowerCase().includes(q) || (e.position || '').toLowerCase().includes(q);
-  });
+  const visible = employees.filter(e => { if (!q) return true; return (e.name || '').toLowerCase().includes(q) || (e.position || '').toLowerCase().includes(q); });
   document.getElementById('employeeInfo').textContent = 'Всего сотрудников: ' + visible.length;
-  if (!visible.length) {
-    container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Сотрудники не найдены. Добавьте первого.</div>';
-    return;
-  }
+  if (!visible.length) { container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Сотрудники не найдены. Добавьте первого.</div>'; return; }
   visible.forEach(emp => {
     const empProjects = getEmployeeProjects(emp.name).length;
     const row = document.createElement('div');
     row.className = 'employee-row';
     row.onclick = (e) => { if (e.target.classList.contains('emp-delete')) return; openEmployeePage(emp.id); };
-    row.innerHTML = `
-      <div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div>
-      <div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div>
-      <div class="emp-projects">📁 Проектов: ${empProjects}</div>
-      <button class="emp-delete" onclick="quickDeleteEmployee('${emp.id}', '${escapeHtml(emp.name)}')">✖</button>
-    `;
+    row.innerHTML = `<div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div><div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div><button class="emp-delete" onclick="quickDeleteEmployee('${emp.id}', '${escapeHtml(emp.name)}')">✖</button>`;
     container.appendChild(row);
   });
 }
@@ -1502,30 +1305,15 @@ function getEmployeeProjects(empName) {
   });
 }
 
-async function quickDeleteEmployee(empId, empName) {
-  if (!confirm('Удалить сотрудника "' + empName + '"?')) return;
-  await deleteEmployeeFromFirebase(empId);
-}
-
-function showAddEmployeeForm() {
-  document.getElementById('addEmployeeForm').style.display = 'flex';
-  document.getElementById('newEmployeeName').value = '';
-  document.getElementById('newEmployeePosition').value = '';
-  document.getElementById('newEmployeeName').focus();
-}
-
-function hideAddEmployeeForm() {
-  document.getElementById('addEmployeeForm').style.display = 'none';
-}
+async function quickDeleteEmployee(empId, empName) { if (!confirm('Удалить сотрудника "' + empName + '"?')) return; await deleteEmployeeFromFirebase(empId); }
+function showAddEmployeeForm() { document.getElementById('addEmployeeForm').style.display = 'flex'; document.getElementById('newEmployeeName').value = ''; document.getElementById('newEmployeePosition').value = ''; document.getElementById('newEmployeeName').focus(); }
+function hideAddEmployeeForm() { document.getElementById('addEmployeeForm').style.display = 'none'; }
 
 async function addEmployee() {
   const name = document.getElementById('newEmployeeName').value.trim();
   const position = document.getElementById('newEmployeePosition').value.trim();
   if (!name) { alert('Введите имя сотрудника'); return; }
-  if (employees.some(e => e.name.toLowerCase() === name.toLowerCase())) {
-    alert('Сотрудник с таким именем уже существует');
-    return;
-  }
+  if (employees.some(e => e.name.toLowerCase() === name.toLowerCase())) { alert('Сотрудник с таким именем уже существует'); return; }
   const newEmp = { id: uid(), name, position, createdAt: today() };
   await saveEmployeeToFirebase(newEmp.id, newEmp);
   hideAddEmployeeForm();
@@ -1544,51 +1332,21 @@ async function saveEmployeeChanges() {
   if (!currentEmployeeId) return;
   const emp = employees.find(e => e.id === currentEmployeeId);
   if (!emp) return;
-  
   const newName = document.getElementById('employeePageNameInput').value.trim();
   const newPosition = document.getElementById('employeePagePositionInput').value.trim();
-  
   if (!newName) { alert('Введите имя сотрудника'); return; }
-  
-  // Проверка на дубликат имени (кроме текущего сотрудника)
-  if (employees.some(e => e.id !== currentEmployeeId && e.name.toLowerCase() === newName.toLowerCase())) {
-    alert('Сотрудник с таким именем уже существует');
-    return;
-  }
-  
-  // Если имя изменилось — обновляем все связанные данные
+  if (employees.some(e => e.id !== currentEmployeeId && e.name.toLowerCase() === newName.toLowerCase())) { alert('Сотрудник с таким именем уже существует'); return; }
   if (newName !== emp.name) {
     const oldName = emp.name;
-    
-    // Обновить ответственных в проектах
-    for (const r of rows) {
-      if (r.responsible === oldName) {
-        r.responsible = newName;
-        await saveRequestToFirebase(r.id, r, 'requests');
-      }
-    }
-    
-    // Обновить исполнителей в заданиях
+    for (const r of rows) { if (r.responsible === oldName) { r.responsible = newName; await saveRequestToFirebase(r.id, r, 'requests'); } }
     for (const taskId in tasks) {
-      const rt = tasks[taskId];
-      let changed = false;
-      rt.forEach(t => {
-        if (t.assignee === oldName) {
-          t.assignee = newName;
-          changed = true;
-        }
-      });
-      if (changed) {
-        await saveTasksToFirebase(taskId, rt);
-      }
+      const rt = tasks[taskId]; let changed = false;
+      rt.forEach(t => { if (t.assignee === oldName) { t.assignee = newName; changed = true; } });
+      if (changed) await saveTasksToFirebase(taskId, rt);
     }
   }
-  
-  // Обновить сотрудника
-  emp.name = newName;
-  emp.position = newPosition;
+  emp.name = newName; emp.position = newPosition;
   await saveEmployeeToFirebase(currentEmployeeId, emp);
-  
   alert('✅ Изменения сохранены');
   closeEmployeePage();
 }
@@ -1608,10 +1366,7 @@ function renderEmployeeProjects(empId) {
   if (!emp) return;
   const container = document.getElementById('employeeProjectsTiles');
   const empProjects = getEmployeeProjects(emp.name);
-  if (!empProjects.length) {
-    container.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">У сотрудника нет активных проектов</div>';
-    return;
-  }
+  if (!empProjects.length) { container.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">У сотрудника нет активных проектов</div>'; return; }
   container.innerHTML = empProjects.map(r => {
     const badge = getDeadlineBadge(r.endDate, r.date);
     const daysText = badge.days < 0 ? badge.days : badge.days;
@@ -1622,36 +1377,95 @@ function renderEmployeeProjects(empId) {
   }).join('');
 }
 
-function closeEmployeePage() {
-  document.getElementById('employeePageModal').style.display = 'none';
-  currentEmployeeId = null;
-}
-
-function openEmployeesModal() {
-  renderEmployeesModal();
-  document.getElementById('employeesModal').style.display = 'block';
-}
-
-function closeEmployeesModal() {
-  document.getElementById('employeesModal').style.display = 'none';
-}
+function closeEmployeePage() { document.getElementById('employeePageModal').style.display = 'none'; currentEmployeeId = null; }
+function openEmployeesModal() { renderEmployeesModal(); document.getElementById('employeesModal').style.display = 'block'; }
+function closeEmployeesModal() { document.getElementById('employeesModal').style.display = 'none'; }
 
 function renderEmployeesModal() {
   const container = document.getElementById('employeesModalList');
-  if (!employees.length) {
-    container.innerHTML = '<div class="muted">Сотрудников пока нет. Добавьте первого во вкладке "Персонал".</div>';
+  if (!employees.length) { container.innerHTML = '<div class="muted">Сотрудников пока нет. Добавьте первого во вкладке "Персонал".</div>'; return; }
+  container.innerHTML = employees.map(emp => { const empProjects = getEmployeeProjects(emp.name).length; return `<div class="employee-row" style="cursor:default;"><div class="emp-name">${escapeHtml(emp.name)}</div><div class="emp-position">${escapeHtml(emp.position || '—')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div></div>`; }).join('');
+}
+
+// ===== НАСТРАИВАЕМЫЕ ЭТАПЫ КАНБАНА =====
+
+function openStagesModal() {
+  renderStagesList();
+  document.getElementById('stagesModal').style.display = 'block';
+}
+
+function closeStagesModal() { document.getElementById('stagesModal').style.display = 'none'; }
+
+function renderStagesList() {
+  const container = document.getElementById('stagesList');
+  if (!kanbanStages.length) {
+    container.innerHTML = '<div class="muted">Этапов пока нет. Добавьте первый.</div>';
     return;
   }
-  container.innerHTML = employees.map(emp => {
-    const empProjects = getEmployeeProjects(emp.name).length;
-    return `
-      <div class="employee-row" style="cursor:default;">
-        <div class="emp-name">${escapeHtml(emp.name)}</div>
-        <div class="emp-position">${escapeHtml(emp.position || '—')}</div>
-        <div class="emp-projects">📁 Проектов: ${empProjects}</div>
-      </div>
-    `;
-  }).join('');
+  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  container.innerHTML = sorted.map((stage, idx) => `
+    <div class="stage-item">
+      <span class="stage-order">${idx + 1}</span>
+      <input type="text" value="${escapeHtml(stage.name)}" onchange="updateStageName('${stage.id}', this.value)" placeholder="Название этапа">
+      <button class="stage-up" onclick="moveStage('${stage.id}', -1)" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}>▲</button>
+      <button class="stage-down" onclick="moveStage('${stage.id}', 1)" ${idx === sorted.length - 1 ? 'disabled style="opacity:0.3;"' : ''}>▼</button>
+      <button class="stage-remove" onclick="removeKanbanStage('${stage.id}')">✖</button>
+    </div>
+  `).join('');
+}
+
+function updateStageName(stageId, newName) {
+  const stage = kanbanStages.find(s => s.id === stageId);
+  if (stage) stage.name = newName.trim() || stage.name;
+}
+
+function moveStage(stageId, direction) {
+  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const idx = sorted.findIndex(s => s.id === stageId);
+  if (idx < 0) return;
+  const newIdx = idx + direction;
+  if (newIdx < 0 || newIdx >= sorted.length) return;
+  const tempOrder = sorted[idx].order;
+  sorted[idx].order = sorted[newIdx].order;
+  sorted[newIdx].order = tempOrder;
+  kanbanStages = sorted;
+  renderStagesList();
+}
+
+function addKanbanStage() {
+  const input = document.getElementById('newStageName');
+  const name = input.value.trim();
+  if (!name) { alert('Введите название этапа'); return; }
+  const maxOrder = kanbanStages.length ? Math.max(...kanbanStages.map(s => s.order)) : -1;
+  kanbanStages.push({ id: uid(), name, order: maxOrder + 1 });
+  input.value = '';
+  renderStagesList();
+}
+
+function removeKanbanStage(stageId) {
+  if (kanbanStages.length <= 1) { alert('Должен остаться хотя бы один этап'); return; }
+  if (!confirm('Удалить этот этап? Задания этого этапа будут перемещены в предыдущий.')) return;
+  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const idx = sorted.findIndex(s => s.id === stageId);
+  kanbanStages = kanbanStages.filter(s => s.id !== stageId);
+  // Перемещаем задания удалённого этапа в предыдущий
+  if (idx > 0 && currentProductionRequest) {
+    const prevStageId = sorted[idx - 1].id;
+    const rt = getRequestTasks(currentProductionRequest);
+    rt.forEach(t => { if (t.stage === stageId) t.stage = prevStageId; });
+    saveTasksToFirebase(currentProductionRequest, rt);
+    tasks[currentProductionRequest] = rt;
+  }
+  renderStagesList();
+}
+
+async function saveStagesAndClose() {
+  // Валидация — все названия должны быть заполнены
+  const empty = kanbanStages.some(s => !s.name.trim());
+  if (empty) { alert('Все этапы должны иметь название'); return; }
+  await saveKanbanStagesToFirebase();
+  closeStagesModal();
+  if (currentProductionRequest) renderProduction();
 }
 
 function fillCalendarEmployeeFilter() {
@@ -1670,69 +1484,37 @@ function fillCalendarEmployeeFilter() {
 function calendarPrev() { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); }
 function calendarNext() { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); }
 function calendarToday() { calendarDate = new Date(); renderCalendar(); }
-function setCalendarView(mode) {
-  calendarViewMode = mode;
-  document.getElementById('calViewMonth').classList.toggle('active', mode === 'month');
-  document.getElementById('calViewList').classList.toggle('active', mode === 'list');
-  renderCalendar();
-}
+function setCalendarView(mode) { calendarViewMode = mode; document.getElementById('calViewMonth').classList.toggle('active', mode === 'month'); document.getElementById('calViewList').classList.toggle('active', mode === 'list'); renderCalendar(); }
 
 function getCalendarEvents() {
   const employeeFilter = document.getElementById('calEmployeeFilter').value;
   const clientFilter = document.getElementById('calClientFilter').value.trim().toLowerCase();
   const events = [];
-  
   rows.forEach(r => {
     if (r.archived) return;
     if (employeeFilter && r.responsible !== employeeFilter) return;
     if (clientFilter && !getClientName(r).toLowerCase().includes(clientFilter) && !getRequestTitle(r).toLowerCase().includes(clientFilter)) return;
-    
     const startDate = r.date;
     const endDate = r.endDate || r.date;
     const badge = getDeadlineBadge(r.endDate, r.date);
-    
-    events.push({
-      type: 'project',
-      id: r.id,
-      title: getRequestTitle(r) || '(без названия)',
-      client: getClientName(r),
-      startDate,
-      endDate,
-      status: r.status,
-      cls: badge.cls,
-      responsible: r.responsible
-    });
+    events.push({ type: 'project', id: r.id, title: getRequestTitle(r) || '(без названия)', client: getClientName(r), startDate, endDate, status: r.status, cls: badge.cls, responsible: r.responsible });
   });
-  
   return events;
 }
 
 function renderCalendarStats(events) {
   const todayStr = today();
-  const overdue = events.filter(e => {
-    const left = daysUntilEnd(e.endDate);
-    return left !== null && left < 0;
-  }).length;
+  const overdue = events.filter(e => { const left = daysUntilEnd(e.endDate); return left !== null && left < 0; }).length;
   const today_events = events.filter(e => e.startDate === todayStr || e.endDate === todayStr).length;
   const week_events = events.filter(e => {
-    const d = e.startDate;
-    if (!d) return false;
-    const eventDate = parseDate(d);
-    if (!eventDate) return false;
+    const d = e.startDate; if (!d) return false;
+    const eventDate = parseDate(d); if (!eventDate) return false;
     const todayD = todayDate();
-    const weekStart = new Date(todayD);
-    weekStart.setDate(todayD.getDate() - todayD.getDay() + 1);
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
+    const weekStart = new Date(todayD); weekStart.setDate(todayD.getDate() - todayD.getDay() + 1);
+    const weekEnd = new Date(weekStart); weekEnd.setDate(weekStart.getDate() + 6);
     return eventDate >= weekStart && eventDate <= weekEnd;
   }).length;
-  
-  document.getElementById('calendarStats').innerHTML = `
-    <div class="cal-stat-card"><div class="stat-num">${events.length}</div><div class="stat-label">Всего проектов</div></div>
-    <div class="cal-stat-card danger"><div class="stat-num">${overdue}</div><div class="stat-label">Просрочено</div></div>
-    <div class="cal-stat-card warn"><div class="stat-num">${today_events}</div><div class="stat-label">Сегодня</div></div>
-    <div class="cal-stat-card ok"><div class="stat-num">${week_events}</div><div class="stat-label">На неделе</div></div>
-  `;
+  document.getElementById('calendarStats').innerHTML = `<div class="cal-stat-card"><div class="stat-num">${events.length}</div><div class="stat-label">Всего проектов</div></div><div class="cal-stat-card danger"><div class="stat-num">${overdue}</div><div class="stat-label">Просрочено</div></div><div class="cal-stat-card warn"><div class="stat-num">${today_events}</div><div class="stat-label">Сегодня</div></div><div class="cal-stat-card ok"><div class="stat-num">${week_events}</div><div class="stat-label">На неделе</div></div>`;
 }
 
 function renderCalendar() {
@@ -1747,8 +1529,7 @@ function renderCalendar() {
 
 function showDayEventsModal(dateStr) {
   const events = getCalendarEvents();
-  const d = parseDate(dateStr);
-  if (!d) return;
+  const d = parseDate(dateStr); if (!d) return;
   const dayEvents = events.filter(e => {
     if (!e.startDate) return false;
     const start = parseDate(e.startDate);
@@ -1761,19 +1542,15 @@ function showDayEventsModal(dateStr) {
   document.getElementById('dayModalTitle').textContent = '📅 ' + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
   document.getElementById('dayModalSubtitle').textContent = dayName.charAt(0).toUpperCase() + dayName.slice(1) + ' • Всего проектов: ' + dayEvents.length;
   const listEl = document.getElementById('dayEventsList');
-  if (!dayEvents.length) {
-    listEl.innerHTML = '<div class="day-empty">В этот день нет проектов</div>';
-  } else {
+  if (!dayEvents.length) { listEl.innerHTML = '<div class="day-empty">В этот день нет проектов</div>'; }
+  else {
     listEl.innerHTML = dayEvents.map(e => {
       const left = daysUntilEnd(e.endDate);
       const isOverdue = left !== null && left < 0;
       const daysText = left !== null ? (left < 0 ? left : left) : daysFromStart(e.startDate);
       const badge = getDeadlineBadge(e.endDate, e.startDate);
       const deadlineText = e.endDate ? (isOverdue ? 'Просрочен на ' + Math.abs(left) + ' дн.' : 'До конца ' + daysLabel(left)) : 'Без срока окончания';
-      return '<div class="day-event-item' + (isOverdue ? ' overdue' : '') + '" onclick="closeDayEventsModal(); setTimeout(() => openRequestView(\'' + e.id + '\', \'project\'), 200)">' +
-        '<div class="evt-main"><div class="evt-client-name">' + escapeHtml(e.client) + '</div><div class="evt-title">→ ' + escapeHtml(e.title) + '</div><div class="evt-sub">' + escapeHtml(deadlineText) + (e.responsible ? ' • 👷 ' + escapeHtml(e.responsible) : '') + '</div></div>' +
-        '<div class="evt-right"><span class="evt-status">' + escapeHtml(e.status || '—') + '</span><div class="evt-days ' + badge.cls + '">' + daysText + '</div></div>' +
-        '</div>';
+      return '<div class="day-event-item' + (isOverdue ? ' overdue' : '') + '" onclick="closeDayEventsModal(); setTimeout(() => openRequestView(\'' + e.id + '\', \'project\'), 200)"><div class="evt-main"><div class="evt-client-name">' + escapeHtml(e.client) + '</div><div class="evt-title">→ ' + escapeHtml(e.title) + '</div><div class="evt-sub">' + escapeHtml(deadlineText) + (e.responsible ? ' •  ' + escapeHtml(e.responsible) : '') + '</div></div><div class="evt-right"><span class="evt-status">' + escapeHtml(e.status || '—') + '</span><div class="evt-days ' + badge.cls + '">' + daysText + '</div></div></div>';
     }).join('');
   }
   document.getElementById('dayEventsModal').style.display = 'block';
@@ -1789,16 +1566,10 @@ function renderCalendarMonth(year, month, events) {
   let startWeekday = firstDay.getDay() - 1;
   if (startWeekday < 0) startWeekday = 6;
   const todayStr = today();
-  
   let html = '<div class="calendar-grid">';
   WEEKDAY_NAMES.forEach(d => { html += '<div class="calendar-header-cell">' + d + '</div>'; });
-  
   const prevMonthLastDay = new Date(year, month, 0).getDate();
-  for (let i = startWeekday - 1; i >= 0; i--) {
-    const day = prevMonthLastDay - i;
-    html += '<div class="calendar-day-cell other-month"><div class="day-number">' + day + '</div></div>';
-  }
-  
+  for (let i = startWeekday - 1; i >= 0; i--) { const day = prevMonthLastDay - i; html += '<div class="calendar-day-cell other-month"><div class="day-number">' + day + '</div></div>'; }
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
     const isToday = dateStr === todayStr;
@@ -1809,29 +1580,15 @@ function renderCalendarMonth(year, month, events) {
       const current = new Date(year, month, day);
       return current >= start && current <= end;
     });
-    
-    html += '<div class="calendar-day-cell' + (isToday ? ' today' : '') + '">';
-    html += '<div class="day-number">' + day + '</div>';
-    html += '<div class="day-events">';
-    
+    html += '<div class="calendar-day-cell' + (isToday ? ' today' : '') + '"><div class="day-number">' + day + '</div><div class="day-events">';
     const maxEvents = 3;
-    dayEvents.slice(0, maxEvents).forEach(e => {
-      html += '<div class="cal-event project-' + e.cls + '" onclick="event.stopPropagation(); openRequestView(\'' + e.id + '\', \'project\')" title="' + escapeHtml(e.client) + ' — ' + escapeHtml(e.title) + '">' + escapeHtml(e.client.substring(0, 10)) + ': ' + escapeHtml(e.title.substring(0, 15)) + '</div>';
-    });
-    
-    if (dayEvents.length > maxEvents) {
-      const remaining = dayEvents.length - maxEvents;
-      html += '<div class="cal-event-more" onclick="event.stopPropagation(); showDayEventsModal(\'' + dateStr + '\')">+' + remaining + ' ещё</div>';
-    }
-    
+    dayEvents.slice(0, maxEvents).forEach(e => { html += '<div class="cal-event project-' + e.cls + '" onclick="event.stopPropagation(); openRequestView(\'' + e.id + '\', \'project\')" title="' + escapeHtml(e.client) + ' — ' + escapeHtml(e.title) + '">' + escapeHtml(e.client.substring(0, 10)) + ': ' + escapeHtml(e.title.substring(0, 15)) + '</div>'; });
+    if (dayEvents.length > maxEvents) { const remaining = dayEvents.length - maxEvents; html += '<div class="cal-event-more" onclick="event.stopPropagation(); showDayEventsModal(\'' + dateStr + '\')">+' + remaining + ' ещё</div>'; }
     html += '</div></div>';
   }
-  
   const totalCells = startWeekday + daysInMonth;
   const remaining = (7 - (totalCells % 7)) % 7;
-  for (let i = 1; i <= remaining; i++) {
-    html += '<div class="calendar-day-cell other-month"><div class="day-number">' + i + '</div></div>';
-  }
+  for (let i = 1; i <= remaining; i++) { html += '<div class="calendar-day-cell other-month"><div class="day-number">' + i + '</div></div>'; }
   html += '</div>';
   container.innerHTML = html;
 }
@@ -1840,7 +1597,6 @@ function renderCalendarList(year, month, events) {
   const container = document.getElementById('calendarContent');
   const todayStr = today();
   const dateMap = {};
-  
   events.forEach(e => {
     if (!e.startDate) return;
     const start = parseDate(e.startDate);
@@ -1848,52 +1604,35 @@ function renderCalendarList(year, month, events) {
     const current = new Date(start);
     while (current <= end) {
       const ds = current.toISOString().slice(0, 10);
-      if (current.getFullYear() === year && current.getMonth() === month) {
-        if (!dateMap[ds]) dateMap[ds] = [];
-        dateMap[ds].push(e);
-      }
+      if (current.getFullYear() === year && current.getMonth() === month) { if (!dateMap[ds]) dateMap[ds] = []; dateMap[ds].push(e); }
       current.setDate(current.getDate() + 1);
     }
   });
-  
   const dates = Object.keys(dateMap).sort();
-  
-  if (!dates.length) {
-    container.innerHTML = '<div class="calendar-list-view"><div class="muted" style="padding:20px;text-align:center;">В этом месяце нет проектов</div></div>';
-    return;
-  }
-  
+  if (!dates.length) { container.innerHTML = '<div class="calendar-list-view"><div class="muted" style="padding:20px;text-align:center;">В этом месяце нет проектов</div></div>'; return; }
   let html = '<div class="calendar-list-view">';
   dates.forEach(ds => {
     const d = parseDate(ds);
     const isToday = ds === todayStr;
     const dayName = d.toLocaleDateString('ru-RU', { weekday: 'long' });
     const dateLabel = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) + ', ' + dayName;
-    
-    html += '<div class="calendar-list-day">';
-    html += '<div class="calendar-list-day-header' + (isToday ? ' today' : '') + '"><span>' + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1) + '</span><span>' + dateMap[ds].length + ' проектов</span></div>';
-    
+    html += '<div class="calendar-list-day"><div class="calendar-list-day-header' + (isToday ? ' today' : '') + '"><span>' + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1) + '</span><span>' + dateMap[ds].length + ' проектов</span></div>';
     dateMap[ds].forEach(e => {
       const badge = getDeadlineBadge(e.endDate, e.startDate);
       const daysText = badge.days < 0 ? badge.days : badge.days;
       const left = daysUntilEnd(e.endDate);
       const isOverdue = left !== null && left < 0;
-      
-      html += '<div class="calendar-list-event' + (isOverdue ? ' overdue' : '') + '" onclick="openRequestView(\'' + e.id + '\', \'project\')">';
-      html += '<span class="evt-client-name">' + escapeHtml(e.client) + '</span>';
-      html += '<span class="evt-title">→ ' + escapeHtml(e.title) + '</span>';
+      html += '<div class="calendar-list-event' + (isOverdue ? ' overdue' : '') + '" onclick="openRequestView(\'' + e.id + '\', \'project\')"><span class="evt-client-name">' + escapeHtml(e.client) + '</span><span class="evt-title">→ ' + escapeHtml(e.title) + '</span>';
       if (e.responsible) html += '<span class="evt-responsible">👷 ' + escapeHtml(e.responsible) + '</span>';
-      html += '<span class="evt-days ' + badge.cls + '">' + daysText + '</span>';
-      html += '</div>';
+      html += '<span class="evt-days ' + badge.cls + '">' + daysText + '</span></div>';
     });
-    
     html += '</div>';
   });
   html += '</div>';
   container.innerHTML = html;
 }
 
-// ===== ТАБЕЛЬ РАБОЧЕГО ВРЕМЕНИ =====
+// ===== ТАБЕЛЬ =====
 
 function fillTimesheetEmployeeFilter() {
   const sel = document.getElementById('tsEmployeeFilter');
@@ -1912,173 +1651,95 @@ function timesheetPrev() { timesheetDate.setMonth(timesheetDate.getMonth() - 1);
 function timesheetNext() { timesheetDate.setMonth(timesheetDate.getMonth() + 1); renderTimesheet(); }
 function timesheetToday() { timesheetDate = new Date(); renderTimesheet(); }
 
-function getEmployeeProjectsForTimesheet(empName) {
-  return rows.filter(r => {
-    if (r.archived) return false;
-    const projectTasks = tasks[r.id] || [];
-    return projectTasks.some(t => t.assignee === empName);
-  });
-}
-
-function getTimesheetKey(empId, dateStr) {
-  return empId + '_' + dateStr;
-}
+function getEmployeeProjectsForTimesheet(empName) { return rows.filter(r => { if (r.archived) return false; const projectTasks = tasks[r.id] || []; return projectTasks.some(t => t.assignee === empName); }); }
+function getTimesheetKey(empId, dateStr) { return empId + '_' + dateStr; }
 
 function openTimesheetEntry(empId, dateStr) {
   const emp = employees.find(e => e.id === empId);
   if (!emp) return;
-  
   currentTsEntry = { empId, date: dateStr };
-  
   document.getElementById('tsEntryEmployeeName').textContent = emp.name;
   document.getElementById('tsEntryDate').textContent = dateStr;
-  
   const key = getTimesheetKey(empId, dateStr);
   const existingEntry = timesheets[key] || { entries: [] };
-  
   const empProjects = getEmployeeProjectsForTimesheet(emp.name);
-  
   const listEl = document.getElementById('tsEntryList');
-  if (!empProjects.length) {
-    listEl.innerHTML = '<div class="muted">У сотрудника нет активных проектов с заданиями</div>';
-    document.getElementById('tsEntryTotal').textContent = '0';
-  } else {
+  if (!empProjects.length) { listEl.innerHTML = '<div class="muted">У сотрудника нет активных проектов с заданиями</div>'; document.getElementById('tsEntryTotal').textContent = '0'; }
+  else {
     listEl.innerHTML = empProjects.map(p => {
       const existingHours = existingEntry.entries.find(e => e.projectId === p.id)?.hours || 0;
-      return `
-        <div class="entry-item">
-          <div>
-            <div class="entry-project">${escapeHtml(getRequestTitle(p))}</div>
-            <div class="entry-client">${escapeHtml(getClientName(p))}</div>
-          </div>
-          <input type="number" min="0" max="24" step="0.5" value="${existingHours}" onchange="updateTimesheetTotal()" data-project-id="${p.id}">
-        </div>
-      `;
+      return `<div class="entry-item"><div><div class="entry-project">${escapeHtml(getRequestTitle(p))}</div><div class="entry-client">${escapeHtml(getClientName(p))}</div></div><input type="number" min="0" max="24" step="0.5" value="${existingHours}" onchange="updateTimesheetTotal()" data-project-id="${p.id}"></div>`;
     }).join('');
     updateTimesheetTotal();
   }
-  
   document.getElementById('timesheetEntryModal').style.display = 'block';
 }
 
 function updateTimesheetTotal() {
   const inputs = document.querySelectorAll('#tsEntryList input[type="number"]');
   let total = 0;
-  inputs.forEach(input => {
-    const val = parseFloat(input.value) || 0;
-    total += val;
-  });
+  inputs.forEach(input => { total += parseFloat(input.value) || 0; });
   document.getElementById('tsEntryTotal').textContent = total.toFixed(1);
 }
 
 async function saveTimesheetEntry() {
   if (!currentTsEntry) return;
-  
   const { empId, date } = currentTsEntry;
   const key = getTimesheetKey(empId, date);
-  
   const inputs = document.querySelectorAll('#tsEntryList input[type="number"]');
   const entries = [];
-  
   inputs.forEach(input => {
     const projectId = input.dataset.projectId;
     const hours = parseFloat(input.value) || 0;
     if (hours > 0) {
       const project = rows.find(r => r.id === projectId);
-      entries.push({
-        projectId,
-        projectTitle: project ? getRequestTitle(project) : 'Неизвестно',
-        clientName: project ? getClientName(project) : '',
-        hours
-      });
+      entries.push({ projectId, projectTitle: project ? getRequestTitle(project) : 'Неизвестно', clientName: project ? getClientName(project) : '', hours });
     }
   });
-  
-  if (entries.length === 0) {
-    await deleteDoc(doc(db, 'timesheets', key));
-    delete timesheets[key];
-  } else {
-    const data = { empId, date, entries, updatedAt: today() };
-    await saveTimesheetToFirebase(key, data);
-    timesheets[key] = data;
-  }
-  
+  if (entries.length === 0) { await deleteDoc(doc(db, 'timesheets', key)); delete timesheets[key]; }
+  else { const data = { empId, date, entries, updatedAt: today() }; await saveTimesheetToFirebase(key, data); timesheets[key] = data; }
   closeTimesheetEntryModal();
   renderTimesheet();
 }
 
-function closeTimesheetEntryModal() {
-  document.getElementById('timesheetEntryModal').style.display = 'none';
-  currentTsEntry = null;
-}
+function closeTimesheetEntryModal() { document.getElementById('timesheetEntryModal').style.display = 'none'; currentTsEntry = null; }
 
 function openTimesheetMonthSummary(empId, year, month) {
   const emp = employees.find(e => e.id === empId);
   if (!emp) return;
-  
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  
   document.getElementById('tsMonthSummaryEmployee').textContent = emp.name;
   document.getElementById('tsMonthSummaryPeriod').textContent = MONTH_NAMES[month] + ' ' + year;
-  
   const projectHours = {};
   let totalHours = 0;
-  
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
     const key = getTimesheetKey(empId, dateStr);
     const entry = timesheets[key];
-    
     if (entry && entry.entries) {
       entry.entries.forEach(e => {
-        if (!projectHours[e.projectId]) {
-          projectHours[e.projectId] = {
-            projectId: e.projectId,
-            projectTitle: e.projectTitle,
-            clientName: e.clientName,
-            hours: 0,
-            days: 0
-          };
-        }
+        if (!projectHours[e.projectId]) projectHours[e.projectId] = { projectId: e.projectId, projectTitle: e.projectTitle, clientName: e.clientName, hours: 0, days: 0 };
         projectHours[e.projectId].hours += e.hours;
         projectHours[e.projectId].days += 1;
         totalHours += e.hours;
       });
     }
   }
-  
   const listEl = document.getElementById('tsMonthSummaryList');
   const projects = Object.values(projectHours);
-  
-  if (!projects.length) {
-    listEl.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Нет записей за этот месяц</div>';
-  } else {
+  if (!projects.length) { listEl.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Нет записей за этот месяц</div>'; }
+  else {
     projects.sort((a, b) => b.hours - a.hours);
-    
     listEl.innerHTML = projects.map(p => {
       const percentage = totalHours > 0 ? ((p.hours / totalHours) * 100).toFixed(1) : 0;
-      return `
-        <div class="entry-item" style="cursor:pointer;" onclick="closeTimesheetMonthSummary(); setTimeout(() => openRequestView('${p.projectId}', 'project'), 200)">
-          <div style="flex:1;">
-            <div class="entry-project">${escapeHtml(p.projectTitle)}</div>
-            <div class="entry-client">${escapeHtml(p.clientName)} • ${p.days} дн.</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:18px;font-weight:bold;color:#004a99;">${p.hours.toFixed(1)} ч</div>
-            <div style="font-size:11px;color:#666;">${percentage}%</div>
-          </div>
-        </div>
-      `;
+      return `<div class="entry-item" style="cursor:pointer;" onclick="closeTimesheetMonthSummary(); setTimeout(() => openRequestView('${p.projectId}', 'project'), 200)"><div style="flex:1;"><div class="entry-project">${escapeHtml(p.projectTitle)}</div><div class="entry-client">${escapeHtml(p.clientName)} • ${p.days} дн.</div></div><div style="text-align:right;"><div style="font-size:18px;font-weight:bold;color:#004a99;">${p.hours.toFixed(1)} ч</div><div style="font-size:11px;color:#666;">${percentage}%</div></div></div>`;
     }).join('');
   }
-  
   document.getElementById('tsMonthSummaryTotal').textContent = totalHours.toFixed(1);
   document.getElementById('timesheetMonthSummaryModal').style.display = 'block';
 }
 
-function closeTimesheetMonthSummary() {
-  document.getElementById('timesheetMonthSummaryModal').style.display = 'none';
-}
+function closeTimesheetMonthSummary() { document.getElementById('timesheetMonthSummaryModal').style.display = 'none'; }
 
 function renderTimesheet() {
   const container = document.getElementById('timesheetContainer');
@@ -2087,53 +1748,32 @@ function renderTimesheet() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const todayStr = today();
   const employeeFilter = document.getElementById('tsEmployeeFilter').value;
-  
   document.getElementById('tsMonthLabel').textContent = MONTH_NAMES[month] + ' ' + year;
-  
-  const filteredEmployees = employeeFilter 
-    ? employees.filter(e => e.id === employeeFilter)
-    : employees;
-  
-  if (!filteredEmployees.length) {
-    container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Нет сотрудников. Добавьте первого во вкладке "Персонал".</div>';
-    return;
-  }
-  
+  const filteredEmployees = employeeFilter ? employees.filter(e => e.id === employeeFilter) : employees;
+  if (!filteredEmployees.length) { container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Нет сотрудников. Добавьте первого во вкладке "Персонал".</div>'; return; }
   let html = '<table class="timesheet-table"><thead><tr><th class="employee-col">Сотрудник</th>';
-  
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
     const d = new Date(year, month, day);
     const isToday = dateStr === todayStr;
     html += '<th class="' + (isToday ? 'today-col' : '') + '">' + day + '</th>';
   }
-  
   html += '<th style="cursor:pointer;background:#e3f2fd;" title="Нажмите для детализации">Итого</th></tr></thead><tbody>';
-  
   filteredEmployees.forEach(emp => {
-    html += '<tr class="' + (false ? 'weekend' : '') + '">';
-    html += '<td class="employee-cell">' + escapeHtml(emp.name) + '</td>';
-    
+    html += '<tr><td class="employee-cell">' + escapeHtml(emp.name) + '</td>';
     let monthTotal = 0;
-    
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
-      const d = new Date(year, month, day);
       const isToday = dateStr === todayStr;
-      
       const key = getTimesheetKey(emp.id, dateStr);
       const entry = timesheets[key];
       const hours = entry ? entry.entries.reduce((sum, e) => sum + e.hours, 0) : 0;
       monthTotal += hours;
-      
       const cellClass = 'hours-cell' + (hours > 0 ? ' has-hours' : '') + (isToday ? ' today' : '');
       html += '<td class="' + cellClass + '" onclick="openTimesheetEntry(\'' + emp.id + '\', \'' + dateStr + '\')">' + (hours > 0 ? hours.toFixed(1) : '') + '</td>';
     }
-    
-    html += '<td class="total-cell" onclick="openTimesheetMonthSummary(\'' + emp.id + '\', ' + year + ', ' + month + ')" title="Нажмите для детализации по проектам">' + monthTotal.toFixed(1) + '</td>';
-    html += '</tr>';
+    html += '<td class="total-cell" onclick="openTimesheetMonthSummary(\'' + emp.id + '\', ' + year + ', ' + month + ')" title="Нажмите для детализации по проектам">' + monthTotal.toFixed(1) + '</td></tr>';
   });
-  
   html += '</tbody></table>';
   container.innerHTML = html;
 }
@@ -2213,8 +1853,7 @@ async function importCSV(event) {
         const contactPersons = [];
         if (cpText) {
           cpText.split(';').forEach(part => {
-            const p = part.trim();
-            if (!p) return;
+            const p = part.trim(); if (!p) return;
             const nameMatch = p.match(/^([^(]+?)(?:\s*\(([^)]*)\))?/);
             const name = nameMatch ? nameMatch[1].trim() : p;
             const rest = nameMatch && nameMatch[2] ? nameMatch[2].trim() : '';
@@ -2227,9 +1866,7 @@ async function importCSV(event) {
             contactPersons.push({ name, position, phone1: phones[0]||'', phone2: phones[1]||'', phone3: phones[2]||'', email: emailMatch ? emailMatch[1].trim() : '', website: websiteMatch ? websiteMatch[1].trim() : '', address: addressMatch ? addressMatch[1].trim() : '' });
           });
         }
-        if (cn) {
-          if (!clients[cn]) { clients[cn] = { name: cn, contactPersons, notes: [], createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; }
-        }
+        if (cn) { if (!clients[cn]) { clients[cn] = { name: cn, contactPersons, notes: [], createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; } }
         if (ti || dt || ed) {
           const np = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: '', title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
           await saveRequestToFirebase(np.id, np, 'requests');
@@ -2247,45 +1884,54 @@ async function importCSV(event) {
 
 function getRequestTasks(id) { if (!tasks[id]) tasks[id] = []; return tasks[id]; }
 
+function getStageIndex(stageId) {
+  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  return sorted.findIndex(s => s.id === stageId);
+}
+
+function getFirstStageId() {
+  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  return sorted.length ? sorted[0].id : null;
+}
+
 function renderProduction() {
   const id = currentProductionRequest;
   if (!id) return;
   const sel = document.getElementById('newTaskAssignee');
   sel.innerHTML = '<option value="">— Выберите сотрудника —</option>';
-  if (!employees.length) {
-    sel.innerHTML = '<option value="">— Сначала добавьте сотрудников во вкладке "Персонал" —</option>';
-  } else {
-    employees.forEach(emp => {
-      const opt = document.createElement('option');
-      opt.value = emp.name;
-      opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
-      sel.appendChild(opt);
-    });
-  }
+  if (!employees.length) { sel.innerHTML = '<option value="">— Сначала добавьте сотрудников во вкладке "Персонал" —</option>'; }
+  else { employees.forEach(emp => { const opt = document.createElement('option'); opt.value = emp.name; opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : ''); sel.appendChild(opt); }); }
   const dd = new Date(); dd.setDate(dd.getDate() + 7);
   document.getElementById('newTaskStartDate').value = today();
   document.getElementById('newTaskEndDate').value = dd.toISOString().slice(0,10);
   document.getElementById('newTaskTitle').value = '';
+  
+  const board = document.getElementById('kanbanBoard');
+  const sortedStages = [...kanbanStages].sort((a, b) => a.order - b.order);
+  
+  // Динамически устанавливаем количество колонок
+  const colsCount = sortedStages.length || 1;
+  board.style.gridTemplateColumns = `repeat(${Math.min(colsCount, 4)}, 1fr)`;
+  
   const rt = getRequestTasks(id);
-  const cols = { 'new': rt.filter(t => t.status === 'new'), 'work': rt.filter(t => t.status === 'work'), 'check': rt.filter(t => t.status === 'check'), 'done': rt.filter(t => t.status === 'done') };
-  Object.keys(cols).forEach(s => {
-    const col = document.getElementById('col-' + s);
-    document.getElementById('count-' + s).textContent = cols[s].length;
-    col.innerHTML = cols[s].length ? cols[s].map(t => renderTaskCard(t)).join('') : '<div class="muted">Пусто</div>';
-  });
+  
+  board.innerHTML = sortedStages.map(stage => {
+    const stageTasks = rt.filter(t => t.stage === stage.id);
+    return `<div class="kanban-column"><h4>${escapeHtml(stage.name)} <span class="count">${stageTasks.length}</span></h4><div>${stageTasks.length ? stageTasks.map(t => renderTaskCard(t)).join('') : '<div class="muted">Пусто</div>'}</div></div>`;
+  }).join('');
+  
   const infoEl = document.getElementById('productionInfo');
-  if (infoEl) infoEl.textContent = 'Всего: ' + rt.length + ', выполнено: ' + cols['done'].length;
+  if (infoEl) infoEl.textContent = 'Всего: ' + rt.length;
 }
 
 function renderTaskCard(t) {
   const startDate = t.startDate || '';
   const endDate = t.endDate || '';
   const comments = t.comments || [];
-  
   const badge = getDeadlineBadge(endDate, startDate);
   const daysText = badge.days < 0 ? badge.days : badge.days;
-  
-  const so = ['new','work','check','done'], ci = so.indexOf(t.status);
+  const stageIndex = getStageIndex(t.stage);
+  const totalStages = kanbanStages.length;
   
   return '<div class="task-card">' +
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
@@ -2297,10 +1943,10 @@ function renderTaskCard(t) {
     '<div class="task-footer">' +
       '<button class="task-comments-btn" onclick="event.stopPropagation(); openTaskComments(\'' + t.id + '\', \'' + currentProductionRequest + '\')">💬 <span class="comment-count">' + comments.length + '</span></button>' +
       '<div class="task-actions">' +
-        (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') +
-        (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') +
-        '<button onclick="editTask(\'' + t.id + '\')">✏️</button>' +
-        '<button onclick="deleteTask(\'' + t.id + '\')">🗑️</button>' +
+        (stageIndex > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') +
+        (stageIndex < totalStages - 1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') +
+        '<button onclick="editTask(\'' + t.id + '\')">️</button>' +
+        '<button onclick="deleteTask(\'' + t.id + '\')">️</button>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -2315,15 +1961,11 @@ async function addTask() {
   const ed = document.getElementById('newTaskEndDate').value;
   if (!ti) { alert('Введите название'); return; }
   if (!as) { alert('Выберите исполнителя (сотрудника)'); return; }
-  
   const project = rows.find(r => r.id === id);
-  if (project && !project.responsible) {
-    project.responsible = as;
-    await saveRequestToFirebase(id, project, 'requests');
-  }
-  
+  if (project && !project.responsible) { project.responsible = as; await saveRequestToFirebase(id, project, 'requests'); }
   const rt = getRequestTasks(id);
-  rt.push({ id: uid(), title: ti, assignee: as, startDate: sd, endDate: ed, comments: [], status: 'new', createdAt: today() });
+  const firstStageId = getFirstStageId();
+  rt.push({ id: uid(), title: ti, assignee: as, startDate: sd, endDate: ed, comments: [], stage: firstStageId, createdAt: today() });
   await saveTasksToFirebase(id, rt);
   tasks[id] = rt;
   renderProduction();
@@ -2335,9 +1977,11 @@ async function moveTask(tid, dir) {
   const rt = getRequestTasks(id);
   const t = rt.find(x => x.id === tid);
   if (!t) return;
-  const so = ['new','work','check','done'], ci = so.indexOf(t.status), ni = ci + dir;
-  if (ni < 0 || ni >= so.length) return;
-  t.status = so[ni];
+  const sortedStages = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const currentIdx = sortedStages.findIndex(s => s.id === t.stage);
+  const newIdx = currentIdx + dir;
+  if (newIdx < 0 || newIdx >= sortedStages.length) return;
+  t.stage = sortedStages[newIdx].id;
   await saveTasksToFirebase(id, rt);
   renderProduction();
 }
@@ -2378,11 +2022,7 @@ function openTaskComments(taskId, projectId) {
   document.getElementById('taskCommentsModal').style.display = 'block';
 }
 
-function closeTaskCommentsModal() {
-  document.getElementById('taskCommentsModal').style.display = 'none';
-  currentTaskCommentsTaskId = null;
-  currentTaskCommentsProjectId = null;
-}
+function closeTaskCommentsModal() { document.getElementById('taskCommentsModal').style.display = 'none'; currentTaskCommentsTaskId = null; currentTaskCommentsProjectId = null; }
 
 function renderTaskComments() {
   const list = document.getElementById('taskCommentsList');
@@ -2391,7 +2031,7 @@ function renderTaskComments() {
   const task = rt.find(t => t.id === currentTaskCommentsTaskId);
   const comments = (task && task.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span> ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteTaskComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteTaskComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 async function addTaskComment() {
@@ -2431,13 +2071,25 @@ function renderStats() {
   const id = currentProductionRequest;
   if (!id) return;
   const rt = getRequestTasks(id);
-  const total = rt.length, done = rt.filter(t => t.status === 'done').length, active = rt.filter(t => t.status !== 'done').length;
-  const overdue = rt.filter(t => {
-    if (t.status === 'done') return false;
-    const d = daysUntilEnd(t.endDate);
-    return d !== null && d < 0;
-  }).length;
-  let html = '<div class="stats-grid"><div class="stat-card"><div class="stat-value">' + total + '</div><div class="stat-label">Всего заданий</div></div><div class="stat-card"><div class="stat-value">' + active + '</div><div class="stat-label">В работе</div></div><div class="stat-card"><div class="stat-value">' + done + '</div><div class="stat-label">Выполнено</div></div><div class="stat-card"><div class="stat-value" style="color:#d9534f;">' + overdue + '</div><div class="stat-label">Просрочено</div></div></div><h4 style="margin-top:20px;">Загрузка сотрудников</h4>';
+  const sortedStages = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const total = rt.length;
+  const doneStageId = sortedStages.length ? sortedStages[sortedStages.length - 1].id : null;
+  const done = doneStageId ? rt.filter(t => t.stage === doneStageId).length : 0;
+  const active = total - done;
+  
+  let html = '<div class="stats-grid"><div class="stat-card"><div class="stat-value">' + total + '</div><div class="stat-label">Всего заданий</div></div><div class="stat-card"><div class="stat-value">' + active + '</div><div class="stat-label">В работе</div></div><div class="stat-card"><div class="stat-value">' + done + '</div><div class="stat-label">Выполнено</div></div></div>';
+  
+  // Статистика по этапам
+  html += '<h4 style="margin-top:20px;">По этапам</h4><div style="margin-top:10px;">';
+  sortedStages.forEach(stage => {
+    const count = rt.filter(t => t.stage === stage.id).length;
+    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+    html += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;"><span><strong>' + escapeHtml(stage.name) + '</strong></span><span class="muted">' + count + ' заданий (' + pct + '%)</span></div><div class="load-bar"><div class="load-bar-fill" style="width:' + pct + '%;"></div></div></div>';
+  });
+  html += '</div>';
+  
+  // Загрузка сотрудников
+  html += '<h4 style="margin-top:20px;">Загрузка сотрудников</h4>';
   if (!employees.length) html += '<div class="muted">Сотрудников пока нет.</div>';
   else {
     const max = Math.max(1, ...employees.map(a => getEmployeeLoad(a.name).active));
@@ -2455,8 +2107,10 @@ function renderStats() {
 
 function getEmployeeLoad(empName) { 
   let t = 0, a = 0; 
+  const sortedStages = [...kanbanStages].sort((x, y) => x.order - y.order);
+  const lastStageId = sortedStages.length ? sortedStages[sortedStages.length - 1].id : null;
   Object.values(tasks).forEach(rt => rt.forEach(x => { 
-    if (x.assignee === empName) { t++; if (x.status !== 'done') a++; } 
+    if (x.assignee === empName) { t++; if (x.stage !== lastStageId) a++; } 
   })); 
   return { total: t, active: a }; 
 }
@@ -2532,6 +2186,13 @@ window.updateTimesheetTotal = updateTimesheetTotal;
 window.saveTimesheetEntry = saveTimesheetEntry;
 window.openTimesheetMonthSummary = openTimesheetMonthSummary;
 window.closeTimesheetMonthSummary = closeTimesheetMonthSummary;
+window.openStagesModal = openStagesModal;
+window.closeStagesModal = closeStagesModal;
+window.updateStageName = updateStageName;
+window.moveStage = moveStage;
+window.addKanbanStage = addKanbanStage;
+window.removeKanbanStage = removeKanbanStage;
+window.saveStagesAndClose = saveStagesAndClose;
 </script>
 
 </body>
