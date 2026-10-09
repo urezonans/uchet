@@ -122,12 +122,47 @@
     .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     .syncing .dot { animation: pulse 1s infinite; }
-    .kanban-modal { max-width: 1400px; }
-    .kanban-board { display: grid; gap: 10px; margin-top: 12px; }
-    @media (max-width: 900px) { .kanban-board { grid-template-columns: repeat(2, 1fr); } }
-    .kanban-column { background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; padding: 10px; min-height: 300px; }
-    .kanban-column h4 { margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid #ddd; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .kanban-modal { max-width: 98vw; }
+    
+    /* ===== НОВЫЙ КАНБАН С ГОРИЗОНТАЛЬНОЙ ПРОКРУТКОЙ ===== */
+    .kanban-board { 
+      display: flex; 
+      gap: 12px; 
+      margin-top: 12px; 
+      overflow-x: auto; 
+      padding: 4px 4px 16px 4px;
+      scroll-behavior: smooth;
+    }
+    .kanban-board::-webkit-scrollbar { height: 10px; }
+    .kanban-board::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 5px; }
+    .kanban-board::-webkit-scrollbar-thumb { background: #b7d4ff; border-radius: 5px; }
+    .kanban-board::-webkit-scrollbar-thumb:hover { background: #004a99; }
+    
+    .kanban-column { 
+      background: #f5f5f5; 
+      border: 1px solid #ddd; 
+      border-radius: 8px; 
+      padding: 10px; 
+      min-width: 280px; 
+      max-width: 280px; 
+      flex-shrink: 0; 
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+    .kanban-column h4 { 
+      margin: 0 0 10px 0; 
+      padding-bottom: 6px; 
+      border-bottom: 2px solid #ddd; 
+      font-size: 14px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      flex-shrink: 0;
+    }
     .kanban-column h4 .count { background: #ddd; color: #333; padding: 1px 8px; border-radius: 10px; font-size: 12px; }
+    .kanban-column > div { flex: 1; overflow-y: auto; }
+    
     .task-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 8px; margin-bottom: 8px; position: relative; }
     .task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .task-card .task-title { font-weight: bold; margin-bottom: 4px; word-break: break-word; font-size: 13px; }
@@ -284,8 +319,7 @@
     .timesheet-table tr.weekend td.employee-cell { background: #fafafa; }
 
     .timesheet-entry-modal .entry-list { max-height: 400px; overflow-y: auto; }
-    .timesheet-entry-modal .entry-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: #fafafa; cursor: pointer; transition: background 0.15s; }
-    .timesheet-entry-modal .entry-item:hover { background: #f4f9ff; }
+    .timesheet-entry-modal .entry-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: #fafafa; }
     .timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
     .timesheet-entry-modal .entry-item .entry-client { font-size: 11px; color: #666; }
     .timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
@@ -293,7 +327,6 @@
     .timesheet-entry-modal .entry-total { margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color: #004a99; }
     .timesheet-entry-modal .entry-total span { font-size: 24px; }
 
-    /* Настройка этапов канбана */
     .stages-list { margin: 12px 0; }
     .stage-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; }
     .stage-item .stage-order { font-weight: bold; color: #004a99; min-width: 24px; text-align: center; }
@@ -307,6 +340,8 @@
     .add-stage-form { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
     .add-stage-form input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
     .add-stage-form input:focus { border-color: #004a99; outline: none; }
+    
+    .kanban-hint { font-size: 12px; color: #888; margin-bottom: 8px; font-style: italic; }
   </style>
 </head>
 <body>
@@ -317,7 +352,7 @@
     <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
     <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
     <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
-    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
+    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')"> Персонал</button>
     <button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')">📅 Календарь</button>
     <button class="nav-tab" id="navTimesheet" onclick="switchNavView('timesheet')">⏱️ Табель</button>
   </div>
@@ -392,7 +427,7 @@
       </div>
       <div class="cal-filter">
         <select id="calEmployeeFilter"><option value="">Все сотрудники</option></select>
-        <input id="calClientFilter" placeholder="🔍 Поиск по клиенту..." style="width: 200px">
+        <input id="calClientFilter" placeholder=" Поиск по клиенту..." style="width: 200px">
       </div>
     </div>
     <div class="calendar-stats" id="calendarStats"></div>
@@ -427,7 +462,7 @@
         </div>
       </div>
       <div class="requests-columns">
-        <div class="requests-column projects-col"><h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
+        <div class="requests-column projects-col"><h4> Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
         <div class="requests-column requests-col"><h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4><div class="tiles-grid" id="requestsTiles"></div></div>
       </div>
       <div class="modal-actions"><button onclick="saveClientModal()">Сохранить и закрыть</button><button onclick="closeClientModal()">Закрыть</button></div>
@@ -488,14 +523,14 @@
   <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
     <div class="modal kanban-modal">
       <div class="modal-header">
-        <h3> Производство: <span id="productionRequestTitle"></span></h3>
+        <h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
         <button class="close-btn" onclick="closeProduction()">×</button>
       </div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
         <button class="production-btn" onclick="openStagesModal()">⚙️ Этапы</button>
-        <button onclick="openEmployeesModal()"> Сотрудники</button>
-        <button onclick="openStatsModal()">📊 Статистика</button>
+        <button onclick="openEmployeesModal()">👷 Сотрудники</button>
+        <button onclick="openStatsModal()"> Статистика</button>
       </div>
       <div class="add-task-form">
         <h4>➕ Новое задание</h4>
@@ -509,17 +544,15 @@
         </div>
         <button onclick="addTask()">Добавить задание</button>
       </div>
+      <div class="kanban-hint">← Прокручивайте этапы горизонтально →</div>
       <div class="kanban-board" id="kanbanBoard"></div>
     </div>
   </div>
 
   <div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
     <div class="modal">
-      <div class="modal-header">
-        <h3>⚙️ Настройка этапов канбана</h3>
-        <button class="close-btn" onclick="closeStagesModal()">×</button>
-      </div>
-      <p class="muted" style="margin-top:0;">Перетащите этапы для изменения порядка. Измените названия. Удалите ненужные.</p>
+      <div class="modal-header"><h3>️ Настройка этапов канбана</h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
+      <p class="muted" style="margin-top:0;">Настройте этапы вашего рабочего процесса. Можно добавлять, переименовывать, менять порядок и удалять этапы.</p>
       <div class="stages-list" id="stagesList"></div>
       <div class="add-stage-form">
         <input id="newStageName" placeholder="Название нового этапа">
@@ -543,7 +576,7 @@
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -568,7 +601,7 @@
 
   <div id="timesheetEntryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetEntryModal()">
     <div class="modal">
-      <div class="modal-header"><h3>️ Учет времени: <span id="tsEntryEmployeeName"></span></h3><button class="close-btn" onclick="closeTimesheetEntryModal()">×</button></div>
+      <div class="modal-header"><h3>⏱️ Учет времени: <span id="tsEntryEmployeeName"></span></h3><button class="close-btn" onclick="closeTimesheetEntryModal()">×</button></div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Дата: <strong id="tsEntryDate"></strong></div>
       <div class="entry-list" id="tsEntryList"></div>
       <div class="entry-total">Всего часов: <span id="tsEntryTotal">0</span></div>
@@ -578,7 +611,7 @@
 
   <div id="timesheetMonthSummaryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetMonthSummary()">
     <div class="modal">
-      <div class="modal-header"><h3> Итого за месяц: <span id="tsMonthSummaryEmployee"></span></h3><button class="close-btn" onclick="closeTimesheetMonthSummary()">×</button></div>
+      <div class="modal-header"><h3>📊 Итого за месяц: <span id="tsMonthSummaryEmployee"></span></h3><button class="close-btn" onclick="closeTimesheetMonthSummary()">×</button></div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;" id="tsMonthSummaryPeriod"></div>
       <div id="tsMonthSummaryList"></div>
       <div class="entry-total">Всего часов за месяц: <span id="tsMonthSummaryTotal">0</span></div>
@@ -679,19 +712,10 @@ async function saveEmployeeToFirebase(id, data) { try { await setDoc(doc(db, 'em
 async function deleteEmployeeFromFirebase(id) { try { await deleteDoc(doc(db, 'employees', id)); } catch (e) { console.error(e); } }
 async function saveTasksToFirebase(id, list) { try { await setDoc(doc(db, 'tasks', id), { tasks: list }); } catch (e) { console.error(e); } }
 async function saveTimesheetToFirebase(id, data) { try { await setDoc(doc(db, 'timesheets', id), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
-
-async function saveKanbanStagesToFirebase() {
-  try {
-    await setDoc(doc(db, 'settings', 'kanban_stages'), { stages: kanbanStages });
-    setSyncStatus('synced', 'Синхронизировано');
-  } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
-}
+async function saveKanbanStagesToFirebase() { try { await setDoc(doc(db, 'settings', 'kanban_stages'), { stages: kanbanStages }); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
 
 async function ensureClientExists(name) {
-  if (!clients[name]) {
-    clients[name] = { name, contactPersons: [], notes: [], createdAt: today() };
-    await saveClientToFirebase(name, clients[name]);
-  }
+  if (!clients[name]) { clients[name] = { name, contactPersons: [], notes: [], createdAt: today() }; await saveClientToFirebase(name, clients[name]); }
   return clients[name];
 }
 
@@ -880,7 +904,7 @@ function renderNotes() {
   const s = clients[currentClientOldName] || {};
   const notes = s.notes || [];
   if (!notes.length) { container.innerHTML = '<div class="muted">Заметок пока нет.</div>'; return; }
-  container.innerHTML = [...notes].reverse().map(n => `<div class="note-item"><div class="note-meta"><span> ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span><button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button></div><div class="note-text">${escapeHtml(n.text)}</div></div>`).join('');
+  container.innerHTML = [...notes].reverse().map(n => `<div class="note-item"><div class="note-meta"><span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span><button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button></div><div class="note-text">${escapeHtml(n.text)}</div></div>`).join('');
 }
 
 async function addNote() {
@@ -951,7 +975,6 @@ async function archiveProject(id) { if (!confirm('Отправить проек�
 async function archiveRequest(id) { if (!confirm('Отправить заявку в архив?')) return; const item = leads.find(l => l.id === id); if (!item) return; item.archived = true; await saveRequestToFirebase(id, item, 'leads'); }
 async function restoreProject(id) { const item = rows.find(r => r.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'requests'); }
 async function restoreRequest(id) { const item = leads.find(l => l.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'leads'); }
-
 async function deleteProjectFinal(id) { if (!confirm('Удалить проект БЕЗВОЗВРАТНО?')) return; await deleteRequestFromFirebase(id, 'requests'); rows = rows.filter(r => r.id !== id); delete tasks[id]; render(); }
 async function deleteRequestFinal(id) { if (!confirm('Удалить заявку БЕЗВОЗВРАТНО?')) return; await deleteRequestFromFirebase(id, 'leads'); leads = leads.filter(l => l.id !== id); renderRequests(); }
 
@@ -1095,7 +1118,7 @@ function renderComments() {
   const list = document.getElementById('commentsList');
   const comments = (currentViewRequest && currentViewRequest.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span> ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 function renderViewActions() {
@@ -1237,7 +1260,7 @@ function renderRequests() {
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
+      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
@@ -1260,7 +1283,7 @@ function renderBase() {
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
-          let cpLine = '👤 ' + escapeHtml(cp.name);
+          let cpLine = ' ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
@@ -1268,7 +1291,7 @@ function renderBase() {
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
-          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
+          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
@@ -1291,7 +1314,7 @@ function renderEmployees() {
     const row = document.createElement('div');
     row.className = 'employee-row';
     row.onclick = (e) => { if (e.target.classList.contains('emp-delete')) return; openEmployeePage(emp.id); };
-    row.innerHTML = `<div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div><div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div><button class="emp-delete" onclick="quickDeleteEmployee('${emp.id}', '${escapeHtml(emp.name)}')">✖</button>`;
+    row.innerHTML = `<div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div><div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div><button class="emp-delete" onclick="quickDeleteEmployee('${emp.id}', '${escapeHtml(emp.name)}')"></button>`;
     container.appendChild(row);
   });
 }
@@ -1389,19 +1412,12 @@ function renderEmployeesModal() {
 
 // ===== НАСТРАИВАЕМЫЕ ЭТАПЫ КАНБАНА =====
 
-function openStagesModal() {
-  renderStagesList();
-  document.getElementById('stagesModal').style.display = 'block';
-}
-
+function openStagesModal() { renderStagesList(); document.getElementById('stagesModal').style.display = 'block'; }
 function closeStagesModal() { document.getElementById('stagesModal').style.display = 'none'; }
 
 function renderStagesList() {
   const container = document.getElementById('stagesList');
-  if (!kanbanStages.length) {
-    container.innerHTML = '<div class="muted">Этапов пока нет. Добавьте первый.</div>';
-    return;
-  }
+  if (!kanbanStages.length) { container.innerHTML = '<div class="muted">Этапов пока нет. Добавьте первый.</div>'; return; }
   const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
   container.innerHTML = sorted.map((stage, idx) => `
     <div class="stage-item">
@@ -1448,7 +1464,6 @@ function removeKanbanStage(stageId) {
   const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
   const idx = sorted.findIndex(s => s.id === stageId);
   kanbanStages = kanbanStages.filter(s => s.id !== stageId);
-  // Перемещаем задания удалённого этапа в предыдущий
   if (idx > 0 && currentProductionRequest) {
     const prevStageId = sorted[idx - 1].id;
     const rt = getRequestTasks(currentProductionRequest);
@@ -1460,13 +1475,14 @@ function removeKanbanStage(stageId) {
 }
 
 async function saveStagesAndClose() {
-  // Валидация — все названия должны быть заполнены
   const empty = kanbanStages.some(s => !s.name.trim());
   if (empty) { alert('Все этапы должны иметь название'); return; }
   await saveKanbanStagesToFirebase();
   closeStagesModal();
   if (currentProductionRequest) renderProduction();
 }
+
+// ===== КАЛЕНДАРЬ =====
 
 function fillCalendarEmployeeFilter() {
   const sel = document.getElementById('calEmployeeFilter');
@@ -1908,11 +1924,6 @@ function renderProduction() {
   
   const board = document.getElementById('kanbanBoard');
   const sortedStages = [...kanbanStages].sort((a, b) => a.order - b.order);
-  
-  // Динамически устанавливаем количество колонок
-  const colsCount = sortedStages.length || 1;
-  board.style.gridTemplateColumns = `repeat(${Math.min(colsCount, 4)}, 1fr)`;
-  
   const rt = getRequestTasks(id);
   
   board.innerHTML = sortedStages.map(stage => {
@@ -1932,7 +1943,6 @@ function renderTaskCard(t) {
   const daysText = badge.days < 0 ? badge.days : badge.days;
   const stageIndex = getStageIndex(t.stage);
   const totalStages = kanbanStages.length;
-  
   return '<div class="task-card">' +
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
     '<div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
@@ -1945,8 +1955,8 @@ function renderTaskCard(t) {
       '<div class="task-actions">' +
         (stageIndex > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') +
         (stageIndex < totalStages - 1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') +
-        '<button onclick="editTask(\'' + t.id + '\')">️</button>' +
-        '<button onclick="deleteTask(\'' + t.id + '\')">️</button>' +
+        '<button onclick="editTask(\'' + t.id + '\')">✏️</button>' +
+        '<button onclick="deleteTask(\'' + t.id + '\')">🗑️</button>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -2076,10 +2086,7 @@ function renderStats() {
   const doneStageId = sortedStages.length ? sortedStages[sortedStages.length - 1].id : null;
   const done = doneStageId ? rt.filter(t => t.stage === doneStageId).length : 0;
   const active = total - done;
-  
   let html = '<div class="stats-grid"><div class="stat-card"><div class="stat-value">' + total + '</div><div class="stat-label">Всего заданий</div></div><div class="stat-card"><div class="stat-value">' + active + '</div><div class="stat-label">В работе</div></div><div class="stat-card"><div class="stat-value">' + done + '</div><div class="stat-label">Выполнено</div></div></div>';
-  
-  // Статистика по этапам
   html += '<h4 style="margin-top:20px;">По этапам</h4><div style="margin-top:10px;">';
   sortedStages.forEach(stage => {
     const count = rt.filter(t => t.stage === stage.id).length;
@@ -2087,8 +2094,6 @@ function renderStats() {
     html += '<div style="margin-bottom:8px;"><div style="display:flex;justify-content:space-between;"><span><strong>' + escapeHtml(stage.name) + '</strong></span><span class="muted">' + count + ' заданий (' + pct + '%)</span></div><div class="load-bar"><div class="load-bar-fill" style="width:' + pct + '%;"></div></div></div>';
   });
   html += '</div>';
-  
-  // Загрузка сотрудников
   html += '<h4 style="margin-top:20px;">Загрузка сотрудников</h4>';
   if (!employees.length) html += '<div class="muted">Сотрудников пока нет.</div>';
   else {
