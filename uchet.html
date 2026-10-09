@@ -123,46 +123,15 @@
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     .syncing .dot { animation: pulse 1s infinite; }
     .kanban-modal { max-width: 98vw; }
-    
-    /* ===== НОВЫЙ КАНБАН С ГОРИЗОНТАЛЬНОЙ ПРОКРУТКОЙ ===== */
-    .kanban-board { 
-      display: flex; 
-      gap: 12px; 
-      margin-top: 12px; 
-      overflow-x: auto; 
-      padding: 4px 4px 16px 4px;
-      scroll-behavior: smooth;
-    }
+    .kanban-board { display: flex; gap: 12px; margin-top: 12px; overflow-x: auto; padding: 4px 4px 16px 4px; scroll-behavior: smooth; }
     .kanban-board::-webkit-scrollbar { height: 10px; }
     .kanban-board::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 5px; }
     .kanban-board::-webkit-scrollbar-thumb { background: #b7d4ff; border-radius: 5px; }
     .kanban-board::-webkit-scrollbar-thumb:hover { background: #004a99; }
-    
-    .kanban-column { 
-      background: #f5f5f5; 
-      border: 1px solid #ddd; 
-      border-radius: 8px; 
-      padding: 10px; 
-      min-width: 280px; 
-      max-width: 280px; 
-      flex-shrink: 0; 
-      min-height: 400px;
-      display: flex;
-      flex-direction: column;
-    }
-    .kanban-column h4 { 
-      margin: 0 0 10px 0; 
-      padding-bottom: 6px; 
-      border-bottom: 2px solid #ddd; 
-      font-size: 14px; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      flex-shrink: 0;
-    }
+    .kanban-column { background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; padding: 10px; min-width: 280px; max-width: 280px; flex-shrink: 0; min-height: 400px; display: flex; flex-direction: column; }
+    .kanban-column h4 { margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid #ddd; font-size: 14px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
     .kanban-column h4 .count { background: #ddd; color: #333; padding: 1px 8px; border-radius: 10px; font-size: 12px; }
     .kanban-column > div { flex: 1; overflow-y: auto; }
-    
     .task-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 8px; margin-bottom: 8px; position: relative; }
     .task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .task-card .task-title { font-weight: bold; margin-bottom: 4px; word-break: break-word; font-size: 13px; }
@@ -182,7 +151,6 @@
     .add-task-form { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
     .add-task-form h4 { margin: 0 0 8px 0; font-size: 14px; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-    .assignee-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; margin-bottom: 4px; }
     .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
     .stat-card { background: #f0f8ff; border: 1px solid #b7d4ff; border-radius: 6px; padding: 10px; }
     .stat-card .stat-value { font-size: 24px; font-weight: bold; color: #004a99; }
@@ -209,7 +177,6 @@
     .note-add-form { display: flex; gap: 8px; margin-bottom: 12px; }
     .note-add-form textarea { flex: 1; min-height: 50px; resize: vertical; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; }
     .note-add-form textarea:focus { border-color: #004a99; outline: none; }
-    
     .employee-list { margin-top: 12px; }
     .employee-row { display: flex; align-items: center; padding: 10px 12px; background: white; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; cursor: pointer; transition: all 0.15s; }
     .employee-row:hover { background: #f4f9ff; border-color: #004a99; }
@@ -220,7 +187,6 @@
     .employee-row .emp-delete:hover { background: #c9302c; }
     .employee-page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
     .employee-page-header h2 { margin: 0; color: #004a99; }
-    .employee-page-header .emp-info { font-size: 14px; color: #666; }
     .employee-page-header .emp-edit-fields { width: 100%; }
     .employee-page-header .emp-edit-fields label { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 8px; }
     .employee-page-header .emp-edit-fields input { font-size: 16px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; }
@@ -228,7 +194,6 @@
     .employee-page-header .emp-edit-fields input.position-input { font-size: 14px; font-weight: normal; color: #666; }
     .add-employee-form { display: flex; gap: 8px; margin-bottom: 16px; padding: 12px; background: #f0f8ff; border-radius: 6px; flex-wrap: wrap; }
     .add-employee-form input { flex: 1; min-width: 150px; }
-    
     .calendar-toolbar, .timesheet-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; }
     .calendar-toolbar .cal-nav, .timesheet-toolbar .ts-nav { display: flex; align-items: center; gap: 8px; }
     .calendar-toolbar .cal-nav button, .timesheet-toolbar .ts-nav button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; }
@@ -239,7 +204,6 @@
     .calendar-toolbar .cal-view-switch button.active { background: #004a99; color: white; border-color: #004a99; }
     .calendar-toolbar .cal-filter, .timesheet-toolbar .cal-filter { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .calendar-toolbar .cal-filter select, .calendar-toolbar .cal-filter input, .timesheet-toolbar .cal-filter select { padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
-    
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: #ddd; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
     .calendar-header-cell { background: #f0f0f0; padding: 8px 4px; text-align: center; font-weight: bold; font-size: 12px; color: #555; }
     .calendar-day-cell { background: white; min-height: 90px; padding: 4px; position: relative; cursor: pointer; transition: background 0.15s; }
@@ -257,7 +221,6 @@
     .cal-event.project-neutral { background: #888; color: white; }
     .cal-event-more { font-size: 10px; color: #004a99; font-weight: bold; cursor: pointer; padding: 2px 4px; background: #e3f0ff; border-radius: 3px; text-align: center; transition: background 0.15s; border: 1px dashed #b7d4ff; }
     .cal-event-more:hover { background: #b7d4ff; }
-    
     .calendar-list-view { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 12px; }
     .calendar-list-day { margin-bottom: 16px; }
     .calendar-list-day-header { font-size: 14px; font-weight: bold; color: #004a99; padding-bottom: 6px; border-bottom: 2px solid #eee; margin-bottom: 8px; display: flex; justify-content: space-between; }
@@ -273,7 +236,6 @@
     .calendar-list-event .evt-days.warn { color: #e6a817; }
     .calendar-list-event .evt-days.danger { color: #d9534f; }
     .calendar-list-event .evt-days.neutral { color: #888; }
-    
     .calendar-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
     .cal-stat-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 10px; text-align: center; }
     .cal-stat-card .stat-num { font-size: 24px; font-weight: bold; color: #004a99; }
@@ -281,7 +243,6 @@
     .cal-stat-card.danger .stat-num { color: #d9534f; }
     .cal-stat-card.warn .stat-num { color: #e6a817; }
     .cal-stat-card.ok .stat-num { color: #5cb85c; }
-    
     .day-modal-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
     .day-modal-header h3 { margin: 0 0 4px 0; color: #004a99; font-size: 20px; }
     .day-modal-header .day-subtitle { font-size: 13px; color: #666; }
@@ -301,7 +262,6 @@
     .day-event-item .evt-days.danger { color: #d9534f; }
     .day-event-item .evt-days.neutral { color: #888; }
     .day-empty { padding: 30px; text-align: center; color: #999; font-style: italic; }
-
     .timesheet-container { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
     .timesheet-table { border-collapse: collapse; width: 100%; min-width: 800px; }
     .timesheet-table th { background: #f0f0f0; padding: 8px 4px; text-align: center; font-size: 11px; font-weight: bold; color: #555; border: 1px solid #ddd; position: sticky; top: 0; z-index: 10; }
@@ -315,9 +275,6 @@
     .timesheet-table td.hours-cell.today { background: #fffbe6; }
     .timesheet-table td.total-cell { font-weight: bold; background: #e3f2fd; color: #004a99; font-size: 13px; cursor: pointer; transition: background 0.15s; }
     .timesheet-table td.total-cell:hover { background: #bbdefb; }
-    .timesheet-table tr.weekend td.hours-cell { background: #fafafa; }
-    .timesheet-table tr.weekend td.employee-cell { background: #fafafa; }
-
     .timesheet-entry-modal .entry-list { max-height: 400px; overflow-y: auto; }
     .timesheet-entry-modal .entry-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: #fafafa; }
     .timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
@@ -326,8 +283,7 @@
     .timesheet-entry-modal .entry-item input[type="number"]:focus { border-color: #004a99; outline: none; }
     .timesheet-entry-modal .entry-total { margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color: #004a99; }
     .timesheet-entry-modal .entry-total span { font-size: 24px; }
-
-    .stages-list { margin: 12px 0; }
+    .stages-list { margin: 12px 0; max-height: 400px; overflow-y: auto; }
     .stage-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; }
     .stage-item .stage-order { font-weight: bold; color: #004a99; min-width: 24px; text-align: center; }
     .stage-item input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
@@ -340,8 +296,8 @@
     .add-stage-form { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
     .add-stage-form input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
     .add-stage-form input:focus { border-color: #004a99; outline: none; }
-    
     .kanban-hint { font-size: 12px; color: #888; margin-bottom: 8px; font-style: italic; }
+    .stages-info { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px; margin-bottom: 12px; font-size: 13px; color: #666; }
   </style>
 </head>
 <body>
@@ -352,7 +308,7 @@
     <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
     <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
     <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
-    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')"> Персонал</button>
+    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
     <button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')">📅 Календарь</button>
     <button class="nav-tab" id="navTimesheet" onclick="switchNavView('timesheet')">⏱️ Табель</button>
   </div>
@@ -427,7 +383,7 @@
       </div>
       <div class="cal-filter">
         <select id="calEmployeeFilter"><option value="">Все сотрудники</option></select>
-        <input id="calClientFilter" placeholder=" Поиск по клиенту..." style="width: 200px">
+        <input id="calClientFilter" placeholder="🔍 Поиск по клиенту..." style="width: 200px">
       </div>
     </div>
     <div class="calendar-stats" id="calendarStats"></div>
@@ -462,7 +418,7 @@
         </div>
       </div>
       <div class="requests-columns">
-        <div class="requests-column projects-col"><h4> Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
+        <div class="requests-column projects-col"><h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
         <div class="requests-column requests-col"><h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4><div class="tiles-grid" id="requestsTiles"></div></div>
       </div>
       <div class="modal-actions"><button onclick="saveClientModal()">Сохранить и закрыть</button><button onclick="closeClientModal()">Закрыть</button></div>
@@ -528,9 +484,9 @@
       </div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="production-btn" onclick="openStagesModal()">⚙️ Этапы</button>
+        <button class="production-btn" onclick="openStagesModal()">⚙️ Этапы этого проекта</button>
         <button onclick="openEmployeesModal()">👷 Сотрудники</button>
-        <button onclick="openStatsModal()"> Статистика</button>
+        <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
       <div class="add-task-form">
         <h4>➕ Новое задание</h4>
@@ -551,8 +507,8 @@
 
   <div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
     <div class="modal">
-      <div class="modal-header"><h3>️ Настройка этапов канбана</h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
-      <p class="muted" style="margin-top:0;">Настройте этапы вашего рабочего процесса. Можно добавлять, переименовывать, менять порядок и удалять этапы.</p>
+      <div class="modal-header"><h3>⚙️ Этапы проекта: <span id="stagesProjectTitle"></span></h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
+      <div class="stages-info">ℹ️ Эти этапы уникальны для данного проекта. Изменения не повлияют на другие проекты.</div>
       <div class="stages-list" id="stagesList"></div>
       <div class="add-stage-form">
         <input id="newStageName" placeholder="Название нового этапа">
@@ -576,7 +532,7 @@
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -642,7 +598,8 @@ let clients = {};
 let employees = [];
 let tasks = {};
 let timesheets = {};
-let kanbanStages = [];
+let defaultStagesTemplate = []; // Шаблон для новых проектов
+let currentProjectStages = []; // Этапы текущего открытого проекта
 let currentClientOldName = '';
 let currentProductionRequest = null;
 let currentView = 'active';
@@ -657,7 +614,7 @@ let timesheetDate = new Date();
 let currentTaskCommentsTaskId = null;
 let currentTaskCommentsProjectId = null;
 let currentTsEntry = null;
-let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null, unsubscribeTimesheets = null, unsubscribeStages = null;
+let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null, unsubscribeTimesheets = null, unsubscribeTemplate = null;
 
 const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const WEEKDAY_NAMES = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -705,6 +662,21 @@ function generateNewClientName() {
   return name;
 }
 
+// ===== ШАБЛОН ЭТАПОВ (для новых проектов) =====
+function getDefaultStages() {
+  return [
+    { id: uid(), name: 'Новые', order: 0 },
+    { id: uid(), name: 'В работе', order: 1 },
+    { id: uid(), name: 'Проверка', order: 2 },
+    { id: uid(), name: 'Готово', order: 3 }
+  ];
+}
+
+async function saveDefaultTemplateToFirebase() {
+  try { await setDoc(doc(db, 'settings', 'stages_template'), { stages: defaultStagesTemplate }); setSyncStatus('synced', 'Синхронизировано'); }
+  catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
+}
+
 async function saveClientToFirebase(name, data) { try { await setDoc(doc(db, 'clients', name), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
 async function saveRequestToFirebase(id, data, col = 'requests') { try { await setDoc(doc(db, col, id), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
 async function deleteRequestFromFirebase(id, col = 'requests') { try { await deleteDoc(doc(db, col, id)); if (col === 'requests') await deleteDoc(doc(db, 'tasks', id)); } catch (e) { console.error(e); } }
@@ -712,11 +684,16 @@ async function saveEmployeeToFirebase(id, data) { try { await setDoc(doc(db, 'em
 async function deleteEmployeeFromFirebase(id) { try { await deleteDoc(doc(db, 'employees', id)); } catch (e) { console.error(e); } }
 async function saveTasksToFirebase(id, list) { try { await setDoc(doc(db, 'tasks', id), { tasks: list }); } catch (e) { console.error(e); } }
 async function saveTimesheetToFirebase(id, data) { try { await setDoc(doc(db, 'timesheets', id), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
-async function saveKanbanStagesToFirebase() { try { await setDoc(doc(db, 'settings', 'kanban_stages'), { stages: kanbanStages }); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
 
 async function ensureClientExists(name) {
   if (!clients[name]) { clients[name] = { name, contactPersons: [], notes: [], createdAt: today() }; await saveClientToFirebase(name, clients[name]); }
   return clients[name];
+}
+
+// Создание нового проекта с уникальными этапами (копия шаблона)
+function createProjectWithStages(baseData) {
+  const stagesCopy = defaultStagesTemplate.map(s => ({ ...s, id: uid() }));
+  return { ...baseData, stages: stagesCopy };
 }
 
 document.getElementById('search').addEventListener('input', render);
@@ -756,6 +733,14 @@ function setupRealtimeListeners() {
     if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
     if (currentNavView === 'calendar') renderCalendar();
     if (currentNavView === 'timesheet') renderTimesheet();
+    // Если открыт проект — обновляем его этапы из Firebase
+    if (currentProductionRequest) {
+      const proj = rows.find(r => r.id === currentProductionRequest);
+      if (proj) {
+        currentProjectStages = proj.stages || [];
+        renderProduction();
+      }
+    }
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -796,25 +781,21 @@ function setupRealtimeListeners() {
     if (currentNavView === 'timesheet') renderTimesheet();
   });
 
-  unsubscribeStages = onSnapshot(doc(db, 'settings', 'kanban_stages'), d => {
+  // Слушаем шаблон этапов (для новых проектов)
+  unsubscribeTemplate = onSnapshot(doc(db, 'settings', 'stages_template'), d => {
     if (d.exists()) {
-      kanbanStages = d.data().stages || [];
+      defaultStagesTemplate = d.data().stages || [];
     } else {
-      kanbanStages = [
-        { id: uid(), name: 'Новые', order: 0 },
-        { id: uid(), name: 'В работе', order: 1 },
-        { id: uid(), name: 'Проверка', order: 2 },
-        { id: uid(), name: 'Готово', order: 3 }
-      ];
-      saveKanbanStagesToFirebase();
+      defaultStagesTemplate = getDefaultStages();
+      saveDefaultTemplateToFirebase();
     }
-    if (currentProductionRequest) renderProduction();
   });
 }
 
 async function addClient() {
   const name = generateNewClientName();
-  await saveClientToFirebase(name, { name, contactPersons: [], notes: [], createdAt: today() });
+  const baseData = { name, contactPersons: [], notes: [], createdAt: today() };
+  await saveClientToFirebase(name, baseData);
   setTimeout(() => openClientModalByName(name), 300);
 }
 
@@ -954,10 +935,18 @@ async function applyClientForm() {
 
 async function saveClientModal() { await applyClientForm(); closeClientModal(); }
 
+// Создание проекта с уникальными этапами
 async function addRequestToClient(type) {
   const clientName = await applyClientForm();
   const isReq = type === 'request';
-  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: '', title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
+  const baseItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: '', title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
+  let newItem;
+  if (isReq) {
+    newItem = baseItem;
+  } else {
+    // Проект — добавляем уникальные этапы из шаблона
+    newItem = createProjectWithStages(baseItem);
+  }
   await saveRequestToFirebase(newItem.id, newItem, isReq ? 'leads' : 'requests');
 }
 
@@ -981,7 +970,9 @@ async function deleteRequestFinal(id) { if (!confirm('Удалить заявк�
 async function convertRequestToProject(id) {
   if (!confirm('Конвертировать заявку в проект?')) return;
   const req = leads.find(l => l.id === id); if (!req) return;
-  const newProj = { ...req, id: uid(), archived: false };
+  const base = { ...req, id: uid(), archived: false };
+  delete base.request;
+  const newProj = createProjectWithStages(base);
   await saveRequestToFirebase(newProj.id, newProj, 'requests');
   await deleteRequestFromFirebase(id, 'leads');
   setTimeout(() => alert('✅ Заявка конвертирована в проект!'), 300);
@@ -991,6 +982,7 @@ async function convertProjectToRequest(id) {
   if (!confirm('Конвертировать проект в заявку?')) return;
   const proj = rows.find(r => r.id === id); if (!proj) return;
   const newReq = { ...proj, id: uid(), archived: false };
+  delete newReq.stages;
   await saveRequestToFirebase(newReq.id, newReq, 'leads');
   await deleteRequestFromFirebase(id, 'requests');
   setTimeout(() => alert('✅ Проект конвертирован в заявку!'), 300);
@@ -1001,6 +993,17 @@ async function openProduction(id) {
   if (!r) { alert('Проект не найден.'); return; }
   if (r.archived) { alert('Нельзя открыть производство для архивного проекта.'); return; }
   currentProductionRequest = id;
+  
+  // Загружаем этапы проекта (с миграцией для старых проектов)
+  let projectStages = r.stages || [];
+  if (!projectStages.length) {
+    // Миграция: у старых проектов нет этапов — создаём из шаблона
+    projectStages = defaultStagesTemplate.map(s => ({ ...s, id: uid() }));
+    r.stages = projectStages;
+    await saveRequestToFirebase(id, r, 'requests');
+  }
+  currentProjectStages = projectStages;
+  
   const titleEl = document.getElementById('productionRequestTitle');
   if (titleEl) titleEl.textContent = getRequestTitle(r) || '(без названия)';
   const clientEl = document.getElementById('productionClientName');
@@ -1009,7 +1012,7 @@ async function openProduction(id) {
   if (modal) { modal.style.display = 'block'; renderProduction(); }
 }
 
-function closeProduction() { const modal = document.getElementById('productionModal'); if (modal) modal.style.display = 'none'; currentProductionRequest = null; }
+function closeProduction() { const modal = document.getElementById('productionModal'); if (modal) modal.style.display = 'none'; currentProductionRequest = null; currentProjectStages = []; }
 
 function openRequestView(id, type) {
   const list = type === 'project' ? rows : leads;
@@ -1260,7 +1263,7 @@ function renderRequests() {
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
-      const db = document.createElement('button'); db.textContent = ' Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
+      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
@@ -1283,7 +1286,7 @@ function renderBase() {
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
-          let cpLine = ' ' + escapeHtml(cp.name);
+          let cpLine = '👤 ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
@@ -1291,11 +1294,11 @@ function renderBase() {
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
-          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.address) + '</div>';
+          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
-    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span> Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
@@ -1314,7 +1317,7 @@ function renderEmployees() {
     const row = document.createElement('div');
     row.className = 'employee-row';
     row.onclick = (e) => { if (e.target.classList.contains('emp-delete')) return; openEmployeePage(emp.id); };
-    row.innerHTML = `<div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div><div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div><button class="emp-delete" onclick="quickDeleteEmployee('${emp.id}', '${escapeHtml(emp.name)}')"></button>`;
+    row.innerHTML = `<div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div><div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div><button class="emp-delete" onclick="quickDeleteEmployee('${emp.id}', '${escapeHtml(emp.name)}')">✖</button>`;
     container.appendChild(row);
   });
 }
@@ -1410,15 +1413,23 @@ function renderEmployeesModal() {
   container.innerHTML = employees.map(emp => { const empProjects = getEmployeeProjects(emp.name).length; return `<div class="employee-row" style="cursor:default;"><div class="emp-name">${escapeHtml(emp.name)}</div><div class="emp-position">${escapeHtml(emp.position || '—')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div></div>`; }).join('');
 }
 
-// ===== НАСТРАИВАЕМЫЕ ЭТАПЫ КАНБАНА =====
+// ===== УНИКАЛЬНЫЕ ЭТАПЫ ПРОЕКТА =====
 
-function openStagesModal() { renderStagesList(); document.getElementById('stagesModal').style.display = 'block'; }
+function openStagesModal() {
+  if (!currentProductionRequest) return;
+  const proj = rows.find(r => r.id === currentProductionRequest);
+  if (!proj) return;
+  document.getElementById('stagesProjectTitle').textContent = getRequestTitle(proj) || '(без названия)';
+  renderStagesList();
+  document.getElementById('stagesModal').style.display = 'block';
+}
+
 function closeStagesModal() { document.getElementById('stagesModal').style.display = 'none'; }
 
 function renderStagesList() {
   const container = document.getElementById('stagesList');
-  if (!kanbanStages.length) { container.innerHTML = '<div class="muted">Этапов пока нет. Добавьте первый.</div>'; return; }
-  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  if (!currentProjectStages.length) { container.innerHTML = '<div class="muted">Этапов пока нет. Добавьте первый.</div>'; return; }
+  const sorted = [...currentProjectStages].sort((a, b) => a.order - b.order);
   container.innerHTML = sorted.map((stage, idx) => `
     <div class="stage-item">
       <span class="stage-order">${idx + 1}</span>
@@ -1431,12 +1442,12 @@ function renderStagesList() {
 }
 
 function updateStageName(stageId, newName) {
-  const stage = kanbanStages.find(s => s.id === stageId);
+  const stage = currentProjectStages.find(s => s.id === stageId);
   if (stage) stage.name = newName.trim() || stage.name;
 }
 
 function moveStage(stageId, direction) {
-  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const sorted = [...currentProjectStages].sort((a, b) => a.order - b.order);
   const idx = sorted.findIndex(s => s.id === stageId);
   if (idx < 0) return;
   const newIdx = idx + direction;
@@ -1444,7 +1455,7 @@ function moveStage(stageId, direction) {
   const tempOrder = sorted[idx].order;
   sorted[idx].order = sorted[newIdx].order;
   sorted[newIdx].order = tempOrder;
-  kanbanStages = sorted;
+  currentProjectStages = sorted;
   renderStagesList();
 }
 
@@ -1452,18 +1463,18 @@ function addKanbanStage() {
   const input = document.getElementById('newStageName');
   const name = input.value.trim();
   if (!name) { alert('Введите название этапа'); return; }
-  const maxOrder = kanbanStages.length ? Math.max(...kanbanStages.map(s => s.order)) : -1;
-  kanbanStages.push({ id: uid(), name, order: maxOrder + 1 });
+  const maxOrder = currentProjectStages.length ? Math.max(...currentProjectStages.map(s => s.order)) : -1;
+  currentProjectStages.push({ id: uid(), name, order: maxOrder + 1 });
   input.value = '';
   renderStagesList();
 }
 
 function removeKanbanStage(stageId) {
-  if (kanbanStages.length <= 1) { alert('Должен остаться хотя бы один этап'); return; }
+  if (currentProjectStages.length <= 1) { alert('Должен остаться хотя бы один этап'); return; }
   if (!confirm('Удалить этот этап? Задания этого этапа будут перемещены в предыдущий.')) return;
-  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const sorted = [...currentProjectStages].sort((a, b) => a.order - b.order);
   const idx = sorted.findIndex(s => s.id === stageId);
-  kanbanStages = kanbanStages.filter(s => s.id !== stageId);
+  currentProjectStages = currentProjectStages.filter(s => s.id !== stageId);
   if (idx > 0 && currentProductionRequest) {
     const prevStageId = sorted[idx - 1].id;
     const rt = getRequestTasks(currentProductionRequest);
@@ -1475,11 +1486,16 @@ function removeKanbanStage(stageId) {
 }
 
 async function saveStagesAndClose() {
-  const empty = kanbanStages.some(s => !s.name.trim());
+  if (!currentProductionRequest) return;
+  const empty = currentProjectStages.some(s => !s.name.trim());
   if (empty) { alert('Все этапы должны иметь название'); return; }
-  await saveKanbanStagesToFirebase();
+  // Сохраняем этапы в сам проект
+  const proj = rows.find(r => r.id === currentProductionRequest);
+  if (!proj) return;
+  proj.stages = currentProjectStages;
+  await saveRequestToFirebase(currentProductionRequest, proj, 'requests');
   closeStagesModal();
-  if (currentProductionRequest) renderProduction();
+  renderProduction();
 }
 
 // ===== КАЛЕНДАРЬ =====
@@ -1566,7 +1582,7 @@ function showDayEventsModal(dateStr) {
       const daysText = left !== null ? (left < 0 ? left : left) : daysFromStart(e.startDate);
       const badge = getDeadlineBadge(e.endDate, e.startDate);
       const deadlineText = e.endDate ? (isOverdue ? 'Просрочен на ' + Math.abs(left) + ' дн.' : 'До конца ' + daysLabel(left)) : 'Без срока окончания';
-      return '<div class="day-event-item' + (isOverdue ? ' overdue' : '') + '" onclick="closeDayEventsModal(); setTimeout(() => openRequestView(\'' + e.id + '\', \'project\'), 200)"><div class="evt-main"><div class="evt-client-name">' + escapeHtml(e.client) + '</div><div class="evt-title">→ ' + escapeHtml(e.title) + '</div><div class="evt-sub">' + escapeHtml(deadlineText) + (e.responsible ? ' •  ' + escapeHtml(e.responsible) : '') + '</div></div><div class="evt-right"><span class="evt-status">' + escapeHtml(e.status || '—') + '</span><div class="evt-days ' + badge.cls + '">' + daysText + '</div></div></div>';
+      return '<div class="day-event-item' + (isOverdue ? ' overdue' : '') + '" onclick="closeDayEventsModal(); setTimeout(() => openRequestView(\'' + e.id + '\', \'project\'), 200)"><div class="evt-main"><div class="evt-client-name">' + escapeHtml(e.client) + '</div><div class="evt-title">→ ' + escapeHtml(e.title) + '</div><div class="evt-sub">' + escapeHtml(deadlineText) + (e.responsible ? ' • 👷 ' + escapeHtml(e.responsible) : '') + '</div></div><div class="evt-right"><span class="evt-status">' + escapeHtml(e.status || '—') + '</span><div class="evt-days ' + badge.cls + '">' + daysText + '</div></div></div>';
     }).join('');
   }
   document.getElementById('dayEventsModal').style.display = 'block';
@@ -1884,7 +1900,8 @@ async function importCSV(event) {
         }
         if (cn) { if (!clients[cn]) { clients[cn] = { name: cn, contactPersons, notes: [], createdAt: dt || today() }; await saveClientToFirebase(cn, clients[cn]); ca++; } }
         if (ti || dt || ed) {
-          const np = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: '', title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
+          const base = { id: uid(), date: dt || today(), endDate: ed || '', client: cn, contact: '', title: ti, request: '', comment: '', comments: [], priority: 'Средний', status: st || 'Новая', responsible: '', archived: ar };
+          const np = createProjectWithStages(base);
           await saveRequestToFirebase(np.id, np, 'requests');
           rows.push(np); pa++;
         }
@@ -1901,12 +1918,12 @@ async function importCSV(event) {
 function getRequestTasks(id) { if (!tasks[id]) tasks[id] = []; return tasks[id]; }
 
 function getStageIndex(stageId) {
-  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const sorted = [...currentProjectStages].sort((a, b) => a.order - b.order);
   return sorted.findIndex(s => s.id === stageId);
 }
 
 function getFirstStageId() {
-  const sorted = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const sorted = [...currentProjectStages].sort((a, b) => a.order - b.order);
   return sorted.length ? sorted[0].id : null;
 }
 
@@ -1923,7 +1940,7 @@ function renderProduction() {
   document.getElementById('newTaskTitle').value = '';
   
   const board = document.getElementById('kanbanBoard');
-  const sortedStages = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const sortedStages = [...currentProjectStages].sort((a, b) => a.order - b.order);
   const rt = getRequestTasks(id);
   
   board.innerHTML = sortedStages.map(stage => {
@@ -1942,7 +1959,7 @@ function renderTaskCard(t) {
   const badge = getDeadlineBadge(endDate, startDate);
   const daysText = badge.days < 0 ? badge.days : badge.days;
   const stageIndex = getStageIndex(t.stage);
-  const totalStages = kanbanStages.length;
+  const totalStages = currentProjectStages.length;
   return '<div class="task-card">' +
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
     '<div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
@@ -1987,7 +2004,7 @@ async function moveTask(tid, dir) {
   const rt = getRequestTasks(id);
   const t = rt.find(x => x.id === tid);
   if (!t) return;
-  const sortedStages = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const sortedStages = [...currentProjectStages].sort((a, b) => a.order - b.order);
   const currentIdx = sortedStages.findIndex(s => s.id === t.stage);
   const newIdx = currentIdx + dir;
   if (newIdx < 0 || newIdx >= sortedStages.length) return;
@@ -2081,7 +2098,7 @@ function renderStats() {
   const id = currentProductionRequest;
   if (!id) return;
   const rt = getRequestTasks(id);
-  const sortedStages = [...kanbanStages].sort((a, b) => a.order - b.order);
+  const sortedStages = [...currentProjectStages].sort((a, b) => a.order - b.order);
   const total = rt.length;
   const doneStageId = sortedStages.length ? sortedStages[sortedStages.length - 1].id : null;
   const done = doneStageId ? rt.filter(t => t.stage === doneStageId).length : 0;
@@ -2112,10 +2129,20 @@ function renderStats() {
 
 function getEmployeeLoad(empName) { 
   let t = 0, a = 0; 
-  const sortedStages = [...kanbanStages].sort((x, y) => x.order - y.order);
-  const lastStageId = sortedStages.length ? sortedStages[sortedStages.length - 1].id : null;
   Object.values(tasks).forEach(rt => rt.forEach(x => { 
-    if (x.assignee === empName) { t++; if (x.stage !== lastStageId) a++; } 
+    if (x.assignee === empName) { 
+      t++; 
+      // Для определения "активности" нужно знать последний этап проекта задания
+      // Упрощённо: если задание не в последнем этапе своего проекта — оно активно
+      const proj = rows.find(r => r.id === x.projectId || Object.keys(tasks).find(pid => tasks[pid].includes(x)) === x.projectId);
+      if (proj && proj.stages && proj.stages.length) {
+        const sorted = [...proj.stages].sort((a, b) => a.order - b.order);
+        const lastStageId = sorted[sorted.length - 1].id;
+        if (x.stage !== lastStageId) a++;
+      } else {
+        a++; // если проект не найден — считаем активным
+      }
+    }
   })); 
   return { total: t, active: a }; 
 }
