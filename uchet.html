@@ -132,10 +132,21 @@
     .kanban-column.col-work h4 { border-bottom-color: #f0ad4e; }
     .kanban-column.col-check h4 { border-bottom-color: #9b59b6; }
     .kanban-column.col-done h4 { border-bottom-color: #5cb85c; }
-    .task-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 8px; margin-bottom: 8px; }
-    .task-card .task-title { font-weight: bold; margin-bottom: 4px; word-break: break-word; }
-    .task-card .task-meta { font-size: 12px; color: #666; display: flex; flex-direction: column; gap: 2px; }
-    .task-card .task-actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+    .task-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 8px; margin-bottom: 8px; position: relative; }
+    .task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .task-card .task-title { font-weight: bold; margin-bottom: 4px; word-break: break-word; font-size: 13px; }
+    .task-card .task-meta { font-size: 11px; color: #666; display: flex; flex-direction: column; gap: 2px; }
+    .task-card .task-dates { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; }
+    .task-card .task-dates .task-days-count { font-size: 18px; font-weight: bold; }
+    .task-card .task-dates .task-days-count.ok { color: #5cb85c; }
+    .task-card .task-dates .task-days-count.warn { color: #e6a817; }
+    .task-card .task-dates .task-days-count.danger { color: #d9534f; }
+    .task-card .task-dates .task-days-count.neutral { color: #888; }
+    .task-card .task-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+    .task-card .task-comments-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #5bc0de; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; gap: 3px; }
+    .task-card .task-comments-btn:hover { background: #e3f2fd; }
+    .task-card .task-comments-btn .comment-count { background: #5bc0de; color: white; border-radius: 10px; padding: 1px 6px; font-size: 10px; font-weight: bold; }
+    .task-card .task-actions { display: flex; gap: 4px; flex-wrap: wrap; }
     .task-card .task-actions button { font-size: 11px; padding: 2px 6px; }
     .add-task-form { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
     .add-task-form h4 { margin: 0 0 8px 0; font-size: 14px; }
@@ -182,7 +193,6 @@
     .add-employee-form { display: flex; gap: 8px; margin-bottom: 16px; padding: 12px; background: #f0f8ff; border-radius: 6px; flex-wrap: wrap; }
     .add-employee-form input { flex: 1; min-width: 150px; }
     
-    /* ===== КАЛЕНДАРЬ ===== */
     .calendar-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; }
     .calendar-toolbar .cal-nav { display: flex; align-items: center; gap: 8px; }
     .calendar-toolbar .cal-nav button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; }
@@ -209,8 +219,6 @@
     .cal-event.project-warn { background: #e6a817; color: #333; }
     .cal-event.project-danger { background: #d9534f; color: white; }
     .cal-event.project-neutral { background: #888; color: white; }
-    .cal-event.task { background: #5bc0de; color: white; }
-    .cal-event.task-overdue { background: #d9534f; color: white; }
     .cal-event-more { font-size: 10px; color: #004a99; font-weight: bold; cursor: pointer; padding: 2px 4px; background: #e3f0ff; border-radius: 3px; text-align: center; transition: background 0.15s; border: 1px dashed #b7d4ff; }
     .cal-event-more:hover { background: #b7d4ff; }
     
@@ -221,11 +229,9 @@
     .calendar-list-event { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-left: 4px solid #ddd; margin-bottom: 4px; background: #fafafa; border-radius: 4px; cursor: pointer; transition: background 0.15s; }
     .calendar-list-event:hover { background: #f4f9ff; }
     .calendar-list-event.project { border-left-color: #5bc0de; }
-    .calendar-list-event.task { border-left-color: #9b59b6; }
     .calendar-list-event.overdue { border-left-color: #d9534f; background: #fff5f5; }
     .calendar-list-event .evt-type { font-size: 11px; padding: 2px 6px; border-radius: 10px; color: white; flex-shrink: 0; }
     .calendar-list-event .evt-type.project { background: #5bc0de; }
-    .calendar-list-event .evt-type.task { background: #9b59b6; }
     .calendar-list-event .evt-title { flex: 1; font-size: 13px; font-weight: bold; color: #222; }
     .calendar-list-event .evt-client { font-size: 12px; color: #666; }
     .calendar-list-event .evt-deadline { font-size: 11px; color: #888; flex-shrink: 0; }
@@ -238,7 +244,6 @@
     .cal-stat-card.warn .stat-num { color: #e6a817; }
     .cal-stat-card.ok .stat-num { color: #5cb85c; }
     
-    /* Модалка дня */
     .day-modal-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
     .day-modal-header h3 { margin: 0 0 4px 0; color: #004a99; font-size: 20px; }
     .day-modal-header .day-subtitle { font-size: 13px; color: #666; }
@@ -246,11 +251,9 @@
     .day-event-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-left: 4px solid #ddd; background: #fafafa; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
     .day-event-item:hover { background: #f4f9ff; transform: translateX(2px); }
     .day-event-item.project { border-left-color: #5bc0de; }
-    .day-event-item.task { border-left-color: #9b59b6; }
     .day-event-item.overdue { border-left-color: #d9534f; background: #fff5f5; }
     .day-event-item .evt-type { font-size: 11px; padding: 3px 8px; border-radius: 10px; color: white; flex-shrink: 0; font-weight: bold; }
     .day-event-item .evt-type.project { background: #5bc0de; }
-    .day-event-item .evt-type.task { background: #9b59b6; }
     .day-event-item .evt-main { flex: 1; }
     .day-event-item .evt-title { font-weight: bold; color: #222; font-size: 14px; }
     .day-event-item .evt-sub { font-size: 12px; color: #666; margin-top: 2px; }
@@ -282,7 +285,7 @@
         <option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option>
       </select>
       <button onclick="addClient()">+ Добавить проект</button>
-      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
+      <button class="export-btn" onclick="exportCSV()"> Экспорт</button>
       <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
       <span id="info" class="muted"></span>
@@ -330,13 +333,13 @@
   <div id="calendarView" style="display:none;">
     <div class="calendar-toolbar">
       <div class="cal-nav">
-        <button onclick="calendarPrev()">◀</button>
+        <button onclick="calendarPrev()"></button>
         <span class="cal-month-label" id="calMonthLabel">Октябрь 2026</span>
         <button onclick="calendarNext()">▶</button>
         <button onclick="calendarToday()">Сегодня</button>
       </div>
       <div class="cal-view-switch">
-        <button id="calViewMonth" class="active" onclick="setCalendarView('month')">📅 Месяц</button>
+        <button id="calViewMonth" class="active" onclick="setCalendarView('month')"> Месяц</button>
         <button id="calViewList" onclick="setCalendarView('list')">📋 Список</button>
       </div>
       <div class="cal-filter">
@@ -445,7 +448,7 @@
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
         <button onclick="openEmployeesModal()">👷 Сотрудники</button>
-        <button onclick="openStatsModal()">📊 Статистика</button>
+        <button onclick="openStatsModal()"> Статистика</button>
       </div>
       <div class="add-task-form">
         <h4>➕ Новое задание</h4>
@@ -454,8 +457,8 @@
           <div><label>Исполнитель</label><select id="newTaskAssignee"><option value="">— Выберите —</option></select></div>
         </div>
         <div class="form-row">
-          <div><label>Срок</label><input id="newTaskDeadline" type="date"></div>
-          <div><label>Комментарий</label><input id="newTaskComment" placeholder="Необязательно"></div>
+          <div><label>Дата начала</label><input id="newTaskStartDate" type="date"></div>
+          <div><label>Дата окончания</label><input id="newTaskEndDate" type="date"></div>
         </div>
         <button onclick="addTask()">Добавить задание</button>
       </div>
@@ -481,7 +484,7 @@
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -496,6 +499,23 @@
       <div class="day-events-list" id="dayEventsList"></div>
       <div class="modal-actions">
         <button onclick="closeDayEventsModal()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="taskCommentsModal" class="modal-overlay" onclick="if (event.target === this) closeTaskCommentsModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>💬 Комментарии к заданию: <span id="taskCommentsTitle"></span></h3>
+        <button class="close-btn" onclick="closeTaskCommentsModal()">×</button>
+      </div>
+      <div class="comment-add-form">
+        <textarea id="newTaskCommentText" placeholder="Напишите комментарий..."></textarea>
+        <button class="production-btn" onclick="addTaskComment()">Добавить</button>
+      </div>
+      <div class="comments-list" id="taskCommentsList"></div>
+      <div class="modal-actions">
+        <button onclick="closeTaskCommentsModal()">Закрыть</button>
       </div>
     </div>
   </div>
@@ -532,6 +552,8 @@ let currentViewType = null;
 let currentEmployeeId = null;
 let calendarDate = new Date();
 let calendarViewMode = 'month';
+let currentTaskCommentsTaskId = null;
+let currentTaskCommentsProjectId = null;
 let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null;
 
 const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -627,8 +649,6 @@ document.getElementById('statusFilter').addEventListener('change', render);
 document.getElementById('requestSearch').addEventListener('input', renderRequests);
 document.getElementById('baseSearch').addEventListener('input', renderBase);
 document.getElementById('employeeSearch').addEventListener('input', renderEmployees);
-
-// ===== ИСПРАВЛЕНИЕ 1: Фильтры календаря через addEventListener =====
 document.getElementById('calEmployeeFilter').addEventListener('change', renderCalendar);
 document.getElementById('calClientFilter').addEventListener('input', renderCalendar);
 
@@ -831,7 +851,7 @@ function renderNotes() {
   container.innerHTML = sorted.map(n => `
     <div class="note-item">
       <div class="note-meta">
-        <span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
+        <span> ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span>
         <button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button>
       </div>
       <div class="note-text">${escapeHtml(n.text)}</div>
@@ -1116,7 +1136,7 @@ function renderViewActions() {
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
-    prodBtn.textContent = '🏭 Производство';
+    prodBtn.textContent = ' Производство';
     prodBtn.addEventListener('click', function(e) {
       e.preventDefault(); e.stopPropagation();
       const savedId = itemId;
@@ -1169,7 +1189,7 @@ function renderViewActions() {
   }
   const delBtn = document.createElement('button');
   delBtn.className = 'delete-final-btn';
-  delBtn.textContent = '🗑 Удалить навсегда';
+  delBtn.textContent = ' Удалить навсегда';
   delBtn.addEventListener('click', async function(e) {
     e.preventDefault(); e.stopPropagation();
     if (itemType === 'project') await deleteProjectFinal(itemId);
@@ -1314,7 +1334,7 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
+    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')"> Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
@@ -1322,9 +1342,9 @@ function renderBase() {
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
-          if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
+          if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone2) + '</div>';
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
-          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
+          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
           if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
@@ -1473,8 +1493,6 @@ function renderEmployeesModal() {
   }).join('');
 }
 
-// ===== ПРОИЗВОДСТВЕННЫЙ КАЛЕНДАРЬ =====
-
 function fillCalendarEmployeeFilter() {
   const sel = document.getElementById('calEmployeeFilter');
   const currentValue = sel.value;
@@ -1488,21 +1506,9 @@ function fillCalendarEmployeeFilter() {
   sel.value = currentValue;
 }
 
-function calendarPrev() {
-  calendarDate.setMonth(calendarDate.getMonth() - 1);
-  renderCalendar();
-}
-
-function calendarNext() {
-  calendarDate.setMonth(calendarDate.getMonth() + 1);
-  renderCalendar();
-}
-
-function calendarToday() {
-  calendarDate = new Date();
-  renderCalendar();
-}
-
+function calendarPrev() { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); }
+function calendarNext() { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); }
+function calendarToday() { calendarDate = new Date(); renderCalendar(); }
 function setCalendarView(mode) {
   calendarViewMode = mode;
   document.getElementById('calViewMonth').classList.toggle('active', mode === 'month');
@@ -1540,56 +1546,19 @@ function getCalendarEvents() {
     });
   });
   
-  Object.keys(tasks).forEach(taskId => {
-    const project = rows.find(r => r.id === taskId);
-    if (!project || project.archived) return;
-    
-    (tasks[taskId] || []).forEach(t => {
-      if (employeeFilter && t.assignee !== employeeFilter) return;
-      if (clientFilter && !getClientName(project).toLowerCase().includes(clientFilter) && !t.title.toLowerCase().includes(clientFilter)) return;
-      
-      if (t.deadline) {
-        const left = daysUntilEnd(t.deadline);
-        let cls = 'task';
-        if (left !== null && left < 0) cls = 'task-overdue';
-        events.push({
-          type: 'task',
-          projectId: taskId,
-          taskId: t.id,
-          title: t.title || '(без названия)',
-          client: getClientName(project),
-          date: t.deadline,
-          assignee: t.assignee,
-          status: t.status,
-          cls
-        });
-      }
-    });
-  });
-  
+  // Задания в календаре отключены — показываем только проекты
   return events;
 }
 
 function renderCalendarStats(events) {
   const todayStr = today();
   const overdue = events.filter(e => {
-    if (e.type === 'project') {
-      const left = daysUntilEnd(e.endDate);
-      return left !== null && left < 0;
-    } else {
-      const left = daysUntilEnd(e.date);
-      return left !== null && left < 0;
-    }
+    const left = daysUntilEnd(e.endDate);
+    return left !== null && left < 0;
   }).length;
-  const today_events = events.filter(e => {
-    if (e.type === 'project') {
-      return e.startDate === todayStr || e.endDate === todayStr;
-    } else {
-      return e.date === todayStr;
-    }
-  }).length;
+  const today_events = events.filter(e => e.startDate === todayStr || e.endDate === todayStr).length;
   const week_events = events.filter(e => {
-    const d = e.type === 'project' ? e.startDate : e.date;
+    const d = e.startDate;
     if (!d) return false;
     const eventDate = parseDate(d);
     if (!eventDate) return false;
@@ -1602,7 +1571,7 @@ function renderCalendarStats(events) {
   }).length;
   
   document.getElementById('calendarStats').innerHTML = `
-    <div class="cal-stat-card"><div class="stat-num">${events.length}</div><div class="stat-label">Всего событий</div></div>
+    <div class="cal-stat-card"><div class="stat-num">${events.length}</div><div class="stat-label">Всего проектов</div></div>
     <div class="cal-stat-card danger"><div class="stat-num">${overdue}</div><div class="stat-label">Просрочено</div></div>
     <div class="cal-stat-card warn"><div class="stat-num">${today_events}</div><div class="stat-label">Сегодня</div></div>
     <div class="cal-stat-card ok"><div class="stat-num">${week_events}</div><div class="stat-label">На неделе</div></div>
@@ -1612,87 +1581,55 @@ function renderCalendarStats(events) {
 function renderCalendar() {
   const events = getCalendarEvents();
   renderCalendarStats(events);
-  
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth();
   document.getElementById('calMonthLabel').textContent = MONTH_NAMES[month] + ' ' + year;
-  
-  if (calendarViewMode === 'month') {
-    renderCalendarMonth(year, month, events);
-  } else {
-    renderCalendarList(year, month, events);
-  }
+  if (calendarViewMode === 'month') renderCalendarMonth(year, month, events);
+  else renderCalendarList(year, month, events);
 }
 
-// ===== ИСПРАВЛЕНИЕ 2: Клик по "+N ещё" открывает модалку со всеми событиями дня =====
 function showDayEventsModal(dateStr) {
   const events = getCalendarEvents();
   const d = parseDate(dateStr);
   if (!d) return;
-  
   const dayEvents = events.filter(e => {
-    if (e.type === 'project') {
-      if (!e.startDate) return false;
-      const start = parseDate(e.startDate);
-      const end = e.endDate ? parseDate(e.endDate) : start;
-      const current = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      return current >= start && current <= end;
-    } else {
-      return e.date === dateStr;
-    }
+    if (!e.startDate) return false;
+    const start = parseDate(e.startDate);
+    const end = e.endDate ? parseDate(e.endDate) : start;
+    const current = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    return current >= start && current <= end;
   });
-  
   const dayName = d.toLocaleDateString('ru-RU', { weekday: 'long' });
   const dateLabel = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-  
   document.getElementById('dayModalTitle').textContent = '📅 ' + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1);
-  document.getElementById('dayModalSubtitle').textContent = dayName.charAt(0).toUpperCase() + dayName.slice(1) + ' • Всего событий: ' + dayEvents.length;
-  
+  document.getElementById('dayModalSubtitle').textContent = dayName.charAt(0).toUpperCase() + dayName.slice(1) + ' • Всего проектов: ' + dayEvents.length;
   const listEl = document.getElementById('dayEventsList');
-  
   if (!dayEvents.length) {
-    listEl.innerHTML = '<div class="day-empty">В этот день нет событий</div>';
+    listEl.innerHTML = '<div class="day-empty">В этот день нет проектов</div>';
   } else {
     listEl.innerHTML = dayEvents.map(e => {
-      if (e.type === 'project') {
-        const left = daysUntilEnd(e.endDate);
-        const isOverdue = left !== null && left < 0;
-        const deadlineText = e.endDate ? (isOverdue ? 'Просрочен на ' + Math.abs(left) + ' дн.' : 'До конца ' + daysLabel(left)) : 'Без срока окончания';
-        return '<div class="day-event-item project' + (isOverdue ? ' overdue' : '') + '" onclick="closeDayEventsModal(); setTimeout(() => openRequestView(\'' + e.id + '\', \'project\'), 200)">' +
-          '<span class="evt-type project">ПРОЕКТ</span>' +
-          '<div class="evt-main"><div class="evt-title">' + escapeHtml(e.title) + '</div><div class="evt-sub">👤 Клиент: ' + escapeHtml(e.client) + (e.responsible ? ' • 👷 ' + escapeHtml(e.responsible) : '') + '</div></div>' +
-          '<div class="evt-right"><span class="evt-status">' + escapeHtml(e.status || '—') + '</span><div class="evt-sub" style="margin-top:4px;">' + escapeHtml(deadlineText) + '</div></div>' +
-          '</div>';
-      } else {
-        const left = daysUntilEnd(e.date);
-        const isOverdue = left !== null && left < 0;
-        const deadlineText = isOverdue ? 'Просрочено на ' + Math.abs(left) + ' дн.' : 'Срок сегодня';
-        const statusText = e.status === 'done' ? '✅ Готово' : e.status === 'work' ? '🔨 В работе' : e.status === 'check' ? '🔍 Проверка' : '🆕 Новое';
-        return '<div class="day-event-item task' + (isOverdue ? ' overdue' : '') + '" onclick="closeDayEventsModal(); setTimeout(() => openRequestView(\'' + e.projectId + '\', \'project\'), 200)">' +
-          '<span class="evt-type task">ЗАДАНИЕ</span>' +
-          '<div class="evt-main"><div class="evt-title">' + escapeHtml(e.title) + '</div><div class="evt-sub">👤 Клиент: ' + escapeHtml(e.client) + (e.assignee ? ' • 👷 ' + escapeHtml(e.assignee) : '') + '</div></div>' +
-          '<div class="evt-right"><span class="evt-status">' + statusText + '</span><div class="evt-sub" style="margin-top:4px;">' + escapeHtml(deadlineText) + '</div></div>' +
-          '</div>';
-      }
+      const left = daysUntilEnd(e.endDate);
+      const isOverdue = left !== null && left < 0;
+      const deadlineText = e.endDate ? (isOverdue ? 'Просрочен на ' + Math.abs(left) + ' дн.' : 'До конца ' + daysLabel(left)) : 'Без срока окончания';
+      return '<div class="day-event-item project' + (isOverdue ? ' overdue' : '') + '" onclick="closeDayEventsModal(); setTimeout(() => openRequestView(\'' + e.id + '\', \'project\'), 200)">' +
+        '<span class="evt-type project">ПРОЕКТ</span>' +
+        '<div class="evt-main"><div class="evt-title">' + escapeHtml(e.title) + '</div><div class="evt-sub">👤 Клиент: ' + escapeHtml(e.client) + (e.responsible ? ' • 👷 ' + escapeHtml(e.responsible) : '') + '</div></div>' +
+        '<div class="evt-right"><span class="evt-status">' + escapeHtml(e.status || '—') + '</span><div class="evt-sub" style="margin-top:4px;">' + escapeHtml(deadlineText) + '</div></div>' +
+        '</div>';
     }).join('');
   }
-  
   document.getElementById('dayEventsModal').style.display = 'block';
 }
 
-function closeDayEventsModal() {
-  document.getElementById('dayEventsModal').style.display = 'none';
-}
+function closeDayEventsModal() { document.getElementById('dayEventsModal').style.display = 'none'; }
 
 function renderCalendarMonth(year, month, events) {
   const container = document.getElementById('calendarContent');
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();
-  
   let startWeekday = firstDay.getDay() - 1;
   if (startWeekday < 0) startWeekday = 6;
-  
   const todayStr = today();
   
   let html = '<div class="calendar-grid">';
@@ -1707,17 +1644,12 @@ function renderCalendarMonth(year, month, events) {
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
     const isToday = dateStr === todayStr;
-    
     const dayEvents = events.filter(e => {
-      if (e.type === 'project') {
-        if (!e.startDate) return false;
-        const start = parseDate(e.startDate);
-        const end = e.endDate ? parseDate(e.endDate) : start;
-        const current = new Date(year, month, day);
-        return current >= start && current <= end;
-      } else {
-        return e.date === dateStr;
-      }
+      if (!e.startDate) return false;
+      const start = parseDate(e.startDate);
+      const end = e.endDate ? parseDate(e.endDate) : start;
+      const current = new Date(year, month, day);
+      return current >= start && current <= end;
     });
     
     html += '<div class="calendar-day-cell' + (isToday ? ' today' : '') + '">';
@@ -1726,11 +1658,7 @@ function renderCalendarMonth(year, month, events) {
     
     const maxEvents = 3;
     dayEvents.slice(0, maxEvents).forEach(e => {
-      if (e.type === 'project') {
-        html += '<div class="cal-event project-' + e.cls + '" onclick="event.stopPropagation(); openRequestView(\'' + e.id + '\', \'project\')" title="' + escapeHtml(e.title) + ' — ' + escapeHtml(e.client) + '">' + escapeHtml(e.title.substring(0, 20)) + '</div>';
-      } else {
-        html += '<div class="cal-event ' + e.cls + '" onclick="event.stopPropagation(); openRequestView(\'' + e.projectId + '\', \'project\')" title="' + escapeHtml(e.title) + ' — ' + escapeHtml(e.client) + '">' + escapeHtml(e.title.substring(0, 20)) + '</div>';
-      }
+      html += '<div class="cal-event project-' + e.cls + '" onclick="event.stopPropagation(); openRequestView(\'' + e.id + '\', \'project\')" title="' + escapeHtml(e.title) + ' — ' + escapeHtml(e.client) + '">' + escapeHtml(e.title.substring(0, 20)) + '</div>';
     });
     
     if (dayEvents.length > maxEvents) {
@@ -1746,7 +1674,6 @@ function renderCalendarMonth(year, month, events) {
   for (let i = 1; i <= remaining; i++) {
     html += '<div class="calendar-day-cell other-month"><div class="day-number">' + i + '</div></div>';
   }
-  
   html += '</div>';
   container.innerHTML = html;
 }
@@ -1754,74 +1681,45 @@ function renderCalendarMonth(year, month, events) {
 function renderCalendarList(year, month, events) {
   const container = document.getElementById('calendarContent');
   const todayStr = today();
-  
   const dateMap = {};
   events.forEach(e => {
-    if (e.type === 'project') {
-      if (!e.startDate) return;
-      const start = parseDate(e.startDate);
-      const end = e.endDate ? parseDate(e.endDate) : start;
-      const current = new Date(start);
-      while (current <= end) {
-        const ds = current.toISOString().slice(0, 10);
-        if (current.getFullYear() === year && current.getMonth() === month) {
-          if (!dateMap[ds]) dateMap[ds] = [];
-          dateMap[ds].push(e);
-        }
-        current.setDate(current.getDate() + 1);
+    if (!e.startDate) return;
+    const start = parseDate(e.startDate);
+    const end = e.endDate ? parseDate(e.endDate) : start;
+    const current = new Date(start);
+    while (current <= end) {
+      const ds = current.toISOString().slice(0, 10);
+      if (current.getFullYear() === year && current.getMonth() === month) {
+        if (!dateMap[ds]) dateMap[ds] = [];
+        dateMap[ds].push(e);
       }
-    } else {
-      if (e.date) {
-        const d = parseDate(e.date);
-        if (d && d.getFullYear() === year && d.getMonth() === month) {
-          if (!dateMap[e.date]) dateMap[e.date] = [];
-          dateMap[e.date].push(e);
-        }
-      }
+      current.setDate(current.getDate() + 1);
     }
   });
-  
   const dates = Object.keys(dateMap).sort();
-  
   if (!dates.length) {
-    container.innerHTML = '<div class="calendar-list-view"><div class="muted" style="padding:20px;text-align:center;">В этом месяце нет событий</div></div>';
+    container.innerHTML = '<div class="calendar-list-view"><div class="muted" style="padding:20px;text-align:center;">В этом месяце нет проектов</div></div>';
     return;
   }
-  
   let html = '<div class="calendar-list-view">';
   dates.forEach(ds => {
     const d = parseDate(ds);
     const isToday = ds === todayStr;
     const dayName = d.toLocaleDateString('ru-RU', { weekday: 'long' });
     const dateLabel = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' }) + ', ' + dayName;
-    
     html += '<div class="calendar-list-day">';
-    html += '<div class="calendar-list-day-header' + (isToday ? ' today' : '') + '"><span>' + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1) + '</span><span>' + dateMap[ds].length + ' событий</span></div>';
-    
+    html += '<div class="calendar-list-day-header' + (isToday ? ' today' : '') + '"><span>' + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1) + '</span><span>' + dateMap[ds].length + ' проектов</span></div>';
     dateMap[ds].forEach(e => {
-      if (e.type === 'project') {
-        const left = daysUntilEnd(e.endDate);
-        const isOverdue = left !== null && left < 0;
-        html += '<div class="calendar-list-event project' + (isOverdue ? ' overdue' : '') + '" onclick="openRequestView(\'' + e.id + '\', \'project\')">';
-        html += '<span class="evt-type project">ПРОЕКТ</span>';
-        html += '<span class="evt-title">' + escapeHtml(e.title) + '</span>';
-        html += '<span class="evt-client">' + escapeHtml(e.client) + '</span>';
-        if (e.responsible) html += '<span class="evt-client">👤 ' + escapeHtml(e.responsible) + '</span>';
-        html += '<span class="evt-deadline">' + escapeHtml(e.endDate || 'без срока') + '</span>';
-        html += '</div>';
-      } else {
-        const left = daysUntilEnd(e.date);
-        const isOverdue = left !== null && left < 0;
-        html += '<div class="calendar-list-event task' + (isOverdue ? ' overdue' : '') + '" onclick="openRequestView(\'' + e.projectId + '\', \'project\')">';
-        html += '<span class="evt-type task">ЗАДАНИЕ</span>';
-        html += '<span class="evt-title">' + escapeHtml(e.title) + '</span>';
-        html += '<span class="evt-client">' + escapeHtml(e.client) + '</span>';
-        if (e.assignee) html += '<span class="evt-client">👤 ' + escapeHtml(e.assignee) + '</span>';
-        html += '<span class="evt-deadline">📅 ' + escapeHtml(e.date) + '</span>';
-        html += '</div>';
-      }
+      const left = daysUntilEnd(e.endDate);
+      const isOverdue = left !== null && left < 0;
+      html += '<div class="calendar-list-event project' + (isOverdue ? ' overdue' : '') + '" onclick="openRequestView(\'' + e.id + '\', \'project\')">';
+      html += '<span class="evt-type project">ПРОЕКТ</span>';
+      html += '<span class="evt-title">' + escapeHtml(e.title) + '</span>';
+      html += '<span class="evt-client">' + escapeHtml(e.client) + '</span>';
+      if (e.responsible) html += '<span class="evt-client"> ' + escapeHtml(e.responsible) + '</span>';
+      html += '<span class="evt-deadline">' + escapeHtml(e.endDate || 'без срока') + '</span>';
+      html += '</div>';
     });
-    
     html += '</div>';
   });
   html += '</div>';
@@ -1953,9 +1851,9 @@ function renderProduction() {
     });
   }
   const dd = new Date(); dd.setDate(dd.getDate() + 7);
-  document.getElementById('newTaskDeadline').value = dd.toISOString().slice(0,10);
+  document.getElementById('newTaskStartDate').value = today();
+  document.getElementById('newTaskEndDate').value = dd.toISOString().slice(0,10);
   document.getElementById('newTaskTitle').value = '';
-  document.getElementById('newTaskComment').value = '';
   const rt = getRequestTasks(id);
   const cols = { 'new': rt.filter(t => t.status === 'new'), 'work': rt.filter(t => t.status === 'work'), 'check': rt.filter(t => t.status === 'check'), 'done': rt.filter(t => t.status === 'done') };
   Object.keys(cols).forEach(s => {
@@ -1968,18 +1866,33 @@ function renderProduction() {
 }
 
 function renderTaskCard(t) {
-  const dl = t.deadline || '';
-  const left = daysUntilEnd(dl);
-  let dt = '', dc = '';
-  if (dl) {
-    if (left === null) dt = '';
-    else if (left < 0) { dt = 'Просрочено на ' + Math.abs(left) + ' дн.'; dc = 'overdue'; }
-    else if (left === 0) { dt = 'Срок сегодня'; dc = 'soon'; }
-    else if (left <= 3) { dt = 'Осталось ' + left + ' дн.'; dc = 'soon'; }
-    else dt = 'Срок: ' + dl;
-  }
+  // Обратная совместимость: если старое поле deadline — используем как endDate
+  const startDate = t.startDate || t.deadline || '';
+  const endDate = t.endDate || (t.deadline && !t.startDate ? t.deadline : '');
+  const comments = t.comments || [];
+  
+  const badge = getDeadlineBadge(endDate, startDate);
+  const daysText = badge.days < 0 ? badge.days : badge.days;
+  
   const so = ['new','work','check','done'], ci = so.indexOf(t.status);
-  return '<div class="task-card"><div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div><div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div>' + (dt ? '<div class="' + dc + '">📅 ' + escapeHtml(dt) + '</div>' : '') + (t.comment ? '<div>💬 ' + escapeHtml(t.comment) + '</div>' : '') + '</div><div class="task-actions">' + (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') + (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') + '<button onclick="editTask(\'' + t.id + '\')">✏️</button><button onclick="deleteTask(\'' + t.id + '\')">🗑️</button></div></div>';
+  
+  return '<div class="task-card">' +
+    '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
+    '<div class="task-meta"><div> ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
+    '<div class="task-dates">' +
+      '<span style="font-size:11px;color:#666;">📅 ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
+      '<span class="task-days-count ' + badge.cls + '">' + daysText + '</span>' +
+    '</div>' +
+    '<div class="task-footer">' +
+      '<button class="task-comments-btn" onclick="event.stopPropagation(); openTaskComments(\'' + t.id + '\', \'' + currentProductionRequest + '\')">💬 <span class="comment-count">' + comments.length + '</span></button>' +
+      '<div class="task-actions">' +
+        (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') +
+        (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') +
+        '<button onclick="editTask(\'' + t.id + '\')">✏️</button>' +
+        '<button onclick="deleteTask(\'' + t.id + '\')">🗑️</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
 
 async function addTask() {
@@ -1987,17 +1900,19 @@ async function addTask() {
   if (!id) return;
   const ti = document.getElementById('newTaskTitle').value.trim();
   const as = document.getElementById('newTaskAssignee').value;
-  const dl = document.getElementById('newTaskDeadline').value;
-  const co = document.getElementById('newTaskComment').value.trim();
+  const sd = document.getElementById('newTaskStartDate').value;
+  const ed = document.getElementById('newTaskEndDate').value;
   if (!ti) { alert('Введите название'); return; }
   if (!as) { alert('Выберите исполнителя (сотрудника)'); return; }
+  
   const project = rows.find(r => r.id === id);
   if (project && !project.responsible) {
     project.responsible = as;
     await saveRequestToFirebase(id, project, 'requests');
   }
+  
   const rt = getRequestTasks(id);
-  rt.push({ id: uid(), title: ti, assignee: as, deadline: dl, comment: co, status: 'new', createdAt: today() });
+  rt.push({ id: uid(), title: ti, assignee: as, startDate: sd, endDate: ed, comments: [], status: 'new', createdAt: today() });
   await saveTasksToFirebase(id, rt);
   tasks[id] = rt;
   renderProduction();
@@ -2025,9 +1940,11 @@ async function editTask(tid) {
   const nt = prompt('Название:', t.title); if (nt === null) return;
   const empNames = employees.map(e => e.name).join('\n');
   const na = prompt('Исполнитель (выберите из списка):\n' + empNames + '\n\nВведите имя:', t.assignee); if (na === null) return;
-  const nd = prompt('Срок (ГГГГ-ММ-ДД):', t.deadline || ''); if (nd === null) return;
-  const nc = prompt('Комментарий:', t.comment || ''); if (nc === null) return;
-  t.title = nt.trim(); t.assignee = na.trim(); t.deadline = nd.trim(); t.comment = nc.trim();
+  const startDate = t.startDate || t.deadline || '';
+  const endDate = t.endDate || (t.deadline && !t.startDate ? t.deadline : '');
+  const nsd = prompt('Дата начала (ГГГГ-ММ-ДД):', startDate); if (nsd === null) return;
+  const ned = prompt('Дата окончания (ГГГГ-ММ-ДД):', endDate); if (ned === null) return;
+  t.title = nt.trim(); t.assignee = na.trim(); t.startDate = nsd.trim(); t.endDate = ned.trim();
   await saveTasksToFirebase(id, rt);
   renderProduction();
 }
@@ -2041,6 +1958,65 @@ async function deleteTask(tid) {
   renderProduction();
 }
 
+// ===== КОММЕНТАРИИ К ЗАДАНИЯМ =====
+
+function openTaskComments(taskId, projectId) {
+  currentTaskCommentsTaskId = taskId;
+  currentTaskCommentsProjectId = projectId;
+  const rt = getRequestTasks(projectId);
+  const task = rt.find(t => t.id === taskId);
+  if (!task) return;
+  document.getElementById('taskCommentsTitle').textContent = task.title || '(без названия)';
+  renderTaskComments();
+  document.getElementById('taskCommentsModal').style.display = 'block';
+}
+
+function closeTaskCommentsModal() {
+  document.getElementById('taskCommentsModal').style.display = 'none';
+  currentTaskCommentsTaskId = null;
+  currentTaskCommentsProjectId = null;
+}
+
+function renderTaskComments() {
+  const list = document.getElementById('taskCommentsList');
+  if (!currentTaskCommentsTaskId || !currentTaskCommentsProjectId) { list.innerHTML = ''; return; }
+  const rt = getRequestTasks(currentTaskCommentsProjectId);
+  const task = rt.find(t => t.id === currentTaskCommentsTaskId);
+  const comments = (task && task.comments) || [];
+  if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteTaskComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
+}
+
+async function addTaskComment() {
+  if (!currentTaskCommentsTaskId || !currentTaskCommentsProjectId) return;
+  const text = document.getElementById('newTaskCommentText').value.trim();
+  if (!text) { alert('Введите текст комментария'); return; }
+  const rt = getRequestTasks(currentTaskCommentsProjectId);
+  const task = rt.find(t => t.id === currentTaskCommentsTaskId);
+  if (!task) return;
+  if (!Array.isArray(task.comments)) task.comments = [];
+  const dt = nowDateTime();
+  task.comments.push({ id: uid(), text: text, date: dt.date, time: dt.time });
+  await saveTasksToFirebase(currentTaskCommentsProjectId, rt);
+  tasks[currentTaskCommentsProjectId] = rt;
+  document.getElementById('newTaskCommentText').value = '';
+  renderTaskComments();
+  renderProduction();
+}
+
+async function deleteTaskComment(commentId) {
+  if (!confirm('Удалить комментарий?')) return;
+  if (!currentTaskCommentsTaskId || !currentTaskCommentsProjectId) return;
+  const rt = getRequestTasks(currentTaskCommentsProjectId);
+  const task = rt.find(t => t.id === currentTaskCommentsTaskId);
+  if (!task) return;
+  task.comments = (task.comments || []).filter(c => c.id !== commentId);
+  await saveTasksToFirebase(currentTaskCommentsProjectId, rt);
+  tasks[currentTaskCommentsProjectId] = rt;
+  renderTaskComments();
+  renderProduction();
+}
+
 function openStatsModal() { document.getElementById('statsModal').style.display = 'block'; renderStats(); }
 function closeStatsModal() { document.getElementById('statsModal').style.display = 'none'; }
 
@@ -2048,7 +2024,13 @@ function renderStats() {
   const id = currentProductionRequest;
   if (!id) return;
   const rt = getRequestTasks(id);
-  const total = rt.length, done = rt.filter(t => t.status === 'done').length, active = rt.filter(t => t.status !== 'done').length, overdue = rt.filter(t => { if (t.status === 'done') return false; const d = daysUntilEnd(t.deadline); return d !== null && d < 0; }).length;
+  const total = rt.length, done = rt.filter(t => t.status === 'done').length, active = rt.filter(t => t.status !== 'done').length;
+  const overdue = rt.filter(t => {
+    if (t.status === 'done') return false;
+    const endDate = t.endDate || (t.deadline && !t.startDate ? t.deadline : '');
+    const d = daysUntilEnd(endDate);
+    return d !== null && d < 0;
+  }).length;
   let html = '<div class="stats-grid"><div class="stat-card"><div class="stat-value">' + total + '</div><div class="stat-label">Всего заданий</div></div><div class="stat-card"><div class="stat-value">' + active + '</div><div class="stat-label">В работе</div></div><div class="stat-card"><div class="stat-value">' + done + '</div><div class="stat-label">Выполнено</div></div><div class="stat-card"><div class="stat-value" style="color:#d9534f;">' + overdue + '</div><div class="stat-label">Просрочено</div></div></div><h4 style="margin-top:20px;">Загрузка сотрудников</h4>';
   if (!employees.length) html += '<div class="muted">Сотрудников пока нет.</div>';
   else {
@@ -2130,6 +2112,10 @@ window.calendarToday = calendarToday;
 window.setCalendarView = setCalendarView;
 window.showDayEventsModal = showDayEventsModal;
 window.closeDayEventsModal = closeDayEventsModal;
+window.openTaskComments = openTaskComments;
+window.closeTaskCommentsModal = closeTaskCommentsModal;
+window.addTaskComment = addTaskComment;
+window.deleteTaskComment = deleteTaskComment;
 </script>
 
 </body>
