@@ -265,6 +265,36 @@
     .day-event-item .evt-days.danger { color: #d9534f; }
     .day-event-item .evt-days.neutral { color: #888; }
     .day-empty { padding: 30px; text-align: center; color: #999; font-style: italic; }
+
+    /* ===== ТАБЕЛЬ РАБОЧЕГО ВРЕМЕНИ ===== */
+    .timesheet-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; }
+    .timesheet-toolbar .ts-nav { display: flex; align-items: center; gap: 8px; }
+    .timesheet-toolbar .ts-nav button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .timesheet-toolbar .ts-nav button:hover { background: #e0e0e0; }
+    .timesheet-toolbar .ts-nav .ts-month-label { font-size: 16px; font-weight: bold; color: #004a99; min-width: 180px; text-align: center; }
+    .timesheet-container { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+    .timesheet-table { border-collapse: collapse; width: 100%; min-width: 800px; }
+    .timesheet-table th { background: #f0f0f0; padding: 8px 4px; text-align: center; font-size: 11px; font-weight: bold; color: #555; border: 1px solid #ddd; position: sticky; top: 0; z-index: 10; }
+    .timesheet-table th.employee-col { text-align: left; min-width: 180px; position: sticky; left: 0; z-index: 11; background: #f0f0f0; }
+    .timesheet-table th.today-col { background: #fffbe6; color: #e6a817; }
+    .timesheet-table td { border: 1px solid #ddd; padding: 4px; text-align: center; font-size: 12px; }
+    .timesheet-table td.employee-cell { text-align: left; font-weight: bold; color: #004a99; position: sticky; left: 0; background: white; z-index: 5; min-width: 180px; }
+    .timesheet-table td.hours-cell { cursor: pointer; transition: background 0.15s; min-width: 50px; height: 40px; }
+    .timesheet-table td.hours-cell:hover { background: #f4f9ff; }
+    .timesheet-table td.hours-cell.has-hours { background: #e8f5e9; font-weight: bold; color: #2e7d32; }
+    .timesheet-table td.hours-cell.today { background: #fffbe6; }
+    .timesheet-table td.total-cell { font-weight: bold; background: #f0f8ff; color: #004a99; font-size: 13px; }
+    .timesheet-table tr.weekend td.hours-cell { background: #fafafa; }
+    .timesheet-table tr.weekend td.employee-cell { background: #fafafa; }
+
+    .timesheet-entry-modal .entry-list { max-height: 400px; overflow-y: auto; }
+    .timesheet-entry-modal .entry-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: #fafafa; }
+    .timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
+    .timesheet-entry-modal .entry-item .entry-client { font-size: 11px; color: #666; }
+    .timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
+    .timesheet-entry-modal .entry-item input[type="number"]:focus { border-color: #004a99; outline: none; }
+    .timesheet-entry-modal .entry-total { margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color: #004a99; }
+    .timesheet-entry-modal .entry-total span { font-size: 24px; }
   </style>
 </head>
 <body>
@@ -275,13 +305,14 @@
     <button class="nav-tab active" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
     <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
     <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
-    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')"> Персонал</button>
+    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
     <button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')">📅 Календарь</button>
+    <button class="nav-tab" id="navTimesheet" onclick="switchNavView('timesheet')">⏱️ Табель</button>
   </div>
 
   <div id="projectsView">
     <div class="tabs">
-      <button class="tab active" id="tabActive" onclick="switchView('active')"> Активные <span class="count" id="activeCount">0</span></button>
+      <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
@@ -314,7 +345,7 @@
 
   <div id="baseView" style="display:none;">
     <div class="toolbar">
-      <input id="baseSearch" placeholder=" Поиск по названию клиента..." style="width: 360px">
+      <input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px">
       <span id="baseInfo" class="muted"></span>
     </div>
     <div id="baseList"></div>
@@ -356,6 +387,23 @@
     </div>
     <div class="calendar-stats" id="calendarStats"></div>
     <div id="calendarContent"></div>
+  </div>
+
+  <div id="timesheetView" style="display:none;">
+    <div class="timesheet-toolbar">
+      <div class="ts-nav">
+        <button onclick="timesheetPrev()">◀</button>
+        <span class="ts-month-label" id="tsMonthLabel">Октябрь 2026</span>
+        <button onclick="timesheetNext()">▶</button>
+        <button onclick="timesheetToday()">Сегодня</button>
+      </div>
+      <div class="cal-filter">
+        <select id="tsEmployeeFilter" onchange="renderTimesheet()">
+          <option value="">Все сотрудники</option>
+        </select>
+      </div>
+    </div>
+    <div class="timesheet-container" id="timesheetContainer"></div>
   </div>
 
   <div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
@@ -414,7 +462,7 @@
       </div>
       <div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание"></textarea></div>
       <div class="view-comment-section">
-        <h4> Комментарии и заметки</h4>
+        <h4>💬 Комментарии и заметки</h4>
         <div class="comment-add-form"><textarea id="newCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addComment()">Добавить</button></div>
         <div class="comments-list" id="commentsList"></div>
       </div>
@@ -525,6 +573,22 @@
     </div>
   </div>
 
+  <div id="timesheetEntryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetEntryModal()">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>⏱️ Учет времени: <span id="tsEntryEmployeeName"></span></h3>
+        <button class="close-btn" onclick="closeTimesheetEntryModal()">×</button>
+      </div>
+      <div style="font-size:13px;color:#666;margin-bottom:12px;">Дата: <strong id="tsEntryDate"></strong></div>
+      <div class="entry-list" id="tsEntryList"></div>
+      <div class="entry-total">Всего часов: <span id="tsEntryTotal">0</span></div>
+      <div class="modal-actions">
+        <button class="production-btn" onclick="saveTimesheetEntry()"> Сохранить</button>
+        <button onclick="closeTimesheetEntryModal()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
@@ -547,6 +611,7 @@ let leads = [];
 let clients = {};
 let employees = [];
 let tasks = {};
+let timesheets = {};
 let currentClientOldName = '';
 let currentProductionRequest = null;
 let currentView = 'active';
@@ -557,9 +622,11 @@ let currentViewType = null;
 let currentEmployeeId = null;
 let calendarDate = new Date();
 let calendarViewMode = 'month';
+let timesheetDate = new Date();
 let currentTaskCommentsTaskId = null;
 let currentTaskCommentsProjectId = null;
-let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null;
+let currentTsEntry = null;
+let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null, unsubscribeTimesheets = null;
 
 const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const WEEKDAY_NAMES = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -640,6 +707,11 @@ async function saveTasksToFirebase(id, list) {
   try { await setDoc(doc(db, 'tasks', id), { tasks: list }); } catch (e) { console.error(e); }
 }
 
+async function saveTimesheetToFirebase(id, data) {
+  try { await setDoc(doc(db, 'timesheets', id), data); setSyncStatus('synced', 'Синхронизировано'); }
+  catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); }
+}
+
 async function ensureClientExists(name) {
   if (!clients[name]) {
     clients[name] = { name, contactPersons: [], notes: [], createdAt: today() };
@@ -684,6 +756,7 @@ function setupRealtimeListeners() {
     if (currentClientOldName) { renderClientRequests(currentClientOldName); renderNotes(); }
     if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
     if (currentNavView === 'calendar') renderCalendar();
+    if (currentNavView === 'timesheet') renderTimesheet();
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -695,6 +768,7 @@ function setupRealtimeListeners() {
     if (currentViewRequest && currentViewType === 'project') refreshViewModal();
     if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
     if (currentNavView === 'calendar') renderCalendar();
+    if (currentNavView === 'timesheet') renderTimesheet();
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -715,6 +789,7 @@ function setupRealtimeListeners() {
     if (currentProductionRequest) renderProduction();
     if (currentViewRequest && currentViewType) refreshViewModalResponsibleSelect();
     if (currentNavView === 'calendar') { fillCalendarEmployeeFilter(); renderCalendar(); }
+    if (currentNavView === 'timesheet') { fillTimesheetEmployeeFilter(); renderTimesheet(); }
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
 
@@ -725,6 +800,13 @@ function setupRealtimeListeners() {
     if (currentClientOldName) renderClientRequests(currentClientOldName);
     if (currentEmployeeId) renderEmployeeProjects(currentEmployeeId);
     if (currentNavView === 'calendar') renderCalendar();
+    if (currentNavView === 'timesheet') renderTimesheet();
+  });
+
+  unsubscribeTimesheets = onSnapshot(collection(db, 'timesheets'), snap => {
+    timesheets = {};
+    snap.forEach(d => { timesheets[d.id] = d.data(); });
+    if (currentNavView === 'timesheet') renderTimesheet();
   });
 }
 
@@ -1151,7 +1233,7 @@ function renderViewActions() {
     div.appendChild(prodBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = ' В архив';
+    archBtn.textContent = '📦 В архив';
     archBtn.addEventListener('click', async function(e) {
       e.preventDefault(); e.stopPropagation();
       await archiveProject(itemId);
@@ -1239,16 +1321,19 @@ function switchNavView(view) {
   document.getElementById('navBase').classList.toggle('active', view === 'base');
   document.getElementById('navEmployees').classList.toggle('active', view === 'employees');
   document.getElementById('navCalendar').classList.toggle('active', view === 'calendar');
+  document.getElementById('navTimesheet').classList.toggle('active', view === 'timesheet');
   document.getElementById('projectsView').style.display = view === 'projects' ? 'block' : 'none';
   document.getElementById('requestsView').style.display = view === 'requests' ? 'block' : 'none';
   document.getElementById('baseView').style.display = view === 'base' ? 'block' : 'none';
   document.getElementById('employeesView').style.display = view === 'employees' ? 'block' : 'none';
   document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
+  document.getElementById('timesheetView').style.display = view === 'timesheet' ? 'block' : 'none';
   if (view === 'projects') render();
   if (view === 'requests') renderRequests();
   if (view === 'base') renderBase();
   if (view === 'employees') renderEmployees();
   if (view === 'calendar') { fillCalendarEmployeeFilter(); renderCalendar(); }
+  if (view === 'timesheet') { fillTimesheetEmployeeFilter(); renderTimesheet(); }
 }
 
 function switchView(view) { currentView = view; document.getElementById('tabActive').classList.toggle('active', view === 'active'); document.getElementById('tabArchive').classList.toggle('active', view === 'archive'); render(); }
@@ -1350,11 +1435,11 @@ function renderBase() {
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
-          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
+          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
-    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span> Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span> Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
@@ -1491,13 +1576,11 @@ function renderEmployeesModal() {
       <div class="employee-row" style="cursor:default;">
         <div class="emp-name">${escapeHtml(emp.name)}</div>
         <div class="emp-position">${escapeHtml(emp.position || '—')}</div>
-        <div class="emp-projects"> Проектов: ${empProjects}</div>
+        <div class="emp-projects">📁 Проектов: ${empProjects}</div>
       </div>
     `;
   }).join('');
 }
-
-// ===== КАЛЕНДАРЬ =====
 
 function fillCalendarEmployeeFilter() {
   const sel = document.getElementById('calEmployeeFilter');
@@ -1738,6 +1821,185 @@ function renderCalendarList(year, month, events) {
   container.innerHTML = html;
 }
 
+// ===== ТАБЕЛЬ РАБОЧЕГО ВРЕМЕНИ =====
+
+function fillTimesheetEmployeeFilter() {
+  const sel = document.getElementById('tsEmployeeFilter');
+  const currentValue = sel.value;
+  sel.innerHTML = '<option value="">Все сотрудники</option>';
+  employees.forEach(emp => {
+    const opt = document.createElement('option');
+    opt.value = emp.id;
+    opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
+    sel.appendChild(opt);
+  });
+  sel.value = currentValue;
+}
+
+function timesheetPrev() { timesheetDate.setMonth(timesheetDate.getMonth() - 1); renderTimesheet(); }
+function timesheetNext() { timesheetDate.setMonth(timesheetDate.getMonth() + 1); renderTimesheet(); }
+function timesheetToday() { timesheetDate = new Date(); renderTimesheet(); }
+
+function getEmployeeProjectsForTimesheet(empName) {
+  return rows.filter(r => {
+    if (r.archived) return false;
+    const projectTasks = tasks[r.id] || [];
+    return projectTasks.some(t => t.assignee === empName);
+  });
+}
+
+function getTimesheetKey(empId, dateStr) {
+  return empId + '_' + dateStr;
+}
+
+function openTimesheetEntry(empId, dateStr) {
+  const emp = employees.find(e => e.id === empId);
+  if (!emp) return;
+  
+  currentTsEntry = { empId, date: dateStr };
+  
+  document.getElementById('tsEntryEmployeeName').textContent = emp.name;
+  document.getElementById('tsEntryDate').textContent = dateStr;
+  
+  const key = getTimesheetKey(empId, dateStr);
+  const existingEntry = timesheets[key] || { entries: [] };
+  
+  const empProjects = getEmployeeProjectsForTimesheet(emp.name);
+  
+  const listEl = document.getElementById('tsEntryList');
+  if (!empProjects.length) {
+    listEl.innerHTML = '<div class="muted">У сотрудника нет активных проектов с заданиями</div>';
+    document.getElementById('tsEntryTotal').textContent = '0';
+  } else {
+    listEl.innerHTML = empProjects.map(p => {
+      const existingHours = existingEntry.entries.find(e => e.projectId === p.id)?.hours || 0;
+      return `
+        <div class="entry-item">
+          <div>
+            <div class="entry-project">${escapeHtml(getRequestTitle(p))}</div>
+            <div class="entry-client">${escapeHtml(getClientName(p))}</div>
+          </div>
+          <input type="number" min="0" max="24" step="0.5" value="${existingHours}" onchange="updateTimesheetTotal()" data-project-id="${p.id}">
+        </div>
+      `;
+    }).join('');
+    updateTimesheetTotal();
+  }
+  
+  document.getElementById('timesheetEntryModal').style.display = 'block';
+}
+
+function updateTimesheetTotal() {
+  const inputs = document.querySelectorAll('#tsEntryList input[type="number"]');
+  let total = 0;
+  inputs.forEach(input => {
+    const val = parseFloat(input.value) || 0;
+    total += val;
+  });
+  document.getElementById('tsEntryTotal').textContent = total.toFixed(1);
+}
+
+async function saveTimesheetEntry() {
+  if (!currentTsEntry) return;
+  
+  const { empId, date } = currentTsEntry;
+  const key = getTimesheetKey(empId, date);
+  
+  const inputs = document.querySelectorAll('#tsEntryList input[type="number"]');
+  const entries = [];
+  
+  inputs.forEach(input => {
+    const projectId = input.dataset.projectId;
+    const hours = parseFloat(input.value) || 0;
+    if (hours > 0) {
+      const project = rows.find(r => r.id === projectId);
+      entries.push({
+        projectId,
+        projectTitle: project ? getRequestTitle(project) : 'Неизвестно',
+        clientName: project ? getClientName(project) : '',
+        hours
+      });
+    }
+  });
+  
+  if (entries.length === 0) {
+    await deleteDoc(doc(db, 'timesheets', key));
+    delete timesheets[key];
+  } else {
+    const data = { empId, date, entries, updatedAt: today() };
+    await saveTimesheetToFirebase(key, data);
+    timesheets[key] = data;
+  }
+  
+  closeTimesheetEntryModal();
+  renderTimesheet();
+}
+
+function closeTimesheetEntryModal() {
+  document.getElementById('timesheetEntryModal').style.display = 'none';
+  currentTsEntry = null;
+}
+
+function renderTimesheet() {
+  const container = document.getElementById('timesheetContainer');
+  const year = timesheetDate.getFullYear();
+  const month = timesheetDate.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = today();
+  const employeeFilter = document.getElementById('tsEmployeeFilter').value;
+  
+  document.getElementById('tsMonthLabel').textContent = MONTH_NAMES[month] + ' ' + year;
+  
+  const filteredEmployees = employeeFilter 
+    ? employees.filter(e => e.id === employeeFilter)
+    : employees;
+  
+  if (!filteredEmployees.length) {
+    container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Нет сотрудников. Добавьте первого во вкладке "Персонал".</div>';
+    return;
+  }
+  
+  let html = '<table class="timesheet-table"><thead><tr><th class="employee-col">Сотрудник</th>';
+  
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    const d = new Date(year, month, day);
+    const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+    const isToday = dateStr === todayStr;
+    html += '<th class="' + (isToday ? 'today-col' : '') + '">' + day + '</th>';
+  }
+  
+  html += '<th>Итого</th></tr></thead><tbody>';
+  
+  filteredEmployees.forEach(emp => {
+    html += '<tr class="' + (false ? 'weekend' : '') + '">';
+    html += '<td class="employee-cell">' + escapeHtml(emp.name) + '</td>';
+    
+    let monthTotal = 0;
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+      const d = new Date(year, month, day);
+      const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+      const isToday = dateStr === todayStr;
+      
+      const key = getTimesheetKey(emp.id, dateStr);
+      const entry = timesheets[key];
+      const hours = entry ? entry.entries.reduce((sum, e) => sum + e.hours, 0) : 0;
+      monthTotal += hours;
+      
+      const cellClass = 'hours-cell' + (hours > 0 ? ' has-hours' : '') + (isToday ? ' today' : '');
+      html += '<td class="' + cellClass + '" onclick="openTimesheetEntry(\'' + emp.id + '\', \'' + dateStr + '\')">' + (hours > 0 ? hours.toFixed(1) : '') + '</td>';
+    }
+    
+    html += '<td class="total-cell">' + monthTotal.toFixed(1) + '</td>';
+    html += '</tr>';
+  });
+  
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
 function formatContactPersonsForCSV(cps) {
   if (!cps || !cps.length) return '';
   return cps.map(cp => {
@@ -1891,11 +2153,11 @@ function renderTaskCard(t) {
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
     '<div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
     '<div class="task-dates">' +
-      '<span style="font-size:11px;color:#666;">📅 ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
+      '<span style="font-size:11px;color:#666;"> ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
       '<span class="task-days-count ' + badge.cls + '">' + daysText + '</span>' +
     '</div>' +
     '<div class="task-footer">' +
-      '<button class="task-comments-btn" onclick="event.stopPropagation(); openTaskComments(\'' + t.id + '\', \'' + currentProductionRequest + '\')"> <span class="comment-count">' + comments.length + '</span></button>' +
+      '<button class="task-comments-btn" onclick="event.stopPropagation(); openTaskComments(\'' + t.id + '\', \'' + currentProductionRequest + '\')">💬 <span class="comment-count">' + comments.length + '</span></button>' +
       '<div class="task-actions">' +
         (ci > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') +
         (ci < so.length-1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') +
@@ -1991,7 +2253,7 @@ function renderTaskComments() {
   const task = rt.find(t => t.id === currentTaskCommentsTaskId);
   const comments = (task && task.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span> ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteTaskComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteTaskComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 async function addTaskComment() {
@@ -2122,6 +2384,13 @@ window.openTaskComments = openTaskComments;
 window.closeTaskCommentsModal = closeTaskCommentsModal;
 window.addTaskComment = addTaskComment;
 window.deleteTaskComment = deleteTaskComment;
+window.timesheetPrev = timesheetPrev;
+window.timesheetNext = timesheetNext;
+window.timesheetToday = timesheetToday;
+window.openTimesheetEntry = openTimesheetEntry;
+window.closeTimesheetEntryModal = closeTimesheetEntryModal;
+window.updateTimesheetTotal = updateTimesheetTotal;
+window.saveTimesheetEntry = saveTimesheetEntry;
 </script>
 
 </body>
