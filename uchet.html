@@ -1,675 +1,696 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Учёт клиентов и проектов</title>
-<style>
-body { font-family: Arial, sans-serif; margin: 16px; background: #f7f7f7; color: #222; }
-h2 { margin-bottom: 8px; }
-.toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
-input, select, textarea, button { padding: 6px 8px; font-size: 14px; }
-button { cursor: pointer; }
-table { border-collapse: collapse; width: 100%; background: white; }
-th, td { border: 1px solid #ddd; padding: 6px; vertical-align: top; }
-th { background: #f0f0f0; text-align: left; font-size: 13px; }
-td input { width: 100%; box-sizing: border-box; border: 1px solid transparent; background: transparent; }
-td input:focus { border-color: #888; background: white; outline: none; }
-.muted { color: #777; font-size: 13px; }
-.client-link { width: 100%; min-height: 28px; border: 1px dashed #b7d4ff; background: #f4f9ff; color: #004a99; cursor: pointer; text-align: left; padding: 6px 8px; border-radius: 4px; }
-.client-link:hover { background: #e3f0ff; }
-.requests-cell { max-height: 160px; overflow: auto; padding: 4px; }
-.requests-cell .req-line { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px dotted #eee; align-items: flex-start; cursor: pointer; transition: background 0.15s; border-radius: 4px; padding-left: 4px; padding-right: 4px; }
-.requests-cell .req-line:hover { background: #f0f7ff; }
-.requests-cell .req-line:last-child { border-bottom: none; }
-.requests-cell .req-days { flex-shrink: 0; font-size: 12px; color: #fff; background: #888; padding: 1px 6px; border-radius: 10px; white-space: nowrap; min-width: 40px; text-align: center; }
-.requests-cell .req-days.warn { background: #e6a817; color: #333; }
-.requests-cell .req-days.danger { background: #d9534f; }
-.requests-cell .req-days.ok { background: #5cb85c; }
-.requests-cell .req-days.neutral { background: #888; }
-.requests-cell .req-date { flex-shrink: 0; font-size: 12px; color: #666; min-width: 80px; }
-.requests-cell .req-title { flex: 1; word-break: break-word; }
-.requests-cell .req-status { flex-shrink: 0; font-size: 12px; color: #555; background: #f0f0f0; padding: 1px 6px; border-radius: 10px; white-space: nowrap; }
-.requests-cell .req-actions { flex-shrink: 0; display: flex; gap: 4px; }
-.requests-cell .req-action-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
-.requests-cell .req-action-btn:hover { background: #e3f2fd; }
-.requests-cell .req-action-btn.delete:hover { background: #ffebee; }
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 999; overflow: auto; }
-.modal { background: #fff; max-width: 880px; margin: 30px auto; padding: 18px; border-radius: 10px; }
-.modal-large { max-width: 1100px; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.modal-header h3 { margin: 0; }
-.close-btn { font-size: 28px; border: none; background: none; cursor: pointer; line-height: 1; }
-.modal label { display: block; margin-top: 10px; font-weight: bold; }
-.modal input, .modal textarea, .modal select { width: 100%; box-sizing: border-box; margin-top: 4px; }
-.requests-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
-@media (max-width: 700px) { .requests-columns { grid-template-columns: 1fr; } }
-.requests-column { background: #fafafa; border: 2px dashed #ddd; border-radius: 8px; padding: 12px; min-height: 200px; }
-.requests-column h4 { margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid #ddd; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
-.requests-column.projects-col h4 { border-bottom-color: #5bc0de; }
-.requests-column.requests-col h4 { border-bottom-color: #9b59b6; }
-.tiles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.request-tile { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; min-height: 80px; display: flex; flex-direction: column; justify-content: space-between; }
-.request-tile:hover { background: #f4f9ff; border-color: #004a99; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-.request-tile.project-tile { border-left: 4px solid #5bc0de; }
-.request-tile.request-tile-type { border-left: 4px solid #9b59b6; background: #faf0ff; }
-.request-tile .tile-title { font-weight: bold; font-size: 14px; color: #004a99; margin-bottom: 6px; word-break: break-word; }
-.request-tile .tile-date { font-size: 12px; color: #666; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-.request-tile .tile-days { font-size: 22px; font-weight: bold; line-height: 1; }
-.request-tile .tile-days.ok { color: #5cb85c; }
-.request-tile .tile-days.warn { color: #e6a817; }
-.request-tile .tile-days.danger { color: #d9534f; }
-.request-tile .tile-days.neutral { color: #888; }
-.request-tile .tile-status { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 10px; background: #f0f0f0; color: #555; margin-top: 6px; }
-.request-tile .tile-empty { color: #999; font-size: 13px; font-style: italic; }
-.days-badge { display: inline-block; font-size: 16px; font-weight: bold; color: #fff; background: #888; padding: 4px 12px; border-radius: 12px; margin-top: 4px; }
-.days-badge.ok { background: #5cb85c; }
-.days-badge.warn { background: #e6a817; color: #333; }
-.days-badge.danger { background: #d9534f; }
-.modal-actions { margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap; }
-.production-btn { background: #5bc0de; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
-.production-btn:hover { background: #31b0d5; }
-.archive-btn { background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.archive-btn:hover { background: #7f8c8d; }
-.restore-btn { background: #2ecc71; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.restore-btn:hover { background: #27ae60; }
-.delete-final-btn { background: #d9534f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.delete-final-btn:hover { background: #c9302c; }
-.convert-btn { background: #9b59b6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.convert-btn:hover { background: #8e44ad; }
-.import-btn { background: #5cb85c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.export-btn { background: #f0ad4e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-.cloud-badge { background: #5cb85c; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-.tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 2px solid #ddd; }
-.tab { padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-bottom: none; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 14px; font-weight: bold; color: #555; }
-.tab:hover { background: #e8e8e8; }
-.tab.active { background: white; color: #004a99; border-bottom: 2px solid white; margin-bottom: -2px; }
-.tab .count { background: #ddd; color: #333; padding: 1px 6px; border-radius: 10px; font-size: 11px; margin-left: 4px; }
-.tab.active .count { background: #004a99; color: white; }
-.nav-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-.nav-tab { padding: 10px 20px; background: white; border: 2px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; color: #555; transition: all 0.2s; }
-.nav-tab:hover { background: #f5f5f5; border-color: #999; }
-.nav-tab.active { background: #004a99; color: white; border-color: #004a99; }
-.view-modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
-.view-modal-header h2 { margin: 0 0 4px 0; font-size: 22px; color: #004a99; }
-.view-title-input { font-size: 22px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
-.view-title-input:focus { border-color: #004a99; outline: none; }
-.view-type-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
-.view-type-badge.project { background: #5bc0de; }
-.view-type-badge.request { background: #9b59b6; }
-.view-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; padding: 12px; background: #f9f9f9; border-radius: 8px; }
-.view-info-item label { font-size: 11px; color: #777; text-transform: uppercase; margin-bottom: 2px; display: block; }
-.view-info-item .value { font-size: 14px; font-weight: bold; color: #222; }
-.view-info-item .value input, .view-info-item .value select { font-size: 14px; font-weight: bold; color: #222; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; box-sizing: border-box; background: white; }
-.view-info-item .value input:focus, .view-info-item .value select:focus { border-color: #004a99; outline: none; }
-.view-comment-section { margin-top: 20px; border-top: 2px solid #eee; padding-top: 16px; }
-.view-comment-section h4 { margin: 0 0 12px 0; font-size: 16px; }
-.comment-add-form { display: flex; gap: 8px; margin-bottom: 16px; }
-.comment-add-form textarea { flex: 1; min-height: 60px; resize: vertical; }
-.comments-list, .notes-list { max-height: 400px; overflow-y: auto; }
-.comment-item, .note-item { background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px; }
-.comment-item .comment-meta, .note-item .note-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; color: #777; flex-wrap: wrap; gap: 4px; }
-.comment-item .comment-text, .note-item .note-text { font-size: 14px; color: #222; white-space: pre-wrap; word-break: break-word; }
-.comment-item .comment-delete, .note-item .note-delete { background: none; border: none; color: #d9534f; cursor: pointer; font-size: 12px; padding: 2px 6px; }
-.view-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; }
-.client-base-item { padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: white; cursor: pointer; transition: all 0.2s; }
-.client-base-item:hover { background: #f4f9ff; border-color: #b7d4ff; }
-.client-base-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.client-base-name { font-weight: bold; font-size: 15px; color: #004a99; }
-.client-base-info { font-size: 13px; color: #666; margin-bottom: 3px; }
-.client-base-stats { display: flex; gap: 12px; font-size: 12px; color: #555; margin-top: 6px; }
-.client-base-stats span { background: #f0f0f0; padding: 2px 8px; border-radius: 10px; }
-.client-base-actions { display: flex; gap: 6px; }
-.client-base-actions .icon-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 4px; transition: background 0.15s; }
-.client-base-actions .icon-btn:hover { background: #ffebee; }
-.sync-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #5cb85c; }
-.sync-indicator.syncing { color: #f0ad4e; }
-.sync-indicator.error { color: #d9534f; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-.syncing .dot { animation: pulse 1s infinite; }
-.kanban-modal { max-width: 98vw; }
-.kanban-board { display: flex; gap: 12px; margin-top: 12px; overflow-x: auto; padding: 4px 4px 16px 4px; scroll-behavior: smooth; }
-.kanban-board::-webkit-scrollbar { height: 10px; }
-.kanban-board::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 5px; }
-.kanban-board::-webkit-scrollbar-thumb { background: #b7d4ff; border-radius: 5px; }
-.kanban-board::-webkit-scrollbar-thumb:hover { background: #004a99; }
-.kanban-column { background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; padding: 10px; min-width: 280px; max-width: 280px; flex-shrink: 0; min-height: 400px; display: flex; flex-direction: column; }
-.kanban-column h4 { margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid #ddd; font-size: 14px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-.kanban-column h4 .count { background: #ddd; color: #333; padding: 1px 8px; border-radius: 10px; font-size: 12px; }
-.kanban-column > div { flex: 1; overflow-y: auto; }
-.task-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 8px; margin-bottom: 8px; position: relative; }
-.task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-.task-card .task-title { font-weight: bold; margin-bottom: 4px; word-break: break-word; font-size: 13px; }
-.task-card .task-meta { font-size: 11px; color: #666; display: flex; flex-direction: column; gap: 2px; }
-.task-card .task-dates { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; }
-.task-card .task-dates .task-days-count { font-size: 18px; font-weight: bold; }
-.task-card .task-dates .task-days-count.ok { color: #5cb85c; }
-.task-card .task-dates .task-days-count.warn { color: #e6a817; }
-.task-card .task-dates .task-days-count.danger { color: #d9534f; }
-.task-card .task-dates .task-days-count.neutral { color: #888; }
-.task-card .task-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
-.task-card .task-comments-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #5bc0de; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; gap: 3px; }
-.task-card .task-comments-btn:hover { background: #e3f2fd; }
-.task-card .task-comments-btn .comment-count { background: #5bc0de; color: white; border-radius: 10px; padding: 1px 6px; font-size: 10px; font-weight: bold; }
-.task-card .task-actions { display: flex; gap: 4px; flex-wrap: wrap; }
-.task-card .task-actions button { font-size: 11px; padding: 2px 6px; }
-.add-task-form { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
-.add-task-form h4 { margin: 0 0 8px 0; font-size: 14px; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.assignee-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; margin-bottom: 4px; }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
-.stat-card { background: #f0f8ff; border: 1px solid #b7d4ff; border-radius: 6px; padding: 10px; }
-.stat-card .stat-value { font-size: 24px; font-weight: bold; color: #004a99; }
-.stat-card .stat-label { font-size: 12px; color: #666; }
-.load-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 4px; }
-.load-bar-fill { height: 100%; background: #5cb85c; }
-.load-bar-fill.warn { background: #f0ad4e; }
-.load-bar-fill.danger { background: #d9534f; }
-.contact-person-block { background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
-.contact-person-block .cp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; color: #004a99; font-size: 13px; }
-.contact-person-block .cp-field { margin-bottom: 6px; }
-.contact-person-block .cp-field label { display: block; font-size: 10px; color: #666; margin-bottom: 2px; font-weight: normal; text-transform: uppercase; }
-.contact-person-block .cp-field input { width: 100%; padding: 4px 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; box-sizing: border-box; }
-.contact-person-block .cp-field input:focus { border-color: #004a99; outline: none; }
-.remove-cp-btn { background: #d9534f; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
-.remove-cp-btn:hover { background: #c9302c; }
-.add-cp-btn { background: #5cb85c; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 8px; }
-.add-cp-btn:hover { background: #449d44; }
-.client-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
-@media (max-width: 700px) { .client-columns { grid-template-columns: 1fr; } }
-.client-column-left { min-height: 200px; }
-.client-column-right { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 12px; min-height: 200px; }
-.client-column-right h4 { margin: 0 0 10px 0; font-size: 14px; color: #004a99; border-bottom: 2px solid #ffe58f; padding-bottom: 6px; }
-.note-add-form { display: flex; gap: 8px; margin-bottom: 12px; }
-.note-add-form textarea { flex: 1; min-height: 50px; resize: vertical; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; }
-.note-add-form textarea:focus { border-color: #004a99; outline: none; }
-.employee-list { margin-top: 12px; }
-.employee-row { display: flex; align-items: center; padding: 10px 12px; background: white; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; cursor: pointer; transition: all 0.15s; }
-.employee-row:hover { background: #f4f9ff; border-color: #004a99; }
-.employee-row .emp-name { font-weight: bold; font-size: 15px; color: #004a99; min-width: 180px; }
-.employee-row .emp-position { font-size: 13px; color: #666; flex: 1; }
-.employee-row .emp-projects { font-size: 12px; color: #888; margin-right: 12px; white-space: nowrap; }
-.employee-row .emp-delete { background: #d9534f; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-.employee-row .emp-delete:hover { background: #c9302c; }
-.employee-page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
-.employee-page-header h2 { margin: 0; color: #004a99; }
-.employee-page-header .emp-info { font-size: 14px; color: #666; }
-.employee-page-header .emp-edit-fields { width: 100%; }
-.employee-page-header .emp-edit-fields label { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 8px; }
-.employee-page-header .emp-edit-fields input { font-size: 16px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; }
-.employee-page-header .emp-edit-fields input:focus { border-color: #004a99; outline: none; }
-.employee-page-header .emp-edit-fields input.position-input { font-size: 14px; font-weight: normal; color: #666; }
-.add-employee-form { display: flex; gap: 8px; margin-bottom: 16px; padding: 12px; background: #f0f8ff; border-radius: 6px; flex-wrap: wrap; }
-.add-employee-form input { flex: 1; min-width: 150px; }
-.calendar-toolbar, .timesheet-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; }
-.calendar-toolbar .cal-nav, .timesheet-toolbar .ts-nav { display: flex; align-items: center; gap: 8px; }
-.calendar-toolbar .cal-nav button, .timesheet-toolbar .ts-nav button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-.calendar-toolbar .cal-nav button:hover, .timesheet-toolbar .ts-nav button:hover { background: #e0e0e0; }
-.calendar-toolbar .cal-nav .cal-month-label, .timesheet-toolbar .ts-nav .ts-month-label { font-size: 16px; font-weight: bold; color: #004a99; min-width: 180px; text-align: center; }
-.calendar-toolbar .cal-view-switch { display: flex; gap: 4px; }
-.calendar-toolbar .cal-view-switch button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-.calendar-toolbar .cal-view-switch button.active { background: #004a99; color: white; border-color: #004a99; }
-.calendar-toolbar .cal-filter, .timesheet-toolbar .cal-filter { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.calendar-toolbar .cal-filter select, .calendar-toolbar .cal-filter input, .timesheet-toolbar .cal-filter select { padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: #ddd; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
-.calendar-header-cell { background: #f0f0f0; padding: 8px 4px; text-align: center; font-weight: bold; font-size: 12px; color: #555; }
-.calendar-day-cell { background: white; min-height: 90px; padding: 4px; position: relative; cursor: pointer; transition: background 0.15s; }
-.calendar-day-cell:hover { background: #f4f9ff; }
-.calendar-day-cell.other-month { background: #fafafa; }
-.calendar-day-cell.today { background: #fffbe6; }
-.calendar-day-cell .day-number { font-size: 12px; font-weight: bold; color: #666; margin-bottom: 4px; }
-.calendar-day-cell.today .day-number { color: #e6a817; font-size: 14px; }
-.calendar-day-cell .day-events { display: flex; flex-direction: column; gap: 2px; }
-.cal-event { font-size: 10px; padding: 2px 4px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.15s; }
-.cal-event:hover { opacity: 0.8; }
-.cal-event.project-ok { background: #5cb85c; color: white; }
-.cal-event.project-warn { background: #e6a817; color: #333; }
-.cal-event.project-danger { background: #d9534f; color: white; }
-.cal-event.project-neutral { background: #888; color: white; }
-.cal-event-more { font-size: 10px; color: #004a99; font-weight: bold; cursor: pointer; padding: 2px 4px; background: #e3f0ff; border-radius: 3px; text-align: center; transition: background 0.15s; border: 1px dashed #b7d4ff; }
-.cal-event-more:hover { background: #b7d4ff; }
-.calendar-list-view { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 12px; }
-.calendar-list-day { margin-bottom: 16px; }
-.calendar-list-day-header { font-size: 14px; font-weight: bold; color: #004a99; padding-bottom: 6px; border-bottom: 2px solid #eee; margin-bottom: 8px; display: flex; justify-content: space-between; }
-.calendar-list-day-header.today { color: #e6a817; border-bottom-color: #e6a817; }
-.calendar-list-event { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-left: 4px solid #5bc0de; margin-bottom: 4px; background: #fafafa; border-radius: 4px; cursor: pointer; transition: background 0.15s; flex-wrap: wrap; }
-.calendar-list-event:hover { background: #f4f9ff; }
-.calendar-list-event.overdue { border-left-color: #d9534f; background: #fff5f5; }
-.calendar-list-event .evt-client-name { font-weight: bold; color: #004a99; font-size: 13px; min-width: 140px; }
-.calendar-list-event .evt-title { flex: 1; font-size: 13px; color: #222; }
-.calendar-list-event .evt-responsible { font-size: 12px; color: #666; }
-.calendar-list-event .evt-days { font-size: 16px; font-weight: bold; flex-shrink: 0; min-width: 40px; text-align: right; }
-.calendar-list-event .evt-days.ok { color: #5cb85c; }
-.calendar-list-event .evt-days.warn { color: #e6a817; }
-.calendar-list-event .evt-days.danger { color: #d9534f; }
-.calendar-list-event .evt-days.neutral { color: #888; }
-.calendar-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
-.cal-stat-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 10px; text-align: center; }
-.cal-stat-card .stat-num { font-size: 24px; font-weight: bold; color: #004a99; }
-.cal-stat-card .stat-label { font-size: 11px; color: #666; margin-top: 4px; }
-.cal-stat-card.danger .stat-num { color: #d9534f; }
-.cal-stat-card.warn .stat-num { color: #e6a817; }
-.cal-stat-card.ok .stat-num { color: #5cb85c; }
-.day-modal-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
-.day-modal-header h3 { margin: 0 0 4px 0; color: #004a99; font-size: 20px; }
-.day-modal-header .day-subtitle { font-size: 13px; color: #666; }
-.day-events-list { display: flex; flex-direction: column; gap: 8px; max-height: 500px; overflow-y: auto; }
-.day-event-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-left: 4px solid #5bc0de; background: #fafafa; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
-.day-event-item:hover { background: #f4f9ff; transform: translateX(2px); }
-.day-event-item.overdue { border-left-color: #d9534f; background: #fff5f5; }
-.day-event-item .evt-main { flex: 1; }
-.day-event-item .evt-client-name { font-weight: bold; color: #004a99; font-size: 13px; }
-.day-event-item .evt-title { font-weight: bold; color: #222; font-size: 14px; margin-top: 2px; }
-.day-event-item .evt-sub { font-size: 12px; color: #666; margin-top: 2px; }
-.day-event-item .evt-right { text-align: right; flex-shrink: 0; }
-.day-event-item .evt-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #555; }
-.day-event-item .evt-days { font-size: 18px; font-weight: bold; margin-top: 4px; }
-.day-event-item .evt-days.ok { color: #5cb85c; }
-.day-event-item .evt-days.warn { color: #e6a817; }
-.day-event-item .evt-days.danger { color: #d9534f; }
-.day-event-item .evt-days.neutral { color: #888; }
-.day-empty { padding: 30px; text-align: center; color: #999; font-style: italic; }
-.timesheet-container { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
-.timesheet-table { border-collapse: collapse; width: 100%; min-width: 800px; }
-.timesheet-table th { background: #f0f0f0; padding: 8px 4px; text-align: center; font-size: 11px; font-weight: bold; color: #555; border: 1px solid #ddd; position: sticky; top: 0; z-index: 10; }
-.timesheet-table th.employee-col { text-align: left; min-width: 180px; position: sticky; left: 0; z-index: 11; background: #f0f0f0; }
-.timesheet-table th.today-col { background: #fffbe6; color: #e6a817; }
-.timesheet-table td { border: 1px solid #ddd; padding: 4px; text-align: center; font-size: 12px; }
-.timesheet-table td.employee-cell { text-align: left; font-weight: bold; color: #004a99; position: sticky; left: 0; background: white; z-index: 5; min-width: 180px; }
-.timesheet-table td.hours-cell { cursor: pointer; transition: background 0.15s; min-width: 50px; height: 40px; }
-.timesheet-table td.hours-cell:hover { background: #f4f9ff; }
-.timesheet-table td.hours-cell.has-hours { background: #e8f5e9; font-weight: bold; color: #2e7d32; }
-.timesheet-table td.hours-cell.today { background: #fffbe6; }
-.timesheet-table td.total-cell { font-weight: bold; background: #e3f2fd; color: #004a99; font-size: 13px; cursor: pointer; transition: background 0.15s; }
-.timesheet-table td.total-cell:hover { background: #bbdefb; }
-.timesheet-table tr.weekend td.hours-cell { background: #fafafa; }
-.timesheet-table tr.weekend td.employee-cell { background: #fafafa; }
-.timesheet-entry-modal .entry-list { max-height: 500px; overflow-y: auto; }
-.timesheet-entry-modal .entry-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; background: #fafafa; flex-direction: column; }
-.timesheet-entry-modal .entry-item .entry-header { display: flex; align-items: center; gap: 10px; width: 100%; }
-.timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
-.timesheet-entry-modal .entry-item .entry-client { font-size: 11px; color: #666; }
-.timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
-.timesheet-entry-modal .entry-item input[type="number"]:focus { border-color: #004a99; outline: none; }
-.timesheet-entry-modal .entry-total { margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color: #004a99; }
-.timesheet-entry-modal .entry-total span { font-size: 24px; }
-.stages-list { margin: 12px 0; }
-.stage-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; }
-.stage-item .stage-order { font-weight: bold; color: #004a99; min-width: 24px; text-align: center; }
-.stage-item input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-.stage-item input:focus { border-color: #004a99; outline: none; }
-.stage-item button { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px; }
-.stage-item .stage-up, .stage-item .stage-down { background: #f0f0f0; }
-.stage-item .stage-up:hover, .stage-item .stage-down:hover { background: #e0e0e0; }
-.stage-item .stage-remove { background: #d9534f; color: white; }
-.stage-item .stage-remove:hover { background: #c9302c; }
-.add-stage-form { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
-.add-stage-form input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-.add-stage-form input:focus { border-color: #004a99; outline: none; }
-.kanban-hint { font-size: 12px; color: #888; margin-bottom: 8px; font-style: italic; }
-.project-stages-info { background: #f0f8ff; border: 1px solid #b7d4ff; border-radius: 6px; padding: 10px; margin-bottom: 12px; font-size: 13px; color: #004a99; }
-.dashboard-container { padding: 12px; }
-.dashboard-section { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-.dashboard-section h3 { margin: 0 0 12px 0; color: #004a99; font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
-.dashboard-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-.kpi-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 16px; text-align: center; transition: all 0.2s; }
-.kpi-card.clickable { cursor: pointer; }
-.kpi-card.clickable:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-color: #004a99; }
-.kpi-card .kpi-icon { font-size: 28px; margin-bottom: 8px; }
-.kpi-card .kpi-value { font-size: 32px; font-weight: bold; color: #004a99; margin-bottom: 4px; }
-.kpi-card .kpi-label { font-size: 12px; color: #666; text-transform: uppercase; }
-.kpi-card.danger { border-left: 4px solid #d9534f; }
-.kpi-card.danger .kpi-value { color: #d9534f; }
-.kpi-card.warn { border-left: 4px solid #e6a817; }
-.kpi-card.warn .kpi-value { color: #e6a817; }
-.kpi-card.ok { border-left: 4px solid #5cb85c; }
-.kpi-card.ok .kpi-value { color: #5cb85c; }
-.kpi-card.info { border-left: 4px solid #5bc0de; }
-.kpi-card.info .kpi-value { color: #5bc0de; }
-.dashboard-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-@media (max-width: 900px) { .dashboard-two-col { grid-template-columns: 1fr; } }
-.dashboard-bar-item { margin-bottom: 12px; }
-.dashboard-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.dashboard-bar-header .bar-label { font-size: 13px; font-weight: bold; color: #222; }
-.dashboard-bar-header .bar-value { font-size: 12px; color: #666; }
-.dashboard-bar { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; }
-.dashboard-bar-fill { height: 100%; border-radius: 5px; transition: width 0.3s; }
-.dashboard-bar-fill.ok { background: #5cb85c; }
-.dashboard-bar-fill.warn { background: #e6a817; }
-.dashboard-bar-fill.danger { background: #d9534f; }
-.dashboard-bar-fill.info { background: #5bc0de; }
-.dashboard-status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
-.status-card { background: #f9f9f9; border-radius: 6px; padding: 12px; text-align: center; border: 1px solid #eee; }
-.status-card .status-value { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
-.status-card .status-label { font-size: 11px; color: #666; text-transform: uppercase; }
-.status-card.new .status-value { color: #5bc0de; }
-.status-card.work .status-value { color: #e6a817; }
-.status-card.done .status-value { color: #5cb85c; }
-.status-card.cancel .status-value { color: #d9534f; }
-.dashboard-recent-list { display: flex; flex-direction: column; gap: 8px; }
-.recent-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-left: 4px solid #5bc0de; background: #fafafa; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
-.recent-item:hover { background: #f4f9ff; transform: translateX(2px); }
-.recent-item .recent-title { flex: 1; font-weight: bold; color: #222; font-size: 13px; }
-.recent-item .recent-client { font-size: 12px; color: #666; }
-.recent-item .recent-date { font-size: 11px; color: #888; white-space: nowrap; }
-.recent-item.overdue { border-left-color: #d9534f; background: #fff5f5; }
-.recent-item.warning { border-left-color: #e6a817; background: #fffbe6; }
-.dashboard-employee-load { display: flex; flex-direction: column; gap: 10px; }
-.employee-load-item { background: #f9f9f9; border-radius: 6px; padding: 12px; cursor: pointer; transition: all 0.15s; }
-.employee-load-item:hover { background: #f4f9ff; transform: translateX(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.employee-load-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.employee-load-header .emp-name { font-weight: bold; color: #004a99; font-size: 14px; }
-.employee-load-header .emp-stats { font-size: 12px; color: #666; }
-.employee-load-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
-.employee-load-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
-.employee-load-bar-fill.ok { background: #5cb85c; }
-.employee-load-bar-fill.warn { background: #e6a817; }
-.employee-load-bar-fill.danger { background: #d9534f; }
-.dashboard-empty { padding: 30px; text-align: center; color: #999; font-style: italic; }
-.all-projects-view { padding: 12px; }
-.all-projects-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
-.all-projects-header h2 { margin: 0; color: #004a99; }
-.all-projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Учёт клиентов и проектов</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 16px; background: #f7f7f7; color: #222; }
+    h2 { margin-bottom: 8px; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+    input, select, textarea, button { padding: 6px 8px; font-size: 14px; }
+    button { cursor: pointer; }
+    table { border-collapse: collapse; width: 100%; background: white; }
+    th, td { border: 1px solid #ddd; padding: 6px; vertical-align: top; }
+    th { background: #f0f0f0; text-align: left; font-size: 13px; }
+    td input { width: 100%; box-sizing: border-box; border: 1px solid transparent; background: transparent; }
+    td input:focus { border-color: #888; background: white; outline: none; }
+    .muted { color: #777; font-size: 13px; }
+    .client-link { width: 100%; min-height: 28px; border: 1px dashed #b7d4ff; background: #f4f9ff; color: #004a99; cursor: pointer; text-align: left; padding: 6px 8px; border-radius: 4px; }
+    .client-link:hover { background: #e3f0ff; }
+    .requests-cell { max-height: 160px; overflow: auto; padding: 4px; }
+    .requests-cell .req-line { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px dotted #eee; align-items: flex-start; cursor: pointer; transition: background 0.15s; border-radius: 4px; padding-left: 4px; padding-right: 4px; }
+    .requests-cell .req-line:hover { background: #f0f7ff; }
+    .requests-cell .req-line:last-child { border-bottom: none; }
+    .requests-cell .req-days { flex-shrink: 0; font-size: 12px; color: #fff; background: #888; padding: 1px 6px; border-radius: 10px; white-space: nowrap; min-width: 40px; text-align: center; }
+    .requests-cell .req-days.warn { background: #e6a817; color: #333; }
+    .requests-cell .req-days.danger { background: #d9534f; }
+    .requests-cell .req-days.ok { background: #5cb85c; }
+    .requests-cell .req-days.neutral { background: #888; }
+    .requests-cell .req-date { flex-shrink: 0; font-size: 12px; color: #666; min-width: 80px; }
+    .requests-cell .req-title { flex: 1; word-break: break-word; }
+    .requests-cell .req-status { flex-shrink: 0; font-size: 12px; color: #555; background: #f0f0f0; padding: 1px 6px; border-radius: 10px; white-space: nowrap; }
+    .requests-cell .req-actions { flex-shrink: 0; display: flex; gap: 4px; }
+    .requests-cell .req-action-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
+    .requests-cell .req-action-btn:hover { background: #e3f2fd; }
+    .requests-cell .req-action-btn.delete:hover { background: #ffebee; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 999; overflow: auto; }
+    .modal { background: #fff; max-width: 880px; margin: 30px auto; padding: 18px; border-radius: 10px; }
+    .modal-large { max-width: 1100px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .modal-header h3 { margin: 0; }
+    .close-btn { font-size: 28px; border: none; background: none; cursor: pointer; line-height: 1; }
+    .modal label { display: block; margin-top: 10px; font-weight: bold; }
+    .modal input, .modal textarea, .modal select { width: 100%; box-sizing: border-box; margin-top: 4px; }
+    .requests-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 12px; }
+    @media (max-width: 700px) { .requests-columns { grid-template-columns: 1fr; } }
+    .requests-column { background: #fafafa; border: 2px dashed #ddd; border-radius: 8px; padding: 12px; min-height: 200px; }
+    .requests-column h4 { margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid #ddd; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+    .requests-column.projects-col h4 { border-bottom-color: #5bc0de; }
+    .requests-column.requests-col h4 { border-bottom-color: #9b59b6; }
+    .tiles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .request-tile { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; min-height: 80px; display: flex; flex-direction: column; justify-content: space-between; }
+    .request-tile:hover { background: #f4f9ff; border-color: #004a99; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .request-tile.project-tile { border-left: 4px solid #5bc0de; }
+    .request-tile.request-tile-type { border-left: 4px solid #9b59b6; background: #faf0ff; }
+    .request-tile .tile-title { font-weight: bold; font-size: 14px; color: #004a99; margin-bottom: 6px; word-break: break-word; }
+    .request-tile .tile-date { font-size: 12px; color: #666; display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .request-tile .tile-days { font-size: 22px; font-weight: bold; line-height: 1; }
+    .request-tile .tile-days.ok { color: #5cb85c; }
+    .request-tile .tile-days.warn { color: #e6a817; }
+    .request-tile .tile-days.danger { color: #d9534f; }
+    .request-tile .tile-days.neutral { color: #888; }
+    .request-tile .tile-status { display: inline-block; font-size: 11px; padding: 2px 6px; border-radius: 10px; background: #f0f0f0; color: #555; margin-top: 6px; }
+    .request-tile .tile-empty { color: #999; font-size: 13px; font-style: italic; }
+    .days-badge { display: inline-block; font-size: 16px; font-weight: bold; color: #fff; background: #888; padding: 4px 12px; border-radius: 12px; margin-top: 4px; }
+    .days-badge.ok { background: #5cb85c; }
+    .days-badge.warn { background: #e6a817; color: #333; }
+    .days-badge.danger { background: #d9534f; }
+    .modal-actions { margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .production-btn { background: #5bc0de; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; }
+    .production-btn:hover { background: #31b0d5; }
+    .archive-btn { background: #95a5a6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .archive-btn:hover { background: #7f8c8d; }
+    .restore-btn { background: #2ecc71; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .restore-btn:hover { background: #27ae60; }
+    .delete-final-btn { background: #d9534f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .delete-final-btn:hover { background: #c9302c; }
+    .convert-btn { background: #9b59b6; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .convert-btn:hover { background: #8e44ad; }
+    .import-btn { background: #5cb85c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .export-btn { background: #f0ad4e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .cloud-badge { background: #5cb85c; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+    .tabs { display: flex; gap: 4px; margin-bottom: 12px; border-bottom: 2px solid #ddd; }
+    .tab { padding: 8px 16px; background: #f0f0f0; border: 1px solid #ddd; border-bottom: none; border-radius: 6px 6px 0 0; cursor: pointer; font-size: 14px; font-weight: bold; color: #555; }
+    .tab:hover { background: #e8e8e8; }
+    .tab.active { background: white; color: #004a99; border-bottom: 2px solid white; margin-bottom: -2px; }
+    .tab .count { background: #ddd; color: #333; padding: 1px 6px; border-radius: 10px; font-size: 11px; margin-left: 4px; }
+    .tab.active .count { background: #004a99; color: white; }
+    .nav-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .nav-tab { padding: 10px 20px; background: white; border: 2px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; color: #555; transition: all 0.2s; }
+    .nav-tab:hover { background: #f5f5f5; border-color: #999; }
+    .nav-tab.active { background: #004a99; color: white; border-color: #004a99; }
+    .view-modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
+    .view-modal-header h2 { margin: 0 0 4px 0; font-size: 22px; color: #004a99; }
+    .view-title-input { font-size: 22px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
+    .view-title-input:focus { border-color: #004a99; outline: none; }
+    .view-type-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
+    .view-type-badge.project { background: #5bc0de; }
+    .view-type-badge.request { background: #9b59b6; }
+    .view-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; padding: 12px; background: #f9f9f9; border-radius: 8px; }
+    .view-info-item label { font-size: 11px; color: #777; text-transform: uppercase; margin-bottom: 2px; display: block; }
+    .view-info-item .value { font-size: 14px; font-weight: bold; color: #222; }
+    .view-info-item .value input, .view-info-item .value select { font-size: 14px; font-weight: bold; color: #222; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; box-sizing: border-box; background: white; }
+    .view-info-item .value input:focus, .view-info-item .value select:focus { border-color: #004a99; outline: none; }
+    .view-comment-section { margin-top: 20px; border-top: 2px solid #eee; padding-top: 16px; }
+    .view-comment-section h4 { margin: 0 0 12px 0; font-size: 16px; }
+    .comment-add-form { display: flex; gap: 8px; margin-bottom: 16px; }
+    .comment-add-form textarea { flex: 1; min-height: 60px; resize: vertical; }
+    .comments-list, .notes-list { max-height: 400px; overflow-y: auto; }
+    .comment-item, .note-item { background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 10px; margin-bottom: 8px; }
+    .comment-item .comment-meta, .note-item .note-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 12px; color: #777; }
+    .comment-item .comment-text, .note-item .note-text { font-size: 14px; color: #222; white-space: pre-wrap; word-break: break-word; }
+    .comment-item .comment-delete, .note-item .note-delete { background: none; border: none; color: #d9534f; cursor: pointer; font-size: 12px; padding: 2px 6px; }
+    .view-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; }
+    .client-base-item { padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: white; cursor: pointer; transition: all 0.2s; }
+    .client-base-item:hover { background: #f4f9ff; border-color: #b7d4ff; }
+    .client-base-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .client-base-name { font-weight: bold; font-size: 15px; color: #004a99; }
+    .client-base-info { font-size: 13px; color: #666; margin-bottom: 3px; }
+    .client-base-stats { display: flex; gap: 12px; font-size: 12px; color: #555; margin-top: 6px; }
+    .client-base-stats span { background: #f0f0f0; padding: 2px 8px; border-radius: 10px; }
+    .client-base-actions { display: flex; gap: 6px; }
+    .client-base-actions .icon-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 4px; transition: background 0.15s; }
+    .client-base-actions .icon-btn:hover { background: #ffebee; }
+    .sync-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #5cb85c; }
+    .sync-indicator.syncing { color: #f0ad4e; }
+    .sync-indicator.error { color: #d9534f; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .syncing .dot { animation: pulse 1s infinite; }
+    .kanban-modal { max-width: 98vw; }
+    
+    .kanban-board { display: flex; gap: 12px; margin-top: 12px; overflow-x: auto; padding: 4px 4px 16px 4px; scroll-behavior: smooth; }
+    .kanban-board::-webkit-scrollbar { height: 10px; }
+    .kanban-board::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 5px; }
+    .kanban-board::-webkit-scrollbar-thumb { background: #b7d4ff; border-radius: 5px; }
+    .kanban-board::-webkit-scrollbar-thumb:hover { background: #004a99; }
+    
+    .kanban-column { background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; padding: 10px; min-width: 280px; max-width: 280px; flex-shrink: 0; min-height: 400px; display: flex; flex-direction: column; }
+    .kanban-column h4 { margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 2px solid #ddd; font-size: 14px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+    .kanban-column h4 .count { background: #ddd; color: #333; padding: 1px 8px; border-radius: 10px; font-size: 12px; }
+    .kanban-column > div { flex: 1; overflow-y: auto; }
+    
+    .task-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 8px; margin-bottom: 8px; position: relative; }
+    .task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .task-card .task-title { font-weight: bold; margin-bottom: 4px; word-break: break-word; font-size: 13px; }
+    .task-card .task-meta { font-size: 11px; color: #666; display: flex; flex-direction: column; gap: 2px; }
+    .task-card .task-dates { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; }
+    .task-card .task-dates .task-days-count { font-size: 18px; font-weight: bold; }
+    .task-card .task-dates .task-days-count.ok { color: #5cb85c; }
+    .task-card .task-dates .task-days-count.warn { color: #e6a817; }
+    .task-card .task-dates .task-days-count.danger { color: #d9534f; }
+    .task-card .task-dates .task-days-count.neutral { color: #888; }
+    .task-card .task-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+    .task-card .task-comments-btn { background: none; border: none; cursor: pointer; font-size: 12px; color: #5bc0de; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; gap: 3px; }
+    .task-card .task-comments-btn:hover { background: #e3f2fd; }
+    .task-card .task-comments-btn .comment-count { background: #5bc0de; color: white; border-radius: 10px; padding: 1px 6px; font-size: 10px; font-weight: bold; }
+    .task-card .task-actions { display: flex; gap: 4px; flex-wrap: wrap; }
+    .task-card .task-actions button { font-size: 11px; padding: 2px 6px; }
+    .add-task-form { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
+    .add-task-form h4 { margin: 0 0 8px 0; font-size: 14px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .assignee-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; margin-bottom: 4px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+    .stat-card { background: #f0f8ff; border: 1px solid #b7d4ff; border-radius: 6px; padding: 10px; }
+    .stat-card .stat-value { font-size: 24px; font-weight: bold; color: #004a99; }
+    .stat-card .stat-label { font-size: 12px; color: #666; }
+    .load-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+    .load-bar-fill { height: 100%; background: #5cb85c; }
+    .load-bar-fill.warn { background: #f0ad4e; }
+    .load-bar-fill.danger { background: #d9534f; }
+    .contact-person-block { background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 10px; }
+    .contact-person-block .cp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-weight: bold; color: #004a99; font-size: 13px; }
+    .contact-person-block .cp-field { margin-bottom: 6px; }
+    .contact-person-block .cp-field label { display: block; font-size: 10px; color: #666; margin-bottom: 2px; font-weight: normal; text-transform: uppercase; }
+    .contact-person-block .cp-field input { width: 100%; padding: 4px 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 11px; box-sizing: border-box; }
+    .contact-person-block .cp-field input:focus { border-color: #004a99; outline: none; }
+    .remove-cp-btn { background: #d9534f; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+    .remove-cp-btn:hover { background: #c9302c; }
+    .add-cp-btn { background: #5cb85c; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; margin-top: 8px; }
+    .add-cp-btn:hover { background: #449d44; }
+    .client-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+    @media (max-width: 700px) { .client-columns { grid-template-columns: 1fr; } }
+    .client-column-left { min-height: 200px; }
+    .client-column-right { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 12px; min-height: 200px; }
+    .client-column-right h4 { margin: 0 0 10px 0; font-size: 14px; color: #004a99; border-bottom: 2px solid #ffe58f; padding-bottom: 6px; }
+    .note-add-form { display: flex; gap: 8px; margin-bottom: 12px; }
+    .note-add-form textarea { flex: 1; min-height: 50px; resize: vertical; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; }
+    .note-add-form textarea:focus { border-color: #004a99; outline: none; }
+    
+    .employee-list { margin-top: 12px; }
+    .employee-row { display: flex; align-items: center; padding: 10px 12px; background: white; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; cursor: pointer; transition: all 0.15s; }
+    .employee-row:hover { background: #f4f9ff; border-color: #004a99; }
+    .employee-row .emp-name { font-weight: bold; font-size: 15px; color: #004a99; min-width: 180px; }
+    .employee-row .emp-position { font-size: 13px; color: #666; flex: 1; }
+    .employee-row .emp-projects { font-size: 12px; color: #888; margin-right: 12px; white-space: nowrap; }
+    .employee-row .emp-delete { background: #d9534f; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .employee-row .emp-delete:hover { background: #c9302c; }
+    .employee-page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
+    .employee-page-header h2 { margin: 0; color: #004a99; }
+    .employee-page-header .emp-info { font-size: 14px; color: #666; }
+    .employee-page-header .emp-edit-fields { width: 100%; }
+    .employee-page-header .emp-edit-fields label { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 8px; }
+    .employee-page-header .emp-edit-fields input { font-size: 16px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; }
+    .employee-page-header .emp-edit-fields input:focus { border-color: #004a99; outline: none; }
+    .employee-page-header .emp-edit-fields input.position-input { font-size: 14px; font-weight: normal; color: #666; }
+    .add-employee-form { display: flex; gap: 8px; margin-bottom: 16px; padding: 12px; background: #f0f8ff; border-radius: 6px; flex-wrap: wrap; }
+    .add-employee-form input { flex: 1; min-width: 150px; }
+    
+    .calendar-toolbar, .timesheet-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; }
+    .calendar-toolbar .cal-nav, .timesheet-toolbar .ts-nav { display: flex; align-items: center; gap: 8px; }
+    .calendar-toolbar .cal-nav button, .timesheet-toolbar .ts-nav button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .calendar-toolbar .cal-nav button:hover, .timesheet-toolbar .ts-nav button:hover { background: #e0e0e0; }
+    .calendar-toolbar .cal-nav .cal-month-label, .timesheet-toolbar .ts-nav .ts-month-label { font-size: 16px; font-weight: bold; color: #004a99; min-width: 180px; text-align: center; }
+    .calendar-toolbar .cal-view-switch { display: flex; gap: 4px; }
+    .calendar-toolbar .cal-view-switch button { background: #f0f0f0; border: 1px solid #ddd; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .calendar-toolbar .cal-view-switch button.active { background: #004a99; color: white; border-color: #004a99; }
+    .calendar-toolbar .cal-filter, .timesheet-toolbar .cal-filter { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .calendar-toolbar .cal-filter select, .calendar-toolbar .cal-filter input, .timesheet-toolbar .cal-filter select { padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; }
+    
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; background: #ddd; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
+    .calendar-header-cell { background: #f0f0f0; padding: 8px 4px; text-align: center; font-weight: bold; font-size: 12px; color: #555; }
+    .calendar-day-cell { background: white; min-height: 90px; padding: 4px; position: relative; cursor: pointer; transition: background 0.15s; }
+    .calendar-day-cell:hover { background: #f4f9ff; }
+    .calendar-day-cell.other-month { background: #fafafa; }
+    .calendar-day-cell.today { background: #fffbe6; }
+    .calendar-day-cell .day-number { font-size: 12px; font-weight: bold; color: #666; margin-bottom: 4px; }
+    .calendar-day-cell.today .day-number { color: #e6a817; font-size: 14px; }
+    .calendar-day-cell .day-events { display: flex; flex-direction: column; gap: 2px; }
+    .cal-event { font-size: 10px; padding: 2px 4px; border-radius: 3px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.15s; }
+    .cal-event:hover { opacity: 0.8; }
+    .cal-event.project-ok { background: #5cb85c; color: white; }
+    .cal-event.project-warn { background: #e6a817; color: #333; }
+    .cal-event.project-danger { background: #d9534f; color: white; }
+    .cal-event.project-neutral { background: #888; color: white; }
+    .cal-event-more { font-size: 10px; color: #004a99; font-weight: bold; cursor: pointer; padding: 2px 4px; background: #e3f0ff; border-radius: 3px; text-align: center; transition: background 0.15s; border: 1px dashed #b7d4ff; }
+    .cal-event-more:hover { background: #b7d4ff; }
+    
+    .calendar-list-view { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 12px; }
+    .calendar-list-day { margin-bottom: 16px; }
+    .calendar-list-day-header { font-size: 14px; font-weight: bold; color: #004a99; padding-bottom: 6px; border-bottom: 2px solid #eee; margin-bottom: 8px; display: flex; justify-content: space-between; }
+    .calendar-list-day-header.today { color: #e6a817; border-bottom-color: #e6a817; }
+    .calendar-list-event { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-left: 4px solid #5bc0de; margin-bottom: 4px; background: #fafafa; border-radius: 4px; cursor: pointer; transition: background 0.15s; flex-wrap: wrap; }
+    .calendar-list-event:hover { background: #f4f9ff; }
+    .calendar-list-event.overdue { border-left-color: #d9534f; background: #fff5f5; }
+    .calendar-list-event .evt-client-name { font-weight: bold; color: #004a99; font-size: 13px; min-width: 140px; }
+    .calendar-list-event .evt-title { flex: 1; font-size: 13px; color: #222; }
+    .calendar-list-event .evt-responsible { font-size: 12px; color: #666; }
+    .calendar-list-event .evt-days { font-size: 16px; font-weight: bold; flex-shrink: 0; min-width: 40px; text-align: right; }
+    .calendar-list-event .evt-days.ok { color: #5cb85c; }
+    .calendar-list-event .evt-days.warn { color: #e6a817; }
+    .calendar-list-event .evt-days.danger { color: #d9534f; }
+    .calendar-list-event .evt-days.neutral { color: #888; }
+    
+    .calendar-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
+    .cal-stat-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 10px; text-align: center; }
+    .cal-stat-card .stat-num { font-size: 24px; font-weight: bold; color: #004a99; }
+    .cal-stat-card .stat-label { font-size: 11px; color: #666; margin-top: 4px; }
+    .cal-stat-card.danger .stat-num { color: #d9534f; }
+    .cal-stat-card.warn .stat-num { color: #e6a817; }
+    .cal-stat-card.ok .stat-num { color: #5cb85c; }
+    
+    .day-modal-header { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
+    .day-modal-header h3 { margin: 0 0 4px 0; color: #004a99; font-size: 20px; }
+    .day-modal-header .day-subtitle { font-size: 13px; color: #666; }
+    .day-events-list { display: flex; flex-direction: column; gap: 8px; max-height: 500px; overflow-y: auto; }
+    .day-event-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-left: 4px solid #5bc0de; background: #fafafa; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .day-event-item:hover { background: #f4f9ff; transform: translateX(2px); }
+    .day-event-item.overdue { border-left-color: #d9534f; background: #fff5f5; }
+    .day-event-item .evt-main { flex: 1; }
+    .day-event-item .evt-client-name { font-weight: bold; color: #004a99; font-size: 13px; }
+    .day-event-item .evt-title { font-weight: bold; color: #222; font-size: 14px; margin-top: 2px; }
+    .day-event-item .evt-sub { font-size: 12px; color: #666; margin-top: 2px; }
+    .day-event-item .evt-right { text-align: right; flex-shrink: 0; }
+    .day-event-item .evt-status { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #f0f0f0; color: #555; }
+    .day-event-item .evt-days { font-size: 18px; font-weight: bold; margin-top: 4px; }
+    .day-event-item .evt-days.ok { color: #5cb85c; }
+    .day-event-item .evt-days.warn { color: #e6a817; }
+    .day-event-item .evt-days.danger { color: #d9534f; }
+    .day-event-item .evt-days.neutral { color: #888; }
+    .day-empty { padding: 30px; text-align: center; color: #999; font-style: italic; }
 
-.author-badge {
-  display: inline-block;
-  background: #e3f2fd;
-  color: #004a99;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: bold;
-  margin-left: 6px;
-}
-.edited-info {
-  font-size: 11px;
-  color: #e6a817;
-  font-style: italic;
-  margin-left: 6px;
-}
-</style>
+    .timesheet-container { overflow-x: auto; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+    .timesheet-table { border-collapse: collapse; width: 100%; min-width: 800px; }
+    .timesheet-table th { background: #f0f0f0; padding: 8px 4px; text-align: center; font-size: 11px; font-weight: bold; color: #555; border: 1px solid #ddd; position: sticky; top: 0; z-index: 10; }
+    .timesheet-table th.employee-col { text-align: left; min-width: 180px; position: sticky; left: 0; z-index: 11; background: #f0f0f0; }
+    .timesheet-table th.today-col { background: #fffbe6; color: #e6a817; }
+    .timesheet-table td { border: 1px solid #ddd; padding: 4px; text-align: center; font-size: 12px; }
+    .timesheet-table td.employee-cell { text-align: left; font-weight: bold; color: #004a99; position: sticky; left: 0; background: white; z-index: 5; min-width: 180px; }
+    .timesheet-table td.hours-cell { cursor: pointer; transition: background 0.15s; min-width: 50px; height: 40px; }
+    .timesheet-table td.hours-cell:hover { background: #f4f9ff; }
+    .timesheet-table td.hours-cell.has-hours { background: #e8f5e9; font-weight: bold; color: #2e7d32; }
+    .timesheet-table td.hours-cell.today { background: #fffbe6; }
+    .timesheet-table td.total-cell { font-weight: bold; background: #e3f2fd; color: #004a99; font-size: 13px; cursor: pointer; transition: background 0.15s; }
+    .timesheet-table td.total-cell:hover { background: #bbdefb; }
+    .timesheet-table tr.weekend td.hours-cell { background: #fafafa; }
+    .timesheet-table tr.weekend td.employee-cell { background: #fafafa; }
+
+    .timesheet-entry-modal .entry-list { max-height: 400px; overflow-y: auto; }
+    .timesheet-entry-modal .entry-item { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 8px; background: #fafafa; }
+    .timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
+    .timesheet-entry-modal .entry-item .entry-client { font-size: 11px; color: #666; }
+    .timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
+    .timesheet-entry-modal .entry-item input[type="number"]:focus { border-color: #004a99; outline: none; }
+    .timesheet-entry-modal .entry-total { margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color: #004a99; }
+    .timesheet-entry-modal .entry-total span { font-size: 24px; }
+
+    .stages-list { margin: 12px 0; }
+    .stage-item { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 6px; }
+    .stage-item .stage-order { font-weight: bold; color: #004a99; min-width: 24px; text-align: center; }
+    .stage-item input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .stage-item input:focus { border-color: #004a99; outline: none; }
+    .stage-item button { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px; }
+    .stage-item .stage-up, .stage-item .stage-down { background: #f0f0f0; }
+    .stage-item .stage-up:hover, .stage-item .stage-down:hover { background: #e0e0e0; }
+    .stage-item .stage-remove { background: #d9534f; color: white; }
+    .stage-item .stage-remove:hover { background: #c9302c; }
+    .add-stage-form { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; }
+    .add-stage-form input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+    .add-stage-form input:focus { border-color: #004a99; outline: none; }
+    
+    .kanban-hint { font-size: 12px; color: #888; margin-bottom: 8px; font-style: italic; }
+    .project-stages-info { background: #f0f8ff; border: 1px solid #b7d4ff; border-radius: 6px; padding: 10px; margin-bottom: 12px; font-size: 13px; color: #004a99; }
+
+    .dashboard-container { padding: 12px; }
+    .dashboard-section { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .dashboard-section h3 { margin: 0 0 12px 0; color: #004a99; font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
+    
+    .dashboard-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .kpi-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 16px; text-align: center; transition: all 0.2s; }
+    .kpi-card.clickable { cursor: pointer; }
+    .kpi-card.clickable:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-color: #004a99; }
+    .kpi-card .kpi-icon { font-size: 28px; margin-bottom: 8px; }
+    .kpi-card .kpi-value { font-size: 32px; font-weight: bold; color: #004a99; margin-bottom: 4px; }
+    .kpi-card .kpi-label { font-size: 12px; color: #666; text-transform: uppercase; }
+    .kpi-card.danger { border-left: 4px solid #d9534f; }
+    .kpi-card.danger .kpi-value { color: #d9534f; }
+    .kpi-card.warn { border-left: 4px solid #e6a817; }
+    .kpi-card.warn .kpi-value { color: #e6a817; }
+    .kpi-card.ok { border-left: 4px solid #5cb85c; }
+    .kpi-card.ok .kpi-value { color: #5cb85c; }
+    .kpi-card.info { border-left: 4px solid #5bc0de; }
+    .kpi-card.info .kpi-value { color: #5bc0de; }
+    
+    .dashboard-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 900px) { .dashboard-two-col { grid-template-columns: 1fr; } }
+    
+    .dashboard-bar-item { margin-bottom: 12px; }
+    .dashboard-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .dashboard-bar-header .bar-label { font-size: 13px; font-weight: bold; color: #222; }
+    .dashboard-bar-header .bar-value { font-size: 12px; color: #666; }
+    .dashboard-bar { height: 10px; background: #eee; border-radius: 5px; overflow: hidden; }
+    .dashboard-bar-fill { height: 100%; border-radius: 5px; transition: width 0.3s; }
+    .dashboard-bar-fill.ok { background: #5cb85c; }
+    .dashboard-bar-fill.warn { background: #e6a817; }
+    .dashboard-bar-fill.danger { background: #d9534f; }
+    .dashboard-bar-fill.info { background: #5bc0de; }
+    
+    .dashboard-status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+    .status-card { background: #f9f9f9; border-radius: 6px; padding: 12px; text-align: center; border: 1px solid #eee; }
+    .status-card .status-value { font-size: 24px; font-weight: bold; margin-bottom: 4px; }
+    .status-card .status-label { font-size: 11px; color: #666; text-transform: uppercase; }
+    .status-card.new .status-value { color: #5bc0de; }
+    .status-card.work .status-value { color: #e6a817; }
+    .status-card.done .status-value { color: #5cb85c; }
+    .status-card.cancel .status-value { color: #d9534f; }
+    
+    .dashboard-recent-list { display: flex; flex-direction: column; gap: 8px; }
+    .recent-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-left: 4px solid #5bc0de; background: #fafafa; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .recent-item:hover { background: #f4f9ff; transform: translateX(2px); }
+    .recent-item .recent-title { flex: 1; font-weight: bold; color: #222; font-size: 13px; }
+    .recent-item .recent-client { font-size: 12px; color: #666; }
+    .recent-item .recent-date { font-size: 11px; color: #888; white-space: nowrap; }
+    .recent-item.overdue { border-left-color: #d9534f; background: #fff5f5; }
+    .recent-item.warning { border-left-color: #e6a817; background: #fffbe6; }
+    
+    .dashboard-employee-load { display: flex; flex-direction: column; gap: 10px; }
+    .employee-load-item { background: #f9f9f9; border-radius: 6px; padding: 12px; cursor: pointer; transition: all 0.15s; }
+    .employee-load-item:hover { background: #f4f9ff; transform: translateX(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .employee-load-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .employee-load-header .emp-name { font-weight: bold; color: #004a99; font-size: 14px; }
+    .employee-load-header .emp-stats { font-size: 12px; color: #666; }
+    .employee-load-bar { height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+    .employee-load-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+    .employee-load-bar-fill.ok { background: #5cb85c; }
+    .employee-load-bar-fill.warn { background: #e6a817; }
+    .employee-load-bar-fill.danger { background: #d9534f; }
+    
+    .dashboard-empty { padding: 30px; text-align: center; color: #999; font-style: italic; }
+
+    .all-projects-view { padding: 12px; }
+    .all-projects-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
+    .all-projects-header h2 { margin: 0; color: #004a99; }
+    .all-projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  </style>
 </head>
 <body>
 
-<h2>Учёт клиентов и проектов <span class="cloud-badge">☁ Облако</span> <span id="syncIndicator" class="sync-indicator"><span class="dot"></span><span>Подключение...</span></span></h2>
+  <h2>Учёт клиентов и проектов <span class="cloud-badge">☁ Облако</span> <span id="syncIndicator" class="sync-indicator"><span class="dot"></span><span>Подключение...</span></span></h2>
 
-<div class="nav-tabs">
-<button class="nav-tab active" id="navDashboard" onclick="switchNavView('dashboard')">📊 Дашборд</button>
-<button class="nav-tab" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
-<button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
-<button class="nav-tab" id="navBase" onclick="switchNavView('base')"> База клиентов</button>
-<button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
-<button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')"> Календарь</button>
-<button class="nav-tab" id="navTimesheet" onclick="switchNavView('timesheet')">⏱️ Табель</button>
-</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="navDashboard" onclick="switchNavView('dashboard')">📊 Дашборд</button>
+    <button class="nav-tab" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
+    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')"> Заявки</button>
+    <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
+    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
+    <button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')">📅 Календарь</button>
+    <button class="nav-tab" id="navTimesheet" onclick="switchNavView('timesheet')">⏱️ Табель</button>
+  </div>
 
-<div id="dashboardView" style="display:none;"><div class="dashboard-container" id="dashboardContent"></div></div>
-<div id="allProjectsView" style="display:none;">
-<div class="all-projects-view">
-<div class="all-projects-header">
-<div><h2>📁 Все активные проекты</h2><div style="font-size:13px;color:#666;margin-top:4px;">Всего: <strong id="allProjectsCount">0</strong></div></div>
-<button class="production-btn" onclick="switchNavView('dashboard')">← Назад к дашборду</button>
-</div>
-<div class="all-projects-grid" id="allProjectsGrid"></div>
-</div>
-</div>
-<div id="projectsView" style="display:none;">
-<div class="tabs">
-<button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
-<button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
-</div>
-<div class="toolbar">
-<input id="search" placeholder="Поиск..." style="width: 280px">
-<select id="statusFilter"><option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select>
-<button onclick="addClient()">+ Добавить проект</button>
-<button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
-<button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
-<input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
-<span id="info" class="muted"></span>
-</div>
-<table><thead><tr><th style="width:200px;">Клиент</th><th>Проекты</th></tr></thead><tbody id="tbody"></tbody></table>
-</div>
-<div id="requestsView" style="display:none;">
-<div class="tabs">
-<button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')"> Активные <span class="count" id="requestActiveCount">0</span></button>
-<button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
-</div>
-<div class="toolbar">
-<input id="requestSearch" placeholder="Поиск..." style="width: 280px">
-<button onclick="addRequest()">+ Добавить заявку</button>
-<button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
-<span id="requestInfo" class="muted"></span>
-</div>
-<table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
-</div>
-<div id="baseView" style="display:none;">
-<div class="toolbar"><input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px"><span id="baseInfo" class="muted"></span></div>
-<div id="baseList"></div>
-</div>
-<div id="employeesView" style="display:none;">
-<div class="toolbar">
-<input id="employeeSearch" placeholder="🔍 Поиск сотрудника..." style="width: 280px">
-<button onclick="showAddEmployeeForm()">+ Добавить сотрудника</button>
-<span id="employeeInfo" class="muted"></span>
-</div>
-<div id="addEmployeeForm" class="add-employee-form" style="display:none;">
-<input id="newEmployeeName" placeholder="ФИО сотрудника">
-<input id="newEmployeePosition" placeholder="Должность">
-<button class="production-btn" onclick="addEmployee()">Добавить</button>
-<button onclick="hideAddEmployeeForm()">Отмена</button>
-</div>
-<div id="employeeList" class="employee-list"></div>
-</div>
-<div id="calendarView" style="display:none;">
-<div class="calendar-toolbar">
-<div class="cal-nav">
-<button onclick="calendarPrev()">◀</button>
-<span class="cal-month-label" id="calMonthLabel">Октябрь 2026</span>
-<button onclick="calendarNext()">▶</button>
-<button onclick="calendarToday()">Сегодня</button>
-</div>
-<div class="cal-view-switch">
-<button id="calViewMonth" class="active" onclick="setCalendarView('month')">📅 Месяц</button>
-<button id="calViewList" onclick="setCalendarView('list')">📋 Список</button>
-</div>
-<div class="cal-filter">
-<select id="calEmployeeFilter"><option value="">Все сотрудники</option></select>
-<input id="calClientFilter" placeholder="🔍 Поиск по клиенту..." style="width: 200px">
-</div>
-</div>
-<div class="calendar-stats" id="calendarStats"></div>
-<div id="calendarContent"></div>
-</div>
-<div id="timesheetView" style="display:none;">
-<div class="timesheet-toolbar">
-<div class="ts-nav">
-<button onclick="timesheetPrev()">◀</button>
-<span class="ts-month-label" id="tsMonthLabel">Октябрь 2026</span>
-<button onclick="timesheetNext()">▶</button>
-<button onclick="timesheetToday()">Сегодня</button>
-</div>
-<div class="cal-filter">
-<select id="tsEmployeeFilter" onchange="renderTimesheet()"><option value="">Все сотрудники</option></select>
-</div>
-</div>
-<div class="timesheet-container" id="timesheetContainer"></div>
-</div>
+  <div id="dashboardView" style="display:none;">
+    <div class="dashboard-container" id="dashboardContent"></div>
+  </div>
 
-<div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
-<div class="modal modal-large">
-<div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
-<label for="clientName">Наименование клиента</label><input id="clientName">
-<div class="client-columns">
-<div class="client-column-left"><div id="contactPersonsList"></div><button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button></div>
-<div class="client-column-right">
-<h4>📝 Заметки</h4>
-<div class="note-add-form"><textarea id="newNoteText" placeholder="Напишите заметку..."></textarea><button class="production-btn" onclick="addNote()">Добавить</button></div>
-<div class="notes-list" id="notesList"></div>
-</div>
-</div>
-<div class="requests-columns">
-<div class="requests-column projects-col"><h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
-<div class="requests-column requests-col"><h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4><div class="tiles-grid" id="requestsTiles"></div></div>
-</div>
-<div class="modal-actions"><button onclick="saveClientModal()">Сохранить и закрыть</button><button onclick="closeClientModal()">Закрыть</button></div>
-</div>
-</div>
+  <div id="allProjectsView" style="display:none;">
+    <div class="all-projects-view">
+      <div class="all-projects-header">
+        <div>
+          <h2>📁 Все активные проекты</h2>
+          <div style="font-size:13px;color:#666;margin-top:4px;">Всего: <strong id="allProjectsCount">0</strong></div>
+        </div>
+        <button class="production-btn" onclick="switchNavView('dashboard')">← Назад к дашборду</button>
+      </div>
+      <div class="all-projects-grid" id="allProjectsGrid"></div>
+    </div>
+  </div>
 
-<div id="viewModal" class="modal-overlay" onclick="if (event.target === this) closeViewModal()">
-<div class="modal modal-large">
-<div class="view-modal-header">
-<div style="width: 100%;">
-<input type="text" id="viewTitleInput" class="view-title-input" placeholder="Введите название проекта/заявки">
-<div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-<span id="viewTypeBadge" class="view-type-badge">ТИП</span>
-<span style="font-size:13px;color:#666;">Клиент: <strong id="viewClientName"></strong></span>
-</div>
-</div>
-<button class="close-btn" onclick="closeViewModal()" style="flex-shrink:0;">×</button>
-</div>
-<div class="view-info-grid">
-<div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate"></div></div>
-<div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
-<div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select></div></div>
-<div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
-<div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
-</div>
-<div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание"></textarea></div>
-<div class="view-comment-section">
-<h4>💬 Комментарии и заметки</h4>
-<div class="comment-add-form"><textarea id="newCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addComment()">Добавить</button></div>
-<div class="comments-list" id="commentsList"></div>
-</div>
-<div class="view-actions" id="viewActions"></div>
-</div>
-</div>
+  <div id="projectsView" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" id="tabActive" onclick="switchView('active')"> Активные <span class="count" id="activeCount">0</span></button>
+      <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
+    </div>
+    <div class="toolbar">
+      <input id="search" placeholder="Поиск..." style="width: 280px">
+      <select id="statusFilter">
+        <option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option>
+      </select>
+      <button onclick="addClient()">+ Добавить проект</button>
+      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
+      <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
+      <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
+      <span id="info" class="muted"></span>
+    </div>
+    <table><thead><tr><th style="width:200px;">Клиент</th><th>Проекты</th></tr></thead><tbody id="tbody"></tbody></table>
+  </div>
 
-<div id="employeePageModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeePage()">
-<div class="modal modal-large">
-<div class="employee-page-header">
-<div class="emp-edit-fields">
-<label>ФИО сотрудника</label>
-<input type="text" id="employeePageNameInput" placeholder="Введите ФИО">
-<label>Должность</label>
-<input type="text" id="employeePagePositionInput" class="position-input" placeholder="Введите должность">
-</div>
-<button class="close-btn" onclick="closeEmployeePage()" style="flex-shrink:0;margin-left:12px;">×</button>
-</div>
-<div class="requests-columns" style="margin-top:0;">
-<div class="requests-column projects-col"><h4>📁 Проекты сотрудника</h4><div class="tiles-grid" id="employeeProjectsTiles"></div></div>
-</div>
-<div class="modal-actions">
-<button class="production-btn" onclick="saveEmployeeChanges()">💾 Сохранить изменения</button>
-<button class="delete-final-btn" onclick="deleteEmployee()">🗑 Удалить сотрудника</button>
-<button onclick="closeEmployeePage()">Закрыть</button>
-</div>
-</div>
-</div>
+  <div id="requestsView" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')">📋 Активные <span class="count" id="requestActiveCount">0</span></button>
+      <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
+    </div>
+    <div class="toolbar">
+      <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
+      <button onclick="addRequest()">+ Добавить заявку</button>
+      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
+      <span id="requestInfo" class="muted"></span>
+    </div>
+    <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
+  </div>
 
-<div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
-<div class="modal kanban-modal">
-<div class="modal-header">
-<h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
-<button class="close-btn" onclick="closeProduction()">×</button>
-</div>
-<div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
-<div class="project-stages-info" id="projectStagesInfo"></div>
-<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-<button class="production-btn" onclick="openStagesModal()">⚙️ Этапы этого проекта</button>
-<button onclick="openEmployeesModal()">👷 Сотрудники</button>
-<button onclick="openStatsModal()">📊 Статистика</button>
-</div>
-<div class="add-task-form">
-<h4>➕ Новое задание</h4>
-<div class="form-row">
-<div><label>Название</label><input id="newTaskTitle" placeholder="Название задания"></div>
-<div><label>Исполнитель</label><select id="newTaskAssignee"><option value="">— Выберите —</option></select></div>
-</div>
-<div class="form-row">
-<div><label>Дата начала</label><input id="newTaskStartDate" type="date"></div>
-<div><label>Дата окончания</label><input id="newTaskEndDate" type="date"></div>
-</div>
-<button onclick="addTask()">Добавить задание</button>
-</div>
-<div class="kanban-hint">← Прокручивайте этапы горизонтально →</div>
-<div class="kanban-board" id="kanbanBoard"></div>
-</div>
-</div>
+  <div id="baseView" style="display:none;">
+    <div class="toolbar">
+      <input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px">
+      <span id="baseInfo" class="muted"></span>
+    </div>
+    <div id="baseList"></div>
+  </div>
 
-<div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
-<div class="modal">
-<div class="modal-header"><h3>⚙️ Этапы проекта: <span id="stagesProjectName"></span></h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
-<p class="muted" style="margin-top:0;">Настройте этапы для этого проекта. Изменения коснутся только этого проекта.</p>
-<div class="stages-list" id="stagesList"></div>
-<div class="add-stage-form">
-<input id="newStageName" placeholder="Название нового этапа">
-<button class="production-btn" onclick="addKanbanStage()">+ Добавить этап</button>
-</div>
-<div class="modal-actions">
-<button class="production-btn" onclick="saveStagesAndClose()">💾 Сохранить и закрыть</button>
-<button onclick="closeStagesModal()">Отмена</button>
-</div>
-</div>
-</div>
+  <div id="employeesView" style="display:none;">
+    <div class="toolbar">
+      <input id="employeeSearch" placeholder="🔍 Поиск сотрудника..." style="width: 280px">
+      <button onclick="showAddEmployeeForm()">+ Добавить сотрудника</button>
+      <span id="employeeInfo" class="muted"></span>
+    </div>
+    <div id="addEmployeeForm" class="add-employee-form" style="display:none;">
+      <input id="newEmployeeName" placeholder="ФИО сотрудника">
+      <input id="newEmployeePosition" placeholder="Должность">
+      <button class="production-btn" onclick="addEmployee()">Добавить</button>
+      <button onclick="hideAddEmployeeForm()">Отмена</button>
+    </div>
+    <div id="employeeList" class="employee-list"></div>
+  </div>
 
-<div id="employeesModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeesModal()">
-<div class="modal">
-<div class="modal-header"><h3>👷 Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
-<p class="muted" style="margin-top:0;">Список сотрудников синхронизирован с вкладкой "Персонал".</p>
-<div id="employeesModalList"></div>
-<div class="modal-actions"><button onclick="closeEmployeesModal()">Закрыть</button></div>
-</div>
-</div>
+  <div id="calendarView" style="display:none;">
+    <div class="calendar-toolbar">
+      <div class="cal-nav">
+        <button onclick="calendarPrev()">◀</button>
+        <span class="cal-month-label" id="calMonthLabel">Октябрь 2026</span>
+        <button onclick="calendarNext()">▶</button>
+        <button onclick="calendarToday()">Сегодня</button>
+      </div>
+      <div class="cal-view-switch">
+        <button id="calViewMonth" class="active" onclick="setCalendarView('month')"> Месяц</button>
+        <button id="calViewList" onclick="setCalendarView('list')">📋 Список</button>
+      </div>
+      <div class="cal-filter">
+        <select id="calEmployeeFilter"><option value="">Все сотрудники</option></select>
+        <input id="calClientFilter" placeholder="🔍 Поиск по клиенту..." style="width: 200px">
+      </div>
+    </div>
+    <div class="calendar-stats" id="calendarStats"></div>
+    <div id="calendarContent"></div>
+  </div>
 
-<div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
-<div class="modal">
-<div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
-<div id="statsContent"></div>
-<div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
-</div>
-</div>
+  <div id="timesheetView" style="display:none;">
+    <div class="timesheet-toolbar">
+      <div class="ts-nav">
+        <button onclick="timesheetPrev()">◀</button>
+        <span class="ts-month-label" id="tsMonthLabel">Октябрь 2026</span>
+        <button onclick="timesheetNext()">▶</button>
+        <button onclick="timesheetToday()">Сегодня</button>
+      </div>
+      <div class="cal-filter">
+        <select id="tsEmployeeFilter" onchange="renderTimesheet()"><option value="">Все сотрудники</option></select>
+      </div>
+    </div>
+    <div class="timesheet-container" id="timesheetContainer"></div>
+  </div>
 
-<div id="dayEventsModal" class="modal-overlay" onclick="if (event.target === this) closeDayEventsModal()">
-<div class="modal">
-<div class="day-modal-header"><h3 id="dayModalTitle">События дня</h3><div class="day-subtitle" id="dayModalSubtitle"></div></div>
-<div class="day-events-list" id="dayEventsList"></div>
-<div class="modal-actions"><button onclick="closeDayEventsModal()">Закрыть</button></div>
-</div>
-</div>
+  <div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
+    <div class="modal modal-large">
+      <div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
+      <label for="clientName">Наименование клиента</label><input id="clientName">
+      <div class="client-columns">
+        <div class="client-column-left"><div id="contactPersonsList"></div><button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button></div>
+        <div class="client-column-right">
+          <h4>📝 Заметки</h4>
+          <div class="note-add-form"><textarea id="newNoteText" placeholder="Напишите заметку..."></textarea><button class="production-btn" onclick="addNote()">Добавить</button></div>
+          <div class="notes-list" id="notesList"></div>
+        </div>
+      </div>
+      <div class="requests-columns">
+        <div class="requests-column projects-col"><h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
+        <div class="requests-column requests-col"><h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4><div class="tiles-grid" id="requestsTiles"></div></div>
+      </div>
+      <div class="modal-actions"><button onclick="saveClientModal()">Сохранить и закрыть</button><button onclick="closeClientModal()">Закрыть</button></div>
+    </div>
+  </div>
 
-<div id="taskCommentsModal" class="modal-overlay" onclick="if (event.target === this) closeTaskCommentsModal()">
-<div class="modal">
-<div class="modal-header"><h3>💬 Комментарии к заданию: <span id="taskCommentsTitle"></span></h3><button class="close-btn" onclick="closeTaskCommentsModal()">×</button></div>
-<div class="comment-add-form"><textarea id="newTaskCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addTaskComment()">Добавить</button></div>
-<div class="comments-list" id="taskCommentsList"></div>
-<div class="modal-actions"><button onclick="closeTaskCommentsModal()">Закрыть</button></div>
-</div>
-</div>
+  <div id="viewModal" class="modal-overlay" onclick="if (event.target === this) closeViewModal()">
+    <div class="modal modal-large">
+      <div class="view-modal-header">
+        <div style="width: 100%;">
+          <input type="text" id="viewTitleInput" class="view-title-input" placeholder="Введите название проекта/заявки">
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+            <span id="viewTypeBadge" class="view-type-badge">ТИП</span>
+            <span style="font-size:13px;color:#666;">Клиент: <strong id="viewClientName"></strong></span>
+          </div>
+        </div>
+        <button class="close-btn" onclick="closeViewModal()" style="flex-shrink:0;">×</button>
+      </div>
+      <div class="view-info-grid">
+        <div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate"></div></div>
+        <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
+        <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select></div></div>
+        <div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
+        <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
+      </div>
+      <div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание"></textarea></div>
+      <div class="view-comment-section">
+        <h4>💬 Комментарии и заметки</h4>
+        <div class="comment-add-form"><textarea id="newCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addComment()">Добавить</button></div>
+        <div class="comments-list" id="commentsList"></div>
+      </div>
+      <div class="view-actions" id="viewActions"></div>
+    </div>
+  </div>
 
-<div id="timesheetEntryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetEntryModal()">
-<div class="modal">
-<div class="modal-header"><h3>⏱️ Учет времени: <span id="tsEntryEmployeeName"></span></h3><button class="close-btn" onclick="closeTimesheetEntryModal()">×</button></div>
-<div style="font-size:13px;color:#666;margin-bottom:12px;">Дата: <strong id="tsEntryDate"></strong></div>
-<div class="entry-list" id="tsEntryList"></div>
-<div class="entry-total">Всего часов: <span id="tsEntryTotal">0</span></div>
-<div class="modal-actions"><button class="production-btn" onclick="saveTimesheetEntry()">💾 Сохранить</button><button onclick="closeTimesheetEntryModal()">Отмена</button></div>
-</div>
-</div>
+  <div id="employeePageModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeePage()">
+    <div class="modal modal-large">
+      <div class="employee-page-header">
+        <div class="emp-edit-fields">
+          <label>ФИО сотрудника</label>
+          <input type="text" id="employeePageNameInput" placeholder="Введите ФИО">
+          <label>Должность</label>
+          <input type="text" id="employeePagePositionInput" class="position-input" placeholder="Введите должность">
+        </div>
+        <button class="close-btn" onclick="closeEmployeePage()" style="flex-shrink:0;margin-left:12px;">×</button>
+      </div>
+      <div class="requests-columns" style="margin-top:0;">
+        <div class="requests-column projects-col"><h4>📁 Проекты сотрудника</h4><div class="tiles-grid" id="employeeProjectsTiles"></div></div>
+      </div>
+      <div class="modal-actions">
+        <button class="production-btn" onclick="saveEmployeeChanges()">💾 Сохранить изменения</button>
+        <button class="delete-final-btn" onclick="deleteEmployee()">🗑 Удалить сотрудника</button>
+        <button onclick="closeEmployeePage()">Закрыть</button>
+      </div>
+    </div>
+  </div>
 
-<div id="timesheetMonthSummaryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetMonthSummary()">
-<div class="modal">
-<div class="modal-header"><h3> Итого за месяц: <span id="tsMonthSummaryEmployee"></span></h3><button class="close-btn" onclick="closeTimesheetMonthSummary()">×</button></div>
-<div style="font-size:13px;color:#666;margin-bottom:12px;" id="tsMonthSummaryPeriod"></div>
-<div id="tsMonthSummaryList"></div>
-<div class="entry-total">Всего часов за месяц: <span id="tsMonthSummaryTotal">0</span></div>
-<div class="modal-actions"><button onclick="closeTimesheetMonthSummary()">Закрыть</button></div>
-</div>
-</div>
+  <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
+    <div class="modal kanban-modal">
+      <div class="modal-header">
+        <h3> Производство: <span id="productionRequestTitle"></span></h3>
+        <button class="close-btn" onclick="closeProduction()">×</button>
+      </div>
+      <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
+      <div class="project-stages-info" id="projectStagesInfo"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+        <button class="production-btn" onclick="openStagesModal()">️ Этапы этого проекта</button>
+        <button onclick="openEmployeesModal()">👷 Сотрудники</button>
+        <button onclick="openStatsModal()">📊 Статистика</button>
+      </div>
+      <div class="add-task-form">
+        <h4>➕ Новое задание</h4>
+        <div class="form-row">
+          <div><label>Название</label><input id="newTaskTitle" placeholder="Название задания"></div>
+          <div><label>Исполнитель</label><select id="newTaskAssignee"><option value="">— Выберите —</option></select></div>
+        </div>
+        <div class="form-row">
+          <div><label>Дата начала</label><input id="newTaskStartDate" type="date"></div>
+          <div><label>Дата окончания</label><input id="newTaskEndDate" type="date"></div>
+        </div>
+        <button onclick="addTask()">Добавить задание</button>
+      </div>
+      <div class="kanban-hint">← Прокручивайте этапы горизонтально →</div>
+      <div class="kanban-board" id="kanbanBoard"></div>
+    </div>
+  </div>
+
+  <div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
+    <div class="modal">
+      <div class="modal-header"><h3>⚙️ Этапы проекта: <span id="stagesProjectName"></span></h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
+      <p class="muted" style="margin-top:0;">Настройте этапы для этого проекта. Изменения коснутся только этого проекта.</p>
+      <div class="stages-list" id="stagesList"></div>
+      <div class="add-stage-form">
+        <input id="newStageName" placeholder="Название нового этапа">
+        <button class="production-btn" onclick="addKanbanStage()">+ Добавить этап</button>
+      </div>
+      <div class="modal-actions">
+        <button class="production-btn" onclick="saveStagesAndClose()">💾 Сохранить и закрыть</button>
+        <button onclick="closeStagesModal()">Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="employeesModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeesModal()">
+    <div class="modal">
+      <div class="modal-header"><h3> Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
+      <p class="muted" style="margin-top:0;">Список сотрудников синхронизирован с вкладкой "Персонал".</p>
+      <div id="employeesModalList"></div>
+      <div class="modal-actions"><button onclick="closeEmployeesModal()">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
+    <div class="modal">
+      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div id="statsContent"></div>
+      <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="dayEventsModal" class="modal-overlay" onclick="if (event.target === this) closeDayEventsModal()">
+    <div class="modal">
+      <div class="day-modal-header"><h3 id="dayModalTitle">События дня</h3><div class="day-subtitle" id="dayModalSubtitle"></div></div>
+      <div class="day-events-list" id="dayEventsList"></div>
+      <div class="modal-actions"><button onclick="closeDayEventsModal()">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="taskCommentsModal" class="modal-overlay" onclick="if (event.target === this) closeTaskCommentsModal()">
+    <div class="modal">
+      <div class="modal-header"><h3>💬 Комментарии к заданию: <span id="taskCommentsTitle"></span></h3><button class="close-btn" onclick="closeTaskCommentsModal()">×</button></div>
+      <div class="comment-add-form"><textarea id="newTaskCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addTaskComment()">Добавить</button></div>
+      <div class="comments-list" id="taskCommentsList"></div>
+      <div class="modal-actions"><button onclick="closeTaskCommentsModal()">Закрыть</button></div>
+    </div>
+  </div>
+
+  <div id="timesheetEntryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetEntryModal()">
+    <div class="modal">
+      <div class="modal-header"><h3>⏱️ Учет времени: <span id="tsEntryEmployeeName"></span></h3><button class="close-btn" onclick="closeTimesheetEntryModal()">×</button></div>
+      <div style="font-size:13px;color:#666;margin-bottom:12px;">Дата: <strong id="tsEntryDate"></strong></div>
+      <div class="entry-list" id="tsEntryList"></div>
+      <div class="entry-total">Всего часов: <span id="tsEntryTotal">0</span></div>
+      <div class="modal-actions"><button class="production-btn" onclick="saveTimesheetEntry()">💾 Сохранить</button><button onclick="closeTimesheetEntryModal()">Отмена</button></div>
+    </div>
+  </div>
+
+  <div id="timesheetMonthSummaryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetMonthSummary()">
+    <div class="modal">
+      <div class="modal-header"><h3>📊 Итого за месяц: <span id="tsMonthSummaryEmployee"></span></h3><button class="close-btn" onclick="closeTimesheetMonthSummary()">×</button></div>
+      <div style="font-size:13px;color:#666;margin-bottom:12px;" id="tsMonthSummaryPeriod"></div>
+      <div id="tsMonthSummaryList"></div>
+      <div class="entry-total">Всего часов за месяц: <span id="tsMonthSummaryTotal">0</span></div>
+      <div class="modal-actions"><button onclick="closeTimesheetMonthSummary()">Закрыть</button></div>
+    </div>
+  </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBr7FYUUm3HXb8vWypUiDS_gIYS8wlYpOU",
@@ -684,17 +705,32 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let rows = [], leads = [], clients = {}, employees = [], tasks = {}, timesheets = {}, globalStagesTemplate = [], allUsers = [];
-let currentClientOldName = '', currentProductionRequest = null, currentView = 'active', currentRequestView = 'active';
-let currentNavView = 'dashboard', currentViewRequest = null, currentViewType = null, currentEmployeeId = null;
-let calendarDate = new Date(), calendarViewMode = 'month', timesheetDate = new Date();
-let currentTaskCommentsTaskId = null, currentTaskCommentsProjectId = null, currentTsEntry = null, editingUserId = null;
-let currentUser = null;
-let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null;
-let unsubscribeTasks = null, unsubscribeTimesheets = null, unsubscribeGlobalStages = null, unsubscribeUsers = null;
+let rows = [];
+let leads = [];
+let clients = {};
+let employees = [];
+let tasks = {};
+let timesheets = {};
+let globalStagesTemplate = [];
+let currentClientOldName = '';
+let currentProductionRequest = null;
+let currentView = 'active';
+let currentRequestView = 'active';
+let currentNavView = 'dashboard';
+let currentViewRequest = null;
+let currentViewType = null;
+let currentEmployeeId = null;
+let calendarDate = new Date();
+let calendarViewMode = 'month';
+let timesheetDate = new Date();
+let currentTaskCommentsTaskId = null;
+let currentTaskCommentsProjectId = null;
+let currentTsEntry = null;
+let unsubscribeClients = null, unsubscribeRequests = null, unsubscribeLeads = null, unsubscribeEmployees = null, unsubscribeTasks = null, unsubscribeTimesheets = null, unsubscribeGlobalStages = null;
 
 const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const WEEKDAY_NAMES = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
 const DEFAULT_STAGES = [
   { id: 'new', name: 'Новые', order: 0 },
   { id: 'work', name: 'В работе', order: 1 },
@@ -702,41 +738,11 @@ const DEFAULT_STAGES = [
   { id: 'done', name: 'Готово', order: 3 }
 ];
 
-// ===== ФУНКЦИЯ ФОРМАТИРОВАНИЯ ИМЕНИ АВТОРА =====
-// "Калугин Борис Валерьевич" → "Калугин Б.В."
-// "ivanov@company.com" → "ivanov" (fallback для старых записей)
-function formatShortName(fullName) {
-  if (!fullName) return 'Неизвестно';
-  // Если это email — вернуть часть до @
-  if (fullName.includes('@')) return fullName.split('@')[0];
-  // Разбить по пробелам
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length === 0) return 'Неизвестно';
-  const surname = parts[0];
-  if (parts.length === 1) return surname;
-  // Взять первые буквы остальных частей
-  const initials = parts.slice(1).map(p => p.charAt(0).toUpperCase() + '.').join('');
-  return surname + ' ' + initials;
-}
-
-// Получить отображаемое имя текущего пользователя
-function getCurrentUserDisplayName() {
-  if (!currentUser) return 'Неизвестно';
-  // Если есть полное имя — форматировать, иначе использовать email
-  if (currentUser.name && currentUser.name.trim()) {
-    return formatShortName(currentUser.name);
-  }
-  if (currentUser.email) {
-    return formatShortName(currentUser.email);
-  }
-  return 'Неизвестно';
-}
-
-function isAdmin() { return currentUser && currentUser.role === 'admin'; }
 function setSyncStatus(status, message) {
   const indicator = document.getElementById('syncIndicator');
   if (indicator) { indicator.className = 'sync-indicator ' + status; indicator.querySelector('span:last-child').textContent = message; }
 }
+
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 function today() { return new Date().toISOString().slice(0, 10); }
 function todayDate() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
@@ -788,18 +794,43 @@ async function ensureClientExists(name) {
   return clients[name];
 }
 
-function getProjectStages(projectId) { const project = rows.find(r => r.id === projectId); if (!project) return []; return project.stages || []; }
-function getSortedProjectStages(projectId) { return [...getProjectStages(projectId)].sort((a, b) => a.order - b.order); }
-function getProjectStageIndex(projectId, stageId) { return getSortedProjectStages(projectId).findIndex(s => s.id === stageId); }
-function getProjectFirstStageId(projectId) { const sorted = getSortedProjectStages(projectId); return sorted.length ? sorted[0].id : null; }
-function getProjectLastStageId(projectId) { const sorted = getSortedProjectStages(projectId); return sorted.length ? sorted[sorted.length - 1].id : null; }
-function createDefaultStages() { return DEFAULT_STAGES.map(s => ({ ...s, id: uid() })); }
+function getProjectStages(projectId) {
+  const project = rows.find(r => r.id === projectId);
+  if (!project) return [];
+  return project.stages || [];
+}
+
+function getSortedProjectStages(projectId) {
+  return [...getProjectStages(projectId)].sort((a, b) => a.order - b.order);
+}
+
+function getProjectStageIndex(projectId, stageId) {
+  const sorted = getSortedProjectStages(projectId);
+  return sorted.findIndex(s => s.id === stageId);
+}
+
+function getProjectFirstStageId(projectId) {
+  const sorted = getSortedProjectStages(projectId);
+  return sorted.length ? sorted[0].id : null;
+}
+
+function getProjectLastStageId(projectId) {
+  const sorted = getSortedProjectStages(projectId);
+  return sorted.length ? sorted[sorted.length - 1].id : null;
+}
+
+function createDefaultStages() {
+  return DEFAULT_STAGES.map(s => ({ ...s, id: uid() }));
+}
 
 async function ensureProjectHasStages(projectId) {
   const project = rows.find(r => r.id === projectId);
   if (!project) return;
   if (!project.stages || !project.stages.length) {
-    project.stages = globalStagesTemplate.length ? globalStagesTemplate.map(s => ({ ...s, id: uid() })) : createDefaultStages();
+    let newStages;
+    if (globalStagesTemplate.length) { newStages = globalStagesTemplate.map(s => ({ ...s, id: uid() })); }
+    else { newStages = createDefaultStages(); }
+    project.stages = newStages;
     await saveRequestToFirebase(projectId, project, 'requests');
   }
   const rt = tasks[projectId] || [];
@@ -814,7 +845,10 @@ async function ensureProjectHasStages(projectId) {
       else if (t.status === 'done' && sortedStages[sortedStages.length - 1]) targetStageId = sortedStages[sortedStages.length - 1].id;
       else if (sortedStages[0]) targetStageId = sortedStages[0].id;
       if (targetStageId) { t.stage = targetStageId; delete t.status; changed = true; }
-    } else if (!t.stage && sortedStages[0]) { t.stage = sortedStages[0].id; changed = true; }
+    } else if (!t.stage && sortedStages[0]) {
+      t.stage = sortedStages[0].id;
+      changed = true;
+    }
   });
   if (changed) { tasks[projectId] = rt; await saveTasksToFirebase(projectId, rt); }
 }
@@ -847,6 +881,7 @@ function setupRealtimeListeners() {
     if (currentNavView === 'dashboard') renderDashboard();
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
+
   unsubscribeRequests = onSnapshot(collection(db, 'requests'), snap => {
     rows = [];
     snap.forEach(d => { rows.push({ id: d.id, ...d.data() }); });
@@ -860,6 +895,7 @@ function setupRealtimeListeners() {
     if (currentNavView === 'dashboard') renderDashboard();
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
+
   unsubscribeLeads = onSnapshot(collection(db, 'leads'), snap => {
     leads = [];
     snap.forEach(d => { leads.push({ id: d.id, ...d.data() }); });
@@ -869,6 +905,7 @@ function setupRealtimeListeners() {
     if (currentNavView === 'dashboard') renderDashboard();
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
+
   unsubscribeEmployees = onSnapshot(collection(db, 'employees'), snap => {
     employees = [];
     snap.forEach(d => { employees.push({ id: d.id, ...d.data() }); });
@@ -881,6 +918,7 @@ function setupRealtimeListeners() {
     if (currentNavView === 'dashboard') renderDashboard();
     setSyncStatus('synced', 'Синхронизировано');
   }, e => { console.error(e); setSyncStatus('error', 'Ошибка'); });
+
   unsubscribeTasks = onSnapshot(collection(db, 'tasks'), snap => {
     tasks = {};
     snap.forEach(d => { tasks[d.id] = d.data().tasks || []; });
@@ -891,24 +929,31 @@ function setupRealtimeListeners() {
     if (currentNavView === 'timesheet') renderTimesheet();
     if (currentNavView === 'dashboard') renderDashboard();
   });
+
   unsubscribeTimesheets = onSnapshot(collection(db, 'timesheets'), snap => {
     timesheets = {};
     snap.forEach(d => { timesheets[d.id] = d.data(); });
     if (currentNavView === 'timesheet') renderTimesheet();
     if (currentNavView === 'dashboard') renderDashboard();
   });
+
   unsubscribeGlobalStages = onSnapshot(doc(db, 'settings', 'kanban_stages'), d => {
     if (d.exists()) { globalStagesTemplate = d.data().stages || []; }
     else { globalStagesTemplate = DEFAULT_STAGES.map(s => ({ ...s, id: uid() })); setDoc(doc(db, 'settings', 'kanban_stages'), { stages: globalStagesTemplate }); }
   });
-  unsubscribeUsers = onSnapshot(collection(db, 'users'), snap => {
-    allUsers = [];
-    snap.forEach(d => { allUsers.push({ id: d.id, ...d.data() }); });
-  });
 }
 
-async function addClient() { const name = generateNewClientName(); await saveClientToFirebase(name, { name, contactPersons: [], notes: [], createdAt: today() }); setTimeout(() => openClientModalByName(name), 300); }
-async function addRequest() { const name = generateNewClientName(); await ensureClientExists(name); setTimeout(() => openClientModalByName(name), 300); }
+async function addClient() {
+  const name = generateNewClientName();
+  await saveClientToFirebase(name, { name, contactPersons: [], notes: [], createdAt: today() });
+  setTimeout(() => openClientModalByName(name), 300);
+}
+
+async function addRequest() {
+  const name = generateNewClientName();
+  await ensureClientExists(name);
+  setTimeout(() => openClientModalByName(name), 300);
+}
 
 function getClientList() {
   const names = new Set();
@@ -940,7 +985,6 @@ function getBaseList() {
 }
 
 async function deleteClientFromBase(name) {
-  if (!isAdmin()) { alert('Только администратор может удалять клиентов'); return; }
   if (!confirm('Удалить клиента "' + name + '" и все его проекты и заявки БЕЗВОЗВРАТНО?')) return;
   delete clients[name];
   await deleteDoc(doc(db, 'clients', name));
@@ -991,18 +1035,7 @@ function renderNotes() {
   const s = clients[currentClientOldName] || {};
   const notes = s.notes || [];
   if (!notes.length) { container.innerHTML = '<div class="muted">Заметок пока нет.</div>'; return; }
-  container.innerHTML = [...notes].reverse().map(n => {
-    const authorDisplay = n.author ? '<span class="author-badge">' + escapeHtml(formatShortName(n.author)) + '</span>' : '';
-    const editedInfo = n.editedAt ? '<span class="edited-info">✏️ Изменено: ' + escapeHtml(n.editedAt) + ' в ' + escapeHtml(n.editedTime) + (n.editedBy ? ' • ' + escapeHtml(formatShortName(n.editedBy)) : '') + '</span>' : '';
-    const deleteBtn = isAdmin() ? '<button class="note-delete" onclick="deleteNote(\'' + n.id + '\')">Удалить</button>' : '';
-    return `<div class="note-item">
-      <div class="note-meta">
-        <span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)} ${authorDisplay} ${editedInfo}</span>
-        ${deleteBtn}
-      </div>
-      <div class="note-text">${escapeHtml(n.text)}</div>
-    </div>`;
-  }).join('');
+  container.innerHTML = [...notes].reverse().map(n => `<div class="note-item"><div class="note-meta"><span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)}</span><button class="note-delete" onclick="deleteNote('${n.id}')">Удалить</button></div><div class="note-text">${escapeHtml(n.text)}</div></div>`).join('');
 }
 
 async function addNote() {
@@ -1012,13 +1045,7 @@ async function addNote() {
   const s = clients[currentClientOldName] || {};
   if (!s.notes) s.notes = [];
   const dt = nowDateTime();
-  s.notes.push({ 
-    id: uid(), 
-    text: text, 
-    date: dt.date, 
-    time: dt.time, 
-    author: getCurrentUserDisplayName()
-  });
+  s.notes.push({ id: uid(), text: text, date: dt.date, time: dt.time });
   clients[currentClientOldName] = s;
   await saveClientToFirebase(currentClientOldName, s);
   document.getElementById('newNoteText').value = '';
@@ -1026,7 +1053,6 @@ async function addNote() {
 }
 
 async function deleteNote(noteId) {
-  if (!isAdmin()) { alert('Только администратор может удалять заметки'); return; }
   if (!confirm('Удалить заметку?')) return;
   if (!currentClientOldName) return;
   const s = clients[currentClientOldName] || {};
@@ -1062,8 +1088,11 @@ async function saveClientModal() { await applyClientForm(); closeClientModal(); 
 async function addRequestToClient(type) {
   const clientName = await applyClientForm();
   const isReq = type === 'request';
-  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: '', title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false, createdBy: getCurrentUserDisplayName() };
-  if (!isReq) { newItem.stages = globalStagesTemplate.length ? globalStagesTemplate.map(s => ({ ...s, id: uid() })) : createDefaultStages(); }
+  const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: '', title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false };
+  if (!isReq) {
+    if (globalStagesTemplate.length) { newItem.stages = globalStagesTemplate.map(s => ({ ...s, id: uid() })); }
+    else { newItem.stages = createDefaultStages(); }
+  }
   await saveRequestToFirebase(newItem.id, newItem, isReq ? 'leads' : 'requests');
 }
 
@@ -1081,32 +1110,20 @@ async function archiveProject(id) { if (!confirm('Отправить проек�
 async function archiveRequest(id) { if (!confirm('Отправить заявку в архив?')) return; const item = leads.find(l => l.id === id); if (!item) return; item.archived = true; await saveRequestToFirebase(id, item, 'leads'); }
 async function restoreProject(id) { const item = rows.find(r => r.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'requests'); }
 async function restoreRequest(id) { const item = leads.find(l => l.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'leads'); }
-
-async function deleteProjectFinal(id) {
-  if (!isAdmin()) { alert('Только администратор может удалять проекты'); return; }
-  if (!confirm('Удалить проект БЕЗВОЗВРАТНО?')) return;
-  await deleteRequestFromFirebase(id, 'requests');
-  rows = rows.filter(r => r.id !== id);
-  delete tasks[id];
-  render();
-}
-async function deleteRequestFinal(id) {
-  if (!isAdmin()) { alert('Только администратор может удалять заявки'); return; }
-  if (!confirm('Удалить заявку БЕЗВОЗВРАТНО?')) return;
-  await deleteRequestFromFirebase(id, 'leads');
-  leads = leads.filter(l => l.id !== id);
-  renderRequests();
-}
+async function deleteProjectFinal(id) { if (!confirm('Удалить проект БЕЗВОЗВРАТНО?')) return; await deleteRequestFromFirebase(id, 'requests'); rows = rows.filter(r => r.id !== id); delete tasks[id]; render(); }
+async function deleteRequestFinal(id) { if (!confirm('Удалить заявку БЕЗВОЗВРАТНО?')) return; await deleteRequestFromFirebase(id, 'leads'); leads = leads.filter(l => l.id !== id); renderRequests(); }
 
 async function convertRequestToProject(id) {
   if (!confirm('Конвертировать заявку в проект?')) return;
   const req = leads.find(l => l.id === id); if (!req) return;
   const newProj = { ...req, id: uid(), archived: false };
-  newProj.stages = globalStagesTemplate.length ? globalStagesTemplate.map(s => ({ ...s, id: uid() })) : createDefaultStages();
+  if (globalStagesTemplate.length) { newProj.stages = globalStagesTemplate.map(s => ({ ...s, id: uid() })); }
+  else { newProj.stages = createDefaultStages(); }
   await saveRequestToFirebase(newProj.id, newProj, 'requests');
   await deleteRequestFromFirebase(id, 'leads');
   setTimeout(() => alert('✅ Заявка конвертирована в проект!'), 300);
 }
+
 async function convertProjectToRequest(id) {
   if (!confirm('Конвертировать проект в заявку?')) return;
   const proj = rows.find(r => r.id === id); if (!proj) return;
@@ -1130,12 +1147,32 @@ async function openProduction(id) {
   const modal = document.getElementById('productionModal');
   if (modal) { modal.style.display = 'block'; renderProduction(); }
 }
+
 function closeProduction() { const modal = document.getElementById('productionModal'); if (modal) modal.style.display = 'none'; currentProductionRequest = null; }
 
 function openRequestView(id, type) {
   const list = type === 'project' ? rows : leads;
   const item = list.find(r => r.id === id);
   if (!item) { alert('Запись не найдена'); return; }
+  
+  // Закрываем все открытые модалки перед открытием проекта
+  document.getElementById('employeePageModal').style.display = 'none';
+  document.getElementById('clientModal').style.display = 'none';
+  document.getElementById('productionModal').style.display = 'none';
+  document.getElementById('stagesModal').style.display = 'none';
+  document.getElementById('employeesModal').style.display = 'none';
+  document.getElementById('statsModal').style.display = 'none';
+  document.getElementById('dayEventsModal').style.display = 'none';
+  document.getElementById('taskCommentsModal').style.display = 'none';
+  document.getElementById('timesheetEntryModal').style.display = 'none';
+  document.getElementById('timesheetMonthSummaryModal').style.display = 'none';
+  currentEmployeeId = null;
+  currentClientOldName = '';
+  currentProductionRequest = null;
+  currentTaskCommentsTaskId = null;
+  currentTaskCommentsProjectId = null;
+  currentTsEntry = null;
+  
   currentViewRequest = item; currentViewType = type;
   document.getElementById('viewTitleInput').value = getRequestTitle(item) || '';
   document.getElementById('viewClientName').textContent = getClientName(item);
@@ -1171,6 +1208,7 @@ function fillResponsibleSelect() {
   });
   sel.value = currentValue;
 }
+
 function refreshViewModalResponsibleSelect() { if (!currentViewRequest || !currentViewType) return; fillResponsibleSelect(); }
 function closeViewModal() { document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; }
 
@@ -1214,13 +1252,7 @@ async function addComment() {
   if (!item) return;
   if (!Array.isArray(item.comments)) item.comments = [];
   const dt = nowDateTime();
-  item.comments.push({ 
-    id: uid(), 
-    text: text, 
-    date: dt.date, 
-    time: dt.time, 
-    author: getCurrentUserDisplayName()
-  });
+  item.comments.push({ id: uid(), text: text, date: dt.date, time: dt.time });
   currentViewRequest = item;
   await saveRequestToFirebase(item.id, item, col);
   document.getElementById('newCommentText').value = '';
@@ -1228,7 +1260,6 @@ async function addComment() {
 }
 
 async function deleteComment(cid) {
-  if (!isAdmin()) { alert('Только администратор может удалять комментарии'); return; }
   if (!confirm('Удалить комментарий?')) return;
   if (!currentViewRequest || !currentViewType) return;
   const col = currentViewType === 'project' ? 'requests' : 'leads';
@@ -1245,12 +1276,7 @@ function renderComments() {
   const list = document.getElementById('commentsList');
   const comments = (currentViewRequest && currentViewRequest.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => {
-    const authorDisplay = c.author ? '<span class="author-badge">' + escapeHtml(formatShortName(c.author)) + '</span>' : '';
-    const editedInfo = c.editedAt ? '<span class="edited-info">✏️ Изменено: ' + escapeHtml(c.editedAt) + ' в ' + escapeHtml(c.editedTime) + (c.editedBy ? ' • ' + escapeHtml(formatShortName(c.editedBy)) : '') + '</span>' : '';
-    const deleteBtn = isAdmin() ? '<button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button>' : '';
-    return '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + ' ' + authorDisplay + ' ' + editedInfo + '</span>' + deleteBtn + '</div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>';
-  }).join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 function renderViewActions() {
@@ -1283,17 +1309,15 @@ function renderViewActions() {
     div.appendChild(convBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = ' В архив';
+    archBtn.textContent = '📦 В архив';
     archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(archBtn);
   }
-  if (isAdmin()) {
-    const delBtn = document.createElement('button');
-    delBtn.className = 'delete-final-btn';
-    delBtn.textContent = '🗑 Удалить навсегда';
-    delBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); if (itemType === 'project') await deleteProjectFinal(itemId); else await deleteRequestFinal(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
-    div.appendChild(delBtn);
-  }
+  const delBtn = document.createElement('button');
+  delBtn.className = 'delete-final-btn';
+  delBtn.textContent = '🗑 Удалить навсегда';
+  delBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); if (itemType === 'project') await deleteProjectFinal(itemId); else await deleteRequestFinal(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
+  div.appendChild(delBtn);
 }
 
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
@@ -1306,19 +1330,20 @@ function renderClientRequests(clientName) {
   if (!ap.length) { pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; }
   else { pc.innerHTML = ap.map(r => { const badge = getDeadlineBadge(r.endDate, r.date); const daysText = badge.days < 0 ? badge.days : badge.days; return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>'; }).join(''); }
   if (!ar.length) { rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; }
-  else { rc.innerHTML = ar.map(l => { const days = daysFromStart(String(l.date||'').trim()); return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span> ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>'; }).join(''); }
+  else { rc.innerHTML = ar.map(l => { const days = daysFromStart(String(l.date||'').trim()); return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>'; }).join(''); }
 }
 
 function showAllProjects() {
   const activeProjects = rows.filter(r => !r.archived);
   const grid = document.getElementById('allProjectsGrid');
   document.getElementById('allProjectsCount').textContent = activeProjects.length;
-  if (!activeProjects.length) { grid.innerHTML = '<div class="dashboard-empty" style="grid-column:1/-1;">Активных проектов пока нет</div>'; }
-  else {
+  if (!activeProjects.length) {
+    grid.innerHTML = '<div class="dashboard-empty" style="grid-column:1/-1;">Активных проектов пока нет</div>';
+  } else {
     grid.innerHTML = activeProjects.map(r => {
       const badge = getDeadlineBadge(r.endDate, r.date);
       const daysText = badge.days < 0 ? badge.days : badge.days;
-      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div style="font-size:12px;color:#666;margin-bottom:4px;">👤 ' + escapeHtml(getClientName(r)) + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div style="font-size:12px;color:#666;margin-bottom:4px;"> ' + escapeHtml(getClientName(r)) + '</div><div class="tile-date"><span> ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
     }).join('');
   }
   document.getElementById('dashboardView').style.display = 'none';
@@ -1341,6 +1366,7 @@ function switchNavView(view) {
   document.getElementById('navEmployees').classList.toggle('active', view === 'employees');
   document.getElementById('navCalendar').classList.toggle('active', view === 'calendar');
   document.getElementById('navTimesheet').classList.toggle('active', view === 'timesheet');
+  
   document.getElementById('dashboardView').style.display = 'none';
   document.getElementById('allProjectsView').style.display = 'none';
   document.getElementById('projectsView').style.display = 'none';
@@ -1349,6 +1375,7 @@ function switchNavView(view) {
   document.getElementById('employeesView').style.display = 'none';
   document.getElementById('calendarView').style.display = 'none';
   document.getElementById('timesheetView').style.display = 'none';
+  
   if (view === 'dashboard') { document.getElementById('dashboardView').style.display = 'block'; renderDashboard(); }
   if (view === 'projects') { document.getElementById('projectsView').style.display = 'block'; render(); }
   if (view === 'requests') { document.getElementById('requestsView').style.display = 'block'; renderRequests(); }
@@ -1388,8 +1415,8 @@ function render() {
         if (currentView === 'archive') {
           actionsHtml = '<div class="req-actions">' +
             '<button class="req-action-btn" onclick="event.stopPropagation(); restoreProject(\'' + r.id + '\')" title="Вернуть">↩</button>' +
-            (isAdmin() ? '<button class="req-action-btn delete" onclick="event.stopPropagation(); if(confirm(\'Удалить проект БЕЗВОЗВРАТНО?\')) { deleteRequestFromFirebase(\'' + r.id + '\', \'requests\'); delete tasks[\'' + r.id + '\']; rows = rows.filter(x => x.id !== \'' + r.id + '\'); render(); }" title="Удалить">🗑</button>' : '') +
-            '</div>';
+            '<button class="req-action-btn delete" onclick="event.stopPropagation(); if(confirm(\'Удалить проект БЕЗВОЗВРАТНО?\')) { deleteRequestFromFirebase(\'' + r.id + '\', \'requests\'); delete tasks[\'' + r.id + '\']; rows = rows.filter(x => x.id !== \'' + r.id + '\'); render(); }" title="Удалить">🗑</button>' +
+          '</div>';
         }
         return '<div class="req-line" onclick="openRequestView(\'' + r.id + '\', \'project\')"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + actionsHtml + '</div>';
       }).join('');
@@ -1424,9 +1451,7 @@ function renderRequests() {
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
       const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
-      if (isAdmin()) {
-        const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
-      }
+      const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
     } else {
       const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
     }
@@ -1445,24 +1470,23 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    const deleteBtn = isAdmin() ? '<button class="icon-btn" onclick="event.stopPropagation(); if(confirm(\'Удалить клиента \\\'' + escapeHtml(c.name) + '\\\' и все его проекты и заявки БЕЗВОЗВРАТНО?\')) { deleteClientFromBase(\'' + escapeHtml(c.name) + '\'); }" title="Удалить клиента">🗑</button>' : '';
-    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions">' + deleteBtn + '</div></div>';
+    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="icon-btn" onclick="event.stopPropagation(); if(confirm(\'Удалить клиента \\\'' + escapeHtml(c.name) + '\\\' и все его проекты и заявки БЕЗВОЗВРАТНО?\')) { deleteClientFromBase(\'' + escapeHtml(c.name) + '\'); }" title="Удалить клиента">🗑</button></div></div>';
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
           let cpLine = '👤 ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
-          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone1) + '</div>';
+          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
-          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone3) + '</div>';
+          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
-          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.address) + '</div>';
+          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
-    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span> Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
@@ -1481,8 +1505,7 @@ function renderEmployees() {
     const row = document.createElement('div');
     row.className = 'employee-row';
     row.onclick = (e) => { if (e.target.classList.contains('emp-delete')) return; openEmployeePage(emp.id); };
-    const deleteBtn = isAdmin() ? '<button class="emp-delete" onclick="quickDeleteEmployee(\'' + emp.id + '\', \'' + escapeHtml(emp.name) + '\')">✖</button>' : '';
-    row.innerHTML = `<div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div><div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div>${deleteBtn}`;
+    row.innerHTML = `<div class="emp-name">${escapeHtml(emp.name || 'Без имени')}</div><div class="emp-position">${escapeHtml(emp.position || 'Должность не указана')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div><button class="emp-delete" onclick="quickDeleteEmployee('${emp.id}', '${escapeHtml(emp.name)}')">✖</button>`;
     container.appendChild(row);
   });
 }
@@ -1496,11 +1519,7 @@ function getEmployeeProjects(empName) {
   });
 }
 
-async function quickDeleteEmployee(empId, empName) {
-  if (!isAdmin()) { alert('Только администратор может удалять сотрудников'); return; }
-  if (!confirm('Удалить сотрудника "' + empName + '"?')) return;
-  await deleteEmployeeFromFirebase(empId);
-}
+async function quickDeleteEmployee(empId, empName) { if (!confirm('Удалить сотрудника "' + empName + '"?')) return; await deleteEmployeeFromFirebase(empId); }
 function showAddEmployeeForm() { document.getElementById('addEmployeeForm').style.display = 'flex'; document.getElementById('newEmployeeName').value = ''; document.getElementById('newEmployeePosition').value = ''; document.getElementById('newEmployeeName').focus(); }
 function hideAddEmployeeForm() { document.getElementById('addEmployeeForm').style.display = 'none'; }
 
@@ -1515,7 +1534,6 @@ async function addEmployee() {
 }
 
 async function deleteEmployee() {
-  if (!isAdmin()) { alert('Только администратор может удалять сотрудников'); return; }
   if (!currentEmployeeId) return;
   const emp = employees.find(e => e.id === currentEmployeeId);
   if (!emp) return;
@@ -1525,7 +1543,6 @@ async function deleteEmployee() {
 }
 
 async function saveEmployeeChanges() {
-  if (!isAdmin()) { alert('Только администратор может редактировать сотрудников'); return; }
   if (!currentEmployeeId) return;
   const emp = employees.find(e => e.id === currentEmployeeId);
   if (!emp) return;
@@ -1570,7 +1587,7 @@ function renderEmployeeProjects(empId) {
     const isResponsible = r.responsible === emp.name;
     const hasTasks = (tasks[r.id] || []).some(t => t.assignee === emp.name);
     const roleLabel = isResponsible ? ' (ответственный)' : (hasTasks ? ' (исполнитель)' : '');
-    return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + roleLabel + '</div><div class="tile-date"><span> ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+    return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + roleLabel + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
   }).join('');
 }
 
@@ -1592,6 +1609,7 @@ function openStagesModal() {
   renderStagesList();
   document.getElementById('stagesModal').style.display = 'block';
 }
+
 function closeStagesModal() { document.getElementById('stagesModal').style.display = 'none'; }
 
 function renderStagesList() {
@@ -1692,6 +1710,7 @@ function fillCalendarEmployeeFilter() {
   });
   sel.value = currentValue;
 }
+
 function calendarPrev() { calendarDate.setMonth(calendarDate.getMonth() - 1); renderCalendar(); }
 function calendarNext() { calendarDate.setMonth(calendarDate.getMonth() + 1); renderCalendar(); }
 function calendarToday() { calendarDate = new Date(); renderCalendar(); }
@@ -1766,6 +1785,7 @@ function showDayEventsModal(dateStr) {
   }
   document.getElementById('dayEventsModal').style.display = 'block';
 }
+
 function closeDayEventsModal() { document.getElementById('dayEventsModal').style.display = 'none'; }
 
 function renderCalendarMonth(year, month, events) {
@@ -1854,6 +1874,7 @@ function fillTimesheetEmployeeFilter() {
   });
   sel.value = currentValue;
 }
+
 function timesheetPrev() { timesheetDate.setMonth(timesheetDate.getMonth() - 1); renderTimesheet(); }
 function timesheetNext() { timesheetDate.setMonth(timesheetDate.getMonth() + 1); renderTimesheet(); }
 function timesheetToday() { timesheetDate = new Date(); renderTimesheet(); }
@@ -1881,12 +1902,14 @@ function openTimesheetEntry(empId, dateStr) {
   }
   document.getElementById('timesheetEntryModal').style.display = 'block';
 }
+
 function updateTimesheetTotal() {
   const inputs = document.querySelectorAll('#tsEntryList input[type="number"]');
   let total = 0;
   inputs.forEach(input => { total += parseFloat(input.value) || 0; });
   document.getElementById('tsEntryTotal').textContent = total.toFixed(1);
 }
+
 async function saveTimesheetEntry() {
   if (!currentTsEntry) return;
   const { empId, date } = currentTsEntry;
@@ -1906,6 +1929,7 @@ async function saveTimesheetEntry() {
   closeTimesheetEntryModal();
   renderTimesheet();
 }
+
 function closeTimesheetEntryModal() { document.getElementById('timesheetEntryModal').style.display = 'none'; currentTsEntry = null; }
 
 function openTimesheetMonthSummary(empId, year, month) {
@@ -1942,6 +1966,7 @@ function openTimesheetMonthSummary(empId, year, month) {
   document.getElementById('tsMonthSummaryTotal').textContent = totalHours.toFixed(1);
   document.getElementById('timesheetMonthSummaryModal').style.display = 'block';
 }
+
 function closeTimesheetMonthSummary() { document.getElementById('timesheetMonthSummaryModal').style.display = 'none'; }
 
 function renderTimesheet() {
@@ -1983,16 +2008,34 @@ function renderTimesheet() {
 
 function renderDashboard() {
   const container = document.getElementById('dashboardContent');
+  const todayStr = today();
+  
   const activeProjects = rows.filter(r => !r.archived);
   const activeLeads = leads.filter(l => !l.archived);
-  const overdueProjects = activeProjects.filter(r => { const left = daysUntilEnd(r.endDate); return left !== null && left < 0; });
-  const todayDeadlineProjects = activeProjects.filter(r => { const left = daysUntilEnd(r.endDate); return left === 0; });
-  const warningProjects = activeProjects.filter(r => { const left = daysUntilEnd(r.endDate); return left !== null && left > 0 && left <= 30; });
+  const overdueProjects = activeProjects.filter(r => {
+    const left = daysUntilEnd(r.endDate);
+    return left !== null && left < 0;
+  });
+  const todayDeadlineProjects = activeProjects.filter(r => {
+    const left = daysUntilEnd(r.endDate);
+    return left === 0;
+  });
+  const warningProjects = activeProjects.filter(r => {
+    const left = daysUntilEnd(r.endDate);
+    return left !== null && left > 0 && left <= 30;
+  });
+  
   const statusCounts = { 'Новая': 0, 'В работе': 0, 'Выполнена': 0, 'Отменена': 0, 'Без статуса': 0 };
-  activeProjects.forEach(r => { const status = r.status || 'Без статуса'; if (statusCounts[status] !== undefined) statusCounts[status]++; else statusCounts['Без статуса']++; });
+  activeProjects.forEach(r => {
+    const status = r.status || 'Без статуса';
+    if (statusCounts[status] !== undefined) statusCounts[status]++;
+    else statusCounts['Без статуса']++;
+  });
+  
   const employeeStats = employees.map(emp => {
     const empProjects = getEmployeeProjects(emp.name);
-    let totalTasks = 0, activeTasks = 0;
+    let totalTasks = 0;
+    let activeTasks = 0;
     empProjects.forEach(p => {
       const pt = tasks[p.id] || [];
       pt.forEach(t => {
@@ -2005,6 +2048,7 @@ function renderDashboard() {
     });
     return { emp, totalTasks, activeTasks, projectCount: empProjects.length };
   });
+  
   const currentMonth = todayDate().getMonth();
   const currentYear = todayDate().getFullYear();
   const monthHours = {};
@@ -2018,22 +2062,31 @@ function renderDashboard() {
       monthHours[entry.empId] += entry.entries.reduce((sum, e) => sum + e.hours, 0);
     }
   });
+  
   const recentProjects = [...activeProjects].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 5);
-  let html = '<div class="dashboard-section"><h3>📊 Ключевые показатели</h3><div class="dashboard-kpi-grid">';
-  html += `<div class="kpi-card info clickable" onclick="showAllProjects()"><div class="kpi-icon">📁</div><div class="kpi-value">${activeProjects.length}</div><div class="kpi-label">Активных проектов</div></div>`;
+  
+  let html = '';
+  
+  html += '<div class="dashboard-section"><h3> Ключевые показатели</h3>';
+  html += '<div class="dashboard-kpi-grid">';
+  html += `<div class="kpi-card info clickable" onclick="showAllProjects()" title="Нажмите, чтобы увидеть все проекты"><div class="kpi-icon">📁</div><div class="kpi-value">${activeProjects.length}</div><div class="kpi-label">Активных проектов</div></div>`;
   html += `<div class="kpi-card info"><div class="kpi-icon">📝</div><div class="kpi-value">${activeLeads.length}</div><div class="kpi-label">Активных заявок</div></div>`;
   html += `<div class="kpi-card"><div class="kpi-icon">👥</div><div class="kpi-value">${Object.keys(clients).length}</div><div class="kpi-label">Всего клиентов</div></div>`;
   html += `<div class="kpi-card"><div class="kpi-icon">👷</div><div class="kpi-value">${employees.length}</div><div class="kpi-label">Сотрудников</div></div>`;
   html += `<div class="kpi-card danger"><div class="kpi-icon">⚠️</div><div class="kpi-value">${overdueProjects.length}</div><div class="kpi-label">Просрочено</div></div>`;
   html += `<div class="kpi-card warn"><div class="kpi-icon">⏰</div><div class="kpi-value">${todayDeadlineProjects.length}</div><div class="kpi-label">Срок сегодня</div></div>`;
   html += '</div></div>';
+  
   html += '<div class="dashboard-two-col">';
-  html += '<div class="dashboard-section"><h3>📋 Статусы проектов</h3><div class="dashboard-status-grid">';
+  
+  html += '<div class="dashboard-section"><h3>📋 Статусы проектов</h3>';
+  html += '<div class="dashboard-status-grid">';
   html += `<div class="status-card new"><div class="status-value">${statusCounts['Новая']}</div><div class="status-label">Новая</div></div>`;
   html += `<div class="status-card work"><div class="status-value">${statusCounts['В работе']}</div><div class="status-label">В работе</div></div>`;
   html += `<div class="status-card done"><div class="status-value">${statusCounts['Выполнена']}</div><div class="status-label">Выполнена</div></div>`;
   html += `<div class="status-card cancel"><div class="status-value">${statusCounts['Отменена']}</div><div class="status-label">Отменена</div></div>`;
   html += '</div>';
+  
   const totalWithStatus = activeProjects.length || 1;
   html += '<div style="margin-top:16px;">';
   [['Новая', '#5bc0de'], ['В работе', '#e6a817'], ['Выполнена', '#5cb85c'], ['Отменена', '#d9534f']].forEach(([status, color]) => {
@@ -2042,17 +2095,22 @@ function renderDashboard() {
     html += `<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">${status}</span><span class="bar-value">${count} (${pct}%)</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill" style="width:${pct}%;background:${color};"></div></div></div>`;
   });
   html += '</div></div>';
+  
   html += '<div class="dashboard-section"><h3>⏱️ Сроки проектов</h3>';
   const totalProjects = activeProjects.length || 1;
   const onTime = activeProjects.length - overdueProjects.length - warningProjects.length - todayDeadlineProjects.length;
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">✅ В срок</span><span class="bar-value">' + onTime + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill ok" style="width:' + Math.round((onTime/totalProjects)*100) + '%;"></div></div></div>';
-  html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">️ Скоро дедлайн (≤30 дн.)</span><span class="bar-value">' + warningProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((warningProjects.length/totalProjects)*100) + '%;"></div></div></div>';
+  html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">⚠️ Скоро дедлайн (≤30 дн.)</span><span class="bar-value">' + warningProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((warningProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">🔴 Срок сегодня</span><span class="bar-value">' + todayDeadlineProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((todayDeadlineProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">❌ Просрочено</span><span class="bar-value">' + overdueProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill danger" style="width:' + Math.round((overdueProjects.length/totalProjects)*100) + '%;"></div></div></div>';
-  html += '</div></div>';
+  html += '</div>';
+  
+  html += '</div>';
+  
   html += '<div class="dashboard-section"><h3>👷 Загрузка сотрудников <span style="font-size:12px;color:#888;font-weight:normal;">(кликните для просмотра проектов)</span></h3>';
-  if (!employeeStats.length) { html += '<div class="dashboard-empty">Сотрудники не добавлены</div>'; }
-  else {
+  if (!employeeStats.length) {
+    html += '<div class="dashboard-empty">Сотрудники не добавлены</div>';
+  } else {
     const maxTasks = Math.max(1, ...employeeStats.map(e => e.activeTasks));
     html += '<div class="dashboard-employee-load">';
     employeeStats.forEach(es => {
@@ -2073,9 +2131,11 @@ function renderDashboard() {
     html += '</div>';
   }
   html += '</div>';
+  
   html += '<div class="dashboard-section"><h3>🕐 Последние проекты</h3>';
-  if (!recentProjects.length) { html += '<div class="dashboard-empty">Проекты не созданы</div>'; }
-  else {
+  if (!recentProjects.length) {
+    html += '<div class="dashboard-empty">Проекты не созданы</div>';
+  } else {
     html += '<div class="dashboard-recent-list">';
     recentProjects.forEach(r => {
       const badge = getDeadlineBadge(r.endDate, r.date);
@@ -2099,6 +2159,7 @@ function renderDashboard() {
     html += '</div>';
   }
   html += '</div>';
+  
   container.innerHTML = html;
 }
 
@@ -2257,7 +2318,7 @@ function renderTaskCard(t, projectId) {
         (stageIndex > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') +
         (stageIndex < totalStages - 1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') +
         '<button onclick="editTask(\'' + t.id + '\')">✏️</button>' +
-        (isAdmin() ? '<button onclick="deleteTask(\'' + t.id + '\')">🗑️</button>' : '') +
+        '<button onclick="deleteTask(\'' + t.id + '\')">🗑️</button>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -2276,7 +2337,7 @@ async function addTask() {
   if (project && !project.responsible) { project.responsible = as; await saveRequestToFirebase(id, project, 'requests'); }
   const rt = getRequestTasks(id);
   const firstStageId = getProjectFirstStageId(id);
-  rt.push({ id: uid(), title: ti, assignee: as, startDate: sd, endDate: ed, comments: [], stage: firstStageId, createdAt: today(), createdBy: getCurrentUserDisplayName() });
+  rt.push({ id: uid(), title: ti, assignee: as, startDate: sd, endDate: ed, comments: [], stage: firstStageId, createdAt: today() });
   await saveTasksToFirebase(id, rt);
   tasks[id] = rt;
   renderProduction();
@@ -2314,7 +2375,6 @@ async function editTask(tid) {
 }
 
 async function deleteTask(tid) {
-  if (!isAdmin()) { alert('Только администратор может удалять задания'); return; }
   if (!confirm('Удалить задание?')) return;
   const id = currentProductionRequest;
   if (!id) return;
@@ -2333,6 +2393,7 @@ function openTaskComments(taskId, projectId) {
   renderTaskComments();
   document.getElementById('taskCommentsModal').style.display = 'block';
 }
+
 function closeTaskCommentsModal() { document.getElementById('taskCommentsModal').style.display = 'none'; currentTaskCommentsTaskId = null; currentTaskCommentsProjectId = null; }
 
 function renderTaskComments() {
@@ -2342,12 +2403,7 @@ function renderTaskComments() {
   const task = rt.find(t => t.id === currentTaskCommentsTaskId);
   const comments = (task && task.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => {
-    const authorDisplay = c.author ? '<span class="author-badge">' + escapeHtml(formatShortName(c.author)) + '</span>' : '';
-    const editedInfo = c.editedAt ? '<span class="edited-info">✏️ Изменено: ' + escapeHtml(c.editedAt) + ' в ' + escapeHtml(c.editedTime) + (c.editedBy ? ' • ' + escapeHtml(formatShortName(c.editedBy)) : '') + '</span>' : '';
-    const deleteBtn = isAdmin() ? '<button class="comment-delete" onclick="deleteTaskComment(\'' + c.id + '\')">Удалить</button>' : '';
-    return '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + ' ' + authorDisplay + ' ' + editedInfo + '</span>' + deleteBtn + '</div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>';
-  }).join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteTaskComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 async function addTaskComment() {
@@ -2359,13 +2415,7 @@ async function addTaskComment() {
   if (!task) return;
   if (!Array.isArray(task.comments)) task.comments = [];
   const dt = nowDateTime();
-  task.comments.push({ 
-    id: uid(), 
-    text: text, 
-    date: dt.date, 
-    time: dt.time, 
-    author: getCurrentUserDisplayName()
-  });
+  task.comments.push({ id: uid(), text: text, date: dt.date, time: dt.time });
   await saveTasksToFirebase(currentTaskCommentsProjectId, rt);
   tasks[currentTaskCommentsProjectId] = rt;
   document.getElementById('newTaskCommentText').value = '';
@@ -2374,7 +2424,6 @@ async function addTaskComment() {
 }
 
 async function deleteTaskComment(commentId) {
-  if (!isAdmin()) { alert('Только администратор может удалять комментарии'); return; }
   if (!confirm('Удалить комментарий?')) return;
   if (!currentTaskCommentsTaskId || !currentTaskCommentsProjectId) return;
   const rt = getRequestTasks(currentTaskCommentsProjectId);
@@ -2423,19 +2472,19 @@ function renderStats() {
   document.getElementById('statsContent').innerHTML = html;
 }
 
-function getEmployeeLoad(empName) {
-  let t = 0, a = 0;
+function getEmployeeLoad(empName) { 
+  let t = 0, a = 0; 
   for (const projectId in tasks) {
     const rt = tasks[projectId];
     const lastStageId = getProjectLastStageId(projectId);
-    rt.forEach(x => {
-      if (x.assignee === empName) {
-        t++;
-        if (!lastStageId || x.stage !== lastStageId) a++;
-      }
+    rt.forEach(x => { 
+      if (x.assignee === empName) { 
+        t++; 
+        if (!lastStageId || x.stage !== lastStageId) a++; 
+      } 
     });
   }
-  return { total: t, active: a };
+  return { total: t, active: a }; 
 }
 
 setupRealtimeListeners();
@@ -2518,5 +2567,6 @@ window.removeKanbanStage = removeKanbanStage;
 window.saveStagesAndClose = saveStagesAndClose;
 window.showAllProjects = showAllProjects;
 </script>
+
 </body>
 </html>
