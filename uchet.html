@@ -322,8 +322,9 @@
     .dashboard-section h3 { margin: 0 0 12px 0; color: #004a99; font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 8px; }
     
     .dashboard-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
-    .kpi-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 16px; text-align: center; transition: all 0.2s; cursor: pointer; }
-    .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .kpi-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 16px; text-align: center; transition: all 0.2s; }
+    .kpi-card.clickable { cursor: pointer; }
+    .kpi-card.clickable:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-color: #004a99; }
     .kpi-card .kpi-icon { font-size: 28px; margin-bottom: 8px; }
     .kpi-card .kpi-value { font-size: 32px; font-weight: bold; color: #004a99; margin-bottom: 4px; }
     .kpi-card .kpi-label { font-size: 12px; color: #666; text-transform: uppercase; }
@@ -361,7 +362,7 @@
     .status-card.cancel .status-value { color: #d9534f; }
     
     .dashboard-recent-list { display: flex; flex-direction: column; gap: 8px; }
-    .recent-item { display: flex; align-items: center; gap: 12px; padding: 10px; background: #f9f9f9; border-radius: 6px; border-left: 4px solid #5bc0de; cursor: pointer; transition: all 0.15s; }
+    .recent-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-left: 4px solid #5bc0de; background: #fafafa; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
     .recent-item:hover { background: #f4f9ff; transform: translateX(2px); }
     .recent-item .recent-title { flex: 1; font-weight: bold; color: #222; font-size: 13px; }
     .recent-item .recent-client { font-size: 12px; color: #666; }
@@ -370,7 +371,8 @@
     .recent-item.warning { border-left-color: #e6a817; background: #fffbe6; }
     
     .dashboard-employee-load { display: flex; flex-direction: column; gap: 10px; }
-    .employee-load-item { background: #f9f9f9; border-radius: 6px; padding: 12px; }
+    .employee-load-item { background: #f9f9f9; border-radius: 6px; padding: 12px; cursor: pointer; transition: all 0.15s; }
+    .employee-load-item:hover { background: #f4f9ff; transform: translateX(2px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .employee-load-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .employee-load-header .emp-name { font-weight: bold; color: #004a99; font-size: 14px; }
     .employee-load-header .emp-stats { font-size: 12px; color: #666; }
@@ -381,6 +383,12 @@
     .employee-load-bar-fill.danger { background: #d9534f; }
     
     .dashboard-empty { padding: 30px; text-align: center; color: #999; font-style: italic; }
+
+    /* ===== СТРАНИЦА ВСЕХ ПРОЕКТОВ ===== */
+    .all-projects-view { padding: 12px; }
+    .all-projects-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
+    .all-projects-header h2 { margin: 0; color: #004a99; }
+    .all-projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
   </style>
 </head>
 <body>
@@ -389,10 +397,10 @@
 
   <div class="nav-tabs">
     <button class="nav-tab active" id="navDashboard" onclick="switchNavView('dashboard')">📊 Дашборд</button>
-    <button class="nav-tab" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
-    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')"> Заявки</button>
-    <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
-    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')"> Персонал</button>
+    <button class="nav-tab" id="navProjects" onclick="switchNavView('projects')"> Проекты</button>
+    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
+    <button class="nav-tab" id="navBase" onclick="switchNavView('base')"> База клиентов</button>
+    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
     <button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')">📅 Календарь</button>
     <button class="nav-tab" id="navTimesheet" onclick="switchNavView('timesheet')">⏱️ Табель</button>
   </div>
@@ -401,10 +409,24 @@
     <div class="dashboard-container" id="dashboardContent"></div>
   </div>
 
+  <!-- Страница всех проектов (открывается по клику на KPI) -->
+  <div id="allProjectsView" style="display:none;">
+    <div class="all-projects-view">
+      <div class="all-projects-header">
+        <div>
+          <h2>📁 Все активные проекты</h2>
+          <div style="font-size:13px;color:#666;margin-top:4px;">Всего: <strong id="allProjectsCount">0</strong></div>
+        </div>
+        <button class="production-btn" onclick="switchNavView('dashboard')">← Назад к дашборду</button>
+      </div>
+      <div class="all-projects-grid" id="allProjectsGrid"></div>
+    </div>
+  </div>
+
   <div id="projectsView" style="display:none;">
     <div class="tabs">
       <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
-      <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
+      <button class="tab" id="tabArchive" onclick="switchView('archive')"> Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
       <input id="search" placeholder="Поиск..." style="width: 280px">
@@ -412,7 +434,7 @@
         <option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option>
       </select>
       <button onclick="addClient()">+ Добавить проект</button>
-      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
+      <button class="export-btn" onclick="exportCSV()"> Экспорт</button>
       <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
       <span id="info" class="muted"></span>
@@ -423,12 +445,12 @@
   <div id="requestsView" style="display:none;">
     <div class="tabs">
       <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')">📋 Активные <span class="count" id="requestActiveCount">0</span></button>
-      <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
+      <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')"> Архив <span class="count" id="requestArchiveCount">0</span></button>
     </div>
     <div class="toolbar">
       <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
       <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()"> Экспорт</button>
+      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
       <span id="requestInfo" class="muted"></span>
     </div>
     <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
@@ -444,7 +466,7 @@
 
   <div id="employeesView" style="display:none;">
     <div class="toolbar">
-      <input id="employeeSearch" placeholder="🔍 Поиск сотрудника..." style="width: 280px">
+      <input id="employeeSearch" placeholder=" Поиск сотрудника..." style="width: 280px">
       <button onclick="showAddEmployeeForm()">+ Добавить сотрудника</button>
       <span id="employeeInfo" class="muted"></span>
     </div>
@@ -554,7 +576,7 @@
         <button class="close-btn" onclick="closeEmployeePage()" style="flex-shrink:0;margin-left:12px;">×</button>
       </div>
       <div class="requests-columns" style="margin-top:0;">
-        <div class="requests-column projects-col"><h4>📁 Проекты сотрудника</h4><div class="tiles-grid" id="employeeProjectsTiles"></div></div>
+        <div class="requests-column projects-col"><h4> Проекты сотрудника</h4><div class="tiles-grid" id="employeeProjectsTiles"></div></div>
       </div>
       <div class="modal-actions">
         <button class="production-btn" onclick="saveEmployeeChanges()">💾 Сохранить изменения</button>
@@ -573,8 +595,8 @@
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div class="project-stages-info" id="projectStagesInfo"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="production-btn" onclick="openStagesModal()">️ Этапы этого проекта</button>
-        <button onclick="openEmployeesModal()">👷 Сотрудники</button>
+        <button class="production-btn" onclick="openStagesModal()">⚙️ Этапы этого проекта</button>
+        <button onclick="openEmployeesModal()"> Сотрудники</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
       <div class="add-task-form">
@@ -621,7 +643,7 @@
 
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -770,6 +792,8 @@ async function ensureClientExists(name) {
   return clients[name];
 }
 
+// ===== УНИКАЛЬНЫЕ ЭТАПЫ ДЛЯ КАЖДОГО ПРОЕКТА =====
+
 function getProjectStages(projectId) {
   const project = rows.find(r => r.id === projectId);
   if (!project) return [];
@@ -804,11 +828,8 @@ async function ensureProjectHasStages(projectId) {
   if (!project) return;
   if (!project.stages || !project.stages.length) {
     let newStages;
-    if (globalStagesTemplate.length) {
-      newStages = globalStagesTemplate.map(s => ({ ...s, id: uid() }));
-    } else {
-      newStages = createDefaultStages();
-    }
+    if (globalStagesTemplate.length) { newStages = globalStagesTemplate.map(s => ({ ...s, id: uid() })); }
+    else { newStages = createDefaultStages(); }
     project.stages = newStages;
     await saveRequestToFirebase(projectId, project, 'requests');
   }
@@ -1236,7 +1257,7 @@ function renderComments() {
   const list = document.getElementById('commentsList');
   const comments = (currentViewRequest && currentViewRequest.comments) || [];
   if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
-  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
+  list.innerHTML = [...comments].reverse().map(c => '<div class="comment-item"><div class="comment-meta"><span> ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + '</span><button class="comment-delete" onclick="deleteComment(\'' + c.id + '\')">Удалить</button></div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>').join('');
 }
 
 function renderViewActions() {
@@ -1269,7 +1290,7 @@ function renderViewActions() {
     div.appendChild(convBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = ' В архив';
+    archBtn.textContent = '📦 В архив';
     archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(archBtn);
   }
@@ -1288,9 +1309,39 @@ function renderClientRequests(clientName) {
   const ap = rows.filter(r => getClientName(r) === clientName && !r.archived);
   const ar = leads.filter(l => getClientName(l) === clientName && !l.archived);
   if (!ap.length) { pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; }
-  else { pc.innerHTML = ap.map(r => { const badge = getDeadlineBadge(r.endDate, r.date); const daysText = badge.days < 0 ? badge.days : badge.days; return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>'; }).join(''); }
+  else { pc.innerHTML = ap.map(r => { const badge = getDeadlineBadge(r.endDate, r.date); const daysText = badge.days < 0 ? badge.days : badge.days; return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span> ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>'; }).join(''); }
   if (!ar.length) { rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; }
   else { rc.innerHTML = ar.map(l => { const days = daysFromStart(String(l.date||'').trim()); return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>'; }).join(''); }
+}
+
+// ===== НОВАЯ ФУНКЦИЯ: ПОКАЗАТЬ ВСЕ ПРОЕКТЫ В ВИДЕ ПЛИТОК =====
+function showAllProjects() {
+  const activeProjects = rows.filter(r => !r.archived);
+  const grid = document.getElementById('allProjectsGrid');
+  document.getElementById('allProjectsCount').textContent = activeProjects.length;
+  
+  if (!activeProjects.length) {
+    grid.innerHTML = '<div class="dashboard-empty" style="grid-column:1/-1;">Активных проектов пока нет</div>';
+  } else {
+    grid.innerHTML = activeProjects.map(r => {
+      const badge = getDeadlineBadge(r.endDate, r.date);
+      const daysText = badge.days < 0 ? badge.days : badge.days;
+      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div style="font-size:12px;color:#666;margin-bottom:4px;">👤 ' + escapeHtml(getClientName(r)) + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+    }).join('');
+  }
+  
+  // Переключаем вид
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('allProjectsView').style.display = 'block';
+  document.getElementById('projectsView').style.display = 'none';
+  document.getElementById('requestsView').style.display = 'none';
+  document.getElementById('baseView').style.display = 'none';
+  document.getElementById('employeesView').style.display = 'none';
+  document.getElementById('calendarView').style.display = 'none';
+  document.getElementById('timesheetView').style.display = 'none';
+  
+  // Снимаем активность со всех вкладок
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
 }
 
 function switchNavView(view) {
@@ -1302,20 +1353,24 @@ function switchNavView(view) {
   document.getElementById('navEmployees').classList.toggle('active', view === 'employees');
   document.getElementById('navCalendar').classList.toggle('active', view === 'calendar');
   document.getElementById('navTimesheet').classList.toggle('active', view === 'timesheet');
-  document.getElementById('dashboardView').style.display = view === 'dashboard' ? 'block' : 'none';
-  document.getElementById('projectsView').style.display = view === 'projects' ? 'block' : 'none';
-  document.getElementById('requestsView').style.display = view === 'requests' ? 'block' : 'none';
-  document.getElementById('baseView').style.display = view === 'base' ? 'block' : 'none';
-  document.getElementById('employeesView').style.display = view === 'employees' ? 'block' : 'none';
-  document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
-  document.getElementById('timesheetView').style.display = view === 'timesheet' ? 'block' : 'none';
-  if (view === 'dashboard') renderDashboard();
-  if (view === 'projects') render();
-  if (view === 'requests') renderRequests();
-  if (view === 'base') renderBase();
-  if (view === 'employees') renderEmployees();
-  if (view === 'calendar') { fillCalendarEmployeeFilter(); renderCalendar(); }
-  if (view === 'timesheet') { fillTimesheetEmployeeFilter(); renderTimesheet(); }
+  
+  // Скрываем все виды
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('allProjectsView').style.display = 'none';
+  document.getElementById('projectsView').style.display = 'none';
+  document.getElementById('requestsView').style.display = 'none';
+  document.getElementById('baseView').style.display = 'none';
+  document.getElementById('employeesView').style.display = 'none';
+  document.getElementById('calendarView').style.display = 'none';
+  document.getElementById('timesheetView').style.display = 'none';
+  
+  if (view === 'dashboard') { document.getElementById('dashboardView').style.display = 'block'; renderDashboard(); }
+  if (view === 'projects') { document.getElementById('projectsView').style.display = 'block'; render(); }
+  if (view === 'requests') { document.getElementById('requestsView').style.display = 'block'; renderRequests(); }
+  if (view === 'base') { document.getElementById('baseView').style.display = 'block'; renderBase(); }
+  if (view === 'employees') { document.getElementById('employeesView').style.display = 'block'; renderEmployees(); }
+  if (view === 'calendar') { document.getElementById('calendarView').style.display = 'block'; fillCalendarEmployeeFilter(); renderCalendar(); }
+  if (view === 'timesheet') { document.getElementById('timesheetView').style.display = 'block'; fillTimesheetEmployeeFilter(); renderTimesheet(); }
 }
 
 function switchView(view) { currentView = view; document.getElementById('tabActive').classList.toggle('active', view === 'active'); document.getElementById('tabArchive').classList.toggle('active', view === 'archive'); render(); }
@@ -1400,7 +1455,7 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')"> Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
+    let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions"><button class="production-btn" onclick="event.stopPropagation(); openClientModalByName(\'' + escapeHtml(c.name) + '\')">📋 Открыть</button><button class="delete-final-btn" onclick="event.stopPropagation(); deleteClientFromBase(\'' + escapeHtml(c.name) + '\')">🗑 Удалить клиента</button></div></div>';
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
@@ -1409,7 +1464,7 @@ function renderBase() {
           html += '<div class="client-base-info">' + cpLine + '</div>';
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
-          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
+          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
           if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
@@ -1942,7 +1997,6 @@ function renderDashboard() {
   const container = document.getElementById('dashboardContent');
   const todayStr = today();
   
-  // Собираем статистику
   const activeProjects = rows.filter(r => !r.archived);
   const archivedProjects = rows.filter(r => r.archived);
   const activeLeads = leads.filter(l => !l.archived);
@@ -1959,7 +2013,6 @@ function renderDashboard() {
     return left !== null && left > 0 && left <= 30;
   });
   
-  // Статусы проектов
   const statusCounts = { 'Новая': 0, 'В работе': 0, 'Выполнена': 0, 'Отменена': 0, 'Без статуса': 0 };
   activeProjects.forEach(r => {
     const status = r.status || 'Без статуса';
@@ -1967,7 +2020,6 @@ function renderDashboard() {
     else statusCounts['Без статуса']++;
   });
   
-  // Загрузка сотрудников
   const employeeStats = employees.map(emp => {
     const empProjects = getEmployeeProjects(emp.name);
     let totalTasks = 0;
@@ -1985,7 +2037,6 @@ function renderDashboard() {
     return { emp, totalTasks, activeTasks, projectCount: empProjects.length };
   });
   
-  // Часы за текущий месяц
   const currentMonth = todayDate().getMonth();
   const currentYear = todayDate().getFullYear();
   const monthHours = {};
@@ -2000,33 +2051,19 @@ function renderDashboard() {
     }
   });
   
-  // Последние проекты (по дате создания)
   const recentProjects = [...activeProjects].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 5);
   
-  // Просроченные задания
-  let overdueTasks = 0;
-  activeProjects.forEach(p => {
-    const pt = tasks[p.id] || [];
-    pt.forEach(t => {
-      if (t.status !== 'done' && t.endDate) {
-        const left = daysUntilEnd(t.endDate);
-        if (left !== null && left < 0) overdueTasks++;
-      }
-    });
-  });
-  
-  // Формируем HTML
   let html = '';
   
   // KPI карточки
-  html += '<div class="dashboard-section"><h3>📊 Ключевые показатели</h3>';
+  html += '<div class="dashboard-section"><h3> Ключевые показатели</h3>';
   html += '<div class="dashboard-kpi-grid">';
-  html += `<div class="kpi-card info"><div class="kpi-icon">📁</div><div class="kpi-value">${activeProjects.length}</div><div class="kpi-label">Активных проектов</div></div>`;
+  html += `<div class="kpi-card info clickable" onclick="showAllProjects()" title="Нажмите, чтобы увидеть все проекты"><div class="kpi-icon">📁</div><div class="kpi-value">${activeProjects.length}</div><div class="kpi-label">Активных проектов</div></div>`;
   html += `<div class="kpi-card info"><div class="kpi-icon">📝</div><div class="kpi-value">${activeLeads.length}</div><div class="kpi-label">Активных заявок</div></div>`;
   html += `<div class="kpi-card"><div class="kpi-icon">👥</div><div class="kpi-value">${Object.keys(clients).length}</div><div class="kpi-label">Всего клиентов</div></div>`;
   html += `<div class="kpi-card"><div class="kpi-icon">👷</div><div class="kpi-value">${employees.length}</div><div class="kpi-label">Сотрудников</div></div>`;
-  html += `<div class="kpi-card danger"><div class="kpi-icon">⚠️</div><div class="kpi-value">${overdueProjects.length}</div><div class="kpi-label">Просрочено</div></div>`;
-  html += `<div class="kpi-card warn"><div class="kpi-icon">⏰</div><div class="kpi-value">${todayDeadlineProjects.length}</div><div class="kpi-label">Срок сегодня</div></div>`;
+  html += `<div class="kpi-card danger"><div class="kpi-icon">️</div><div class="kpi-value">${overdueProjects.length}</div><div class="kpi-label">Просрочено</div></div>`;
+  html += `<div class="kpi-card warn"><div class="kpi-icon"></div><div class="kpi-value">${todayDeadlineProjects.length}</div><div class="kpi-label">Срок сегодня</div></div>`;
   html += '</div></div>';
   
   // Два столбца: статусы и сроки
@@ -2041,7 +2078,6 @@ function renderDashboard() {
   html += `<div class="status-card cancel"><div class="status-value">${statusCounts['Отменена']}</div><div class="status-label">Отменена</div></div>`;
   html += '</div>';
   
-  // Прогресс-бары статусов
   const totalWithStatus = activeProjects.length || 1;
   html += '<div style="margin-top:16px;">';
   [['Новая', '#5bc0de'], ['В работе', '#e6a817'], ['Выполнена', '#5cb85c'], ['Отменена', '#d9534f']].forEach(([status, color]) => {
@@ -2056,7 +2092,7 @@ function renderDashboard() {
   const totalProjects = activeProjects.length || 1;
   const onTime = activeProjects.length - overdueProjects.length - warningProjects.length - todayDeadlineProjects.length;
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">✅ В срок</span><span class="bar-value">' + onTime + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill ok" style="width:' + Math.round((onTime/totalProjects)*100) + '%;"></div></div></div>';
-  html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">️ Скоро дедлайн (≤30 дн.)</span><span class="bar-value">' + warningProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((warningProjects.length/totalProjects)*100) + '%;"></div></div></div>';
+  html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">⚠️ Скоро дедлайн (≤30 дн.)</span><span class="bar-value">' + warningProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((warningProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">🔴 Срок сегодня</span><span class="bar-value">' + todayDeadlineProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((todayDeadlineProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label"> Просрочено</span><span class="bar-value">' + overdueProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill danger" style="width:' + Math.round((overdueProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '</div>';
@@ -2064,7 +2100,7 @@ function renderDashboard() {
   html += '</div>';
   
   // Загрузка сотрудников
-  html += '<div class="dashboard-section"><h3>👷 Загрузка сотрудников</h3>';
+  html += '<div class="dashboard-section"><h3>👷 Загрузка сотрудников <span style="font-size:12px;color:#888;font-weight:normal;">(кликните для просмотра проектов)</span></h3>';
   if (!employeeStats.length) {
     html += '<div class="dashboard-empty">Сотрудники не добавлены</div>';
   } else {
@@ -2076,7 +2112,7 @@ function renderDashboard() {
       if (pct > 80) barClass = 'danger';
       else if (pct > 50) barClass = 'warn';
       const monthH = monthHours[es.emp.id] || 0;
-      html += `<div class="employee-load-item">
+      html += `<div class="employee-load-item" onclick="openEmployeePage('${es.emp.id}')">
         <div class="employee-load-header">
           <span class="emp-name">${escapeHtml(es.emp.name)}</span>
           <span class="emp-stats">${es.activeTasks} активных задач • ${monthH.toFixed(1)} ч в этом месяце</span>
@@ -2267,7 +2303,7 @@ function renderTaskCard(t, projectId) {
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
     '<div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
     '<div class="task-dates">' +
-      '<span style="font-size:11px;color:#666;"> ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
+      '<span style="font-size:11px;color:#666;">📅 ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
       '<span class="task-days-count ' + badge.cls + '">' + daysText + '</span>' +
     '</div>' +
     '<div class="task-footer">' +
@@ -2276,7 +2312,7 @@ function renderTaskCard(t, projectId) {
         (stageIndex > 0 ? '<button onclick="moveTask(\'' + t.id + '\', -1)">← Назад</button>' : '') +
         (stageIndex < totalStages - 1 ? '<button onclick="moveTask(\'' + t.id + '\', 1)">Далее →</button>' : '') +
         '<button onclick="editTask(\'' + t.id + '\')">✏️</button>' +
-        '<button onclick="deleteTask(\'' + t.id + '\')">️</button>' +
+        '<button onclick="deleteTask(\'' + t.id + '\')">🗑️</button>' +
       '</div>' +
     '</div>' +
   '</div>';
@@ -2523,6 +2559,7 @@ window.moveStage = moveStage;
 window.addKanbanStage = addKanbanStage;
 window.removeKanbanStage = removeKanbanStage;
 window.saveStagesAndClose = saveStagesAndClose;
+window.showAllProjects = showAllProjects;
 </script>
 
 </body>
