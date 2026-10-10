@@ -90,6 +90,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .nav-tab { padding: 10px 20px; background: white; border: 2px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: bold; color: #555; transition: all 0.2s; }
 .nav-tab:hover { background: #f5f5f5; border-color: #999; }
 .nav-tab.active { background: #004a99; color: white; border-color: #004a99; }
+.nav-tab.hidden { display: none; }
 .view-modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
 .view-modal-header h2 { margin: 0 0 4px 0; font-size: 22px; color: #004a99; }
 .view-title-input { font-size: 22px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
@@ -282,6 +283,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .timesheet-table td.hours-cell.has-hours { background: #e8f5e9; font-weight: bold; color: #2e7d32; }
 .timesheet-table td.hours-cell.today { background: #fffbe6; }
 .timesheet-table td.hours-cell.has-comment { border: 2px solid #5bc0de; }
+.timesheet-table td.hours-cell.disabled { background: #f5f5f5; cursor: not-allowed; color: #999; }
 .timesheet-table td.total-cell { font-weight: bold; background: #e3f2fd; color: #004a99; font-size: 13px; cursor: pointer; transition: background 0.15s; }
 .timesheet-table td.total-cell:hover { background: #bbdefb; }
 .timesheet-table tr.weekend td.hours-cell { background: #fafafa; }
@@ -373,7 +375,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .all-projects-header h2 { margin: 0; color: #004a99; }
 .all-projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 
-/* ===== АВТОРИЗАЦИЯ ===== */
 .auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; box-sizing: border-box; }
 .auth-card { background: white; border-radius: 12px; padding: 32px; max-width: 420px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
 .auth-card h1 { margin: 0 0 8px 0; color: #004a99; font-size: 24px; text-align: center; }
@@ -406,7 +407,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 #mainApp { display: none; }
 #authScreen { display: flex; }
 
-/* ===== АДМИН-ПАНЕЛЬ ===== */
 .admin-panel { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
 .admin-panel h2 { margin: 0 0 16px 0; color: #004a99; font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 12px; }
 .admin-user-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
@@ -444,7 +444,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .admin-add-form .form-actions .btn-cancel { background: #95a5a6; color: white; }
 .admin-add-form .form-actions .btn-cancel:hover { background: #7f8c8d; }
 
-/* ===== КОММЕНТАРИИ В ТАБЕЛЕ ===== */
 .ts-comment-section { width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ddd; }
 .ts-comment-display { background: white; border: 1px solid #b7d4ff; border-radius: 4px; padding: 8px; }
 .ts-comment-text { font-size: 13px; color: #222; white-space: pre-wrap; word-break: break-word; margin-bottom: 4px; }
@@ -487,55 +486,54 @@ td input:focus { border-color: #888; background: white; outline: none; }
   font-style: italic;
   margin-left: 6px;
 }
+
+.project-executors {
+  margin-top: 8px;
+  padding: 8px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  font-size: 11px;
+}
+.project-executors-title {
+  font-weight: bold;
+  color: #666;
+  margin-bottom: 4px;
+}
+.project-executors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.project-executor-item {
+  color: #555;
+  padding-left: 8px;
+}
 </style>
 </head>
 <body>
 
-<!-- ===== ЭКРАН АВТОРИЗАЦИИ ===== -->
 <div id="authScreen" class="auth-screen">
   <div class="auth-card">
     <h1>☁️ Учёт клиентов и проектов</h1>
     <div class="subtitle" id="authSubtitle">Вход в систему</div>
     <div class="auth-error" id="authError"></div>
     <div id="loginForm">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="your@email.com">
-      </div>
-      <div class="form-group">
-        <label>Пароль</label>
-        <input type="password" id="loginPassword" placeholder="Введите пароль">
-      </div>
+      <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
+      <div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="Введите пароль"></div>
       <button class="auth-btn" onclick="handleLogin()">Войти</button>
-      <div class="auth-switch">
-        <a onclick="showCreateAdminForm()" id="createAdminLink" style="display:none;">Создать первого администратора</a>
-      </div>
+      <div class="auth-switch"><a onclick="showCreateAdminForm()" id="createAdminLink" style="display:none;">Создать первого администратора</a></div>
     </div>
     <div id="createAdminForm" style="display:none;">
-      <div style="background:#f0f8ff;border:1px solid #b7d4ff;border-radius:6px;padding:10px;margin-bottom:16px;font-size:13px;color:#004a99;">
-        ℹ️ Это первый запуск системы. Создайте аккаунт администратора.
-      </div>
-      <div class="form-group">
-        <label>ФИО</label>
-        <input type="text" id="adminName" placeholder="Иванов Иван Иванович">
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="adminEmail" placeholder="admin@company.com">
-      </div>
-      <div class="form-group">
-        <label>Пароль (минимум 6 символов)</label>
-        <input type="password" id="adminPassword" placeholder="Минимум 6 символов">
-      </div>
+      <div style="background:#f0f8ff;border:1px solid #b7d4ff;border-radius:6px;padding:10px;margin-bottom:16px;font-size:13px;color:#004a99;">ℹ️ Это первый запуск системы. Создайте аккаунт администратора.</div>
+      <div class="form-group"><label>ФИО (полностью, например: Иванов Иван Иванович)</label><input type="text" id="adminName" placeholder="Иванов Иван Иванович"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="adminEmail" placeholder="admin@company.com"></div>
+      <div class="form-group"><label>Пароль (минимум 6 символов)</label><input type="password" id="adminPassword" placeholder="Минимум 6 символов"></div>
       <button class="auth-btn secondary" onclick="handleCreateAdmin()">Создать администратора</button>
-      <div class="auth-switch">
-        <a onclick="showLoginForm()">← Вернуться ко входу</a>
-      </div>
+      <div class="auth-switch"><a onclick="showLoginForm()">← Вернуться ко входу</a></div>
     </div>
   </div>
 </div>
 
-<!-- ===== ШАПКА ПОЛЬЗОВАТЕЛЯ ===== -->
 <div id="userHeader" class="user-header" style="display:none;">
   <div class="user-info">
     <div class="user-avatar" id="userAvatar">А</div>
@@ -551,7 +549,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
   </div>
 </div>
 
-<!-- ===== АДМИН-ПАНЕЛЬ ===== -->
 <div id="adminPanelView" style="display:none;">
   <div class="admin-panel">
     <h2>⚙️ Управление пользователями</h2>
@@ -566,7 +563,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
     <div class="admin-add-form" id="adminAddForm" style="display:none;">
       <h3 id="adminFormTitle">Новый пользователь</h3>
       <div class="form-row">
-        <div><label>ФИО</label><input type="text" id="adminUserName" placeholder="Иванов Иван Иванович"></div>
+        <div><label>ФИО (полностью)</label><input type="text" id="adminUserName" placeholder="Иванов Иван Иванович"></div>
         <div><label>Email</label><input type="email" id="adminUserEmail" placeholder="user@company.com"></div>
       </div>
       <div class="form-row">
@@ -587,7 +584,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
   </div>
 </div>
 
-<!-- ===== ОСНОВНОЕ ПРИЛОЖЕНИЕ ===== -->
 <div id="mainApp">
   <h2>Учёт клиентов и проектов <span class="cloud-badge">☁️ Облако</span></h2>
   <div class="nav-tabs">
@@ -603,7 +599,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
   <div id="allProjectsView" style="display:none;">
     <div class="all-projects-view">
       <div class="all-projects-header">
-        <div><h2> Все активные проекты</h2><div style="font-size:13px;color:#666;margin-top:4px;">Всего: <strong id="allProjectsCount">0</strong></div></div>
+        <div><h2>📁 Все активные проекты</h2><div style="font-size:13px;color:#666;margin-top:4px;">Всего: <strong id="allProjectsCount">0</strong></div></div>
         <button class="production-btn" onclick="switchNavView('dashboard')">← Назад к дашборду</button>
       </div>
       <div class="all-projects-grid" id="allProjectsGrid"></div>
@@ -633,7 +629,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
     <div class="toolbar">
       <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
       <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()"> Экспорт</button>
+      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
       <span id="requestInfo" class="muted"></span>
     </div>
     <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
@@ -728,6 +724,10 @@ td input:focus { border-color: #888; background: white; outline: none; }
         <div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
         <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
       </div>
+      <div id="projectExecutorsBlock" style="display:none;" class="project-executors">
+        <div class="project-executors-title">👷 Исполнители:</div>
+        <div class="project-executors-list" id="projectExecutorsList"></div>
+      </div>
       <div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание"></textarea></div>
       <div class="view-comment-section">
         <h4>💬 Комментарии и заметки</h4>
@@ -761,7 +761,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
   <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
     <div class="modal kanban-modal">
       <div class="modal-header">
-        <h3> Производство: <span id="productionRequestTitle"></span></h3>
+        <h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
         <button class="close-btn" onclick="closeProduction()">×</button>
       </div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
@@ -797,7 +797,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
         <button class="production-btn" onclick="addKanbanStage()">+ Добавить этап</button>
       </div>
       <div class="modal-actions">
-        <button class="production-btn" onclick="saveStagesAndClose()"> Сохранить и закрыть</button>
+        <button class="production-btn" onclick="saveStagesAndClose()">💾 Сохранить и закрыть</button>
         <button onclick="closeStagesModal()">Отмена</button>
       </div>
     </div>
@@ -812,7 +812,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
   </div>
   <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
     <div class="modal">
-      <div class="modal-header"><h3> Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
       <div id="statsContent"></div>
       <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
     </div>
@@ -889,7 +889,7 @@ const DEFAULT_STAGES = [
   { id: 'done', name: 'Готово', order: 3 }
 ];
 
-// ===== ФУНКЦИЯ ФОРМАТИРОВАНИЯ ИМЕНИ АВТОРА =====
+// ===== ФОРМАТИРОВАНИЕ ИМЕНИ: ВСЕГДА ДВА ИНИЦИАЛА =====
 function formatShortName(fullName) {
   if (!fullName) return 'Неизвестно';
   if (fullName.includes('@')) return fullName.split('@')[0];
@@ -897,22 +897,60 @@ function formatShortName(fullName) {
   if (parts.length === 0) return 'Неизвестно';
   const surname = parts[0];
   if (parts.length === 1) return surname;
-  const initials = parts.slice(1).map(p => p.charAt(0).toUpperCase() + '.').join('');
+  if (parts.length === 2) return surname + ' ' + parts[1].charAt(0).toUpperCase() + '.';
+  // Берём первые ДВА инициала (второе и третье слово)
+  const initials = parts.slice(1, 3).map(p => p.charAt(0).toUpperCase() + '.').join('');
   return surname + ' ' + initials;
 }
 
 function getCurrentUserDisplayName() {
   if (!currentUser) return 'Неизвестно';
-  if (currentUser.name && currentUser.name.trim()) {
-    return formatShortName(currentUser.name);
-  }
-  if (currentUser.email) {
-    return formatShortName(currentUser.email);
-  }
+  if (currentUser.name && currentUser.name.trim()) return formatShortName(currentUser.name);
+  if (currentUser.email) return formatShortName(currentUser.email);
   return 'Неизвестно';
 }
 
+// ===== ПРОВЕРКА ПРАВ ДОСТУПА =====
 function isAdmin() { return currentUser && currentUser.role === 'admin'; }
+function isManager() { return currentUser && currentUser.role === 'manager'; }
+function isExecutor() { return currentUser && currentUser.role === 'executor'; }
+
+function canViewTab(tabName) {
+  if (!currentUser) return false;
+  if (isAdmin() || isManager()) return true;
+  if (isExecutor()) {
+    return ['dashboard', 'employees', 'calendar', 'timesheet'].includes(tabName);
+  }
+  return false;
+}
+
+function canEditProject(projectId) {
+  if (!currentUser) return false;
+  if (isAdmin() || isManager()) return true;
+  if (isExecutor()) {
+    const project = rows.find(r => r.id === projectId);
+    if (!project) return false;
+    if (project.responsible === currentUser.name) return true;
+    const projectTasks = tasks[projectId] || [];
+    return projectTasks.some(t => t.assignee === currentUser.name);
+  }
+  return false;
+}
+
+function canEditTimesheet(empId) {
+  if (!currentUser) return false;
+  if (isAdmin() || isManager()) return true;
+  if (isExecutor()) {
+    const emp = employees.find(e => e.id === empId);
+    return emp && emp.name === currentUser.name;
+  }
+  return false;
+}
+
+function canViewAllTimesheets() {
+  return isAdmin() || isManager();
+}
+
 function setSyncStatus(status, message) {
   const indicator = document.getElementById('syncIndicator');
   if (indicator) { indicator.className = 'sync-indicator ' + status; indicator.querySelector('span:last-child').textContent = message; }
@@ -1045,12 +1083,29 @@ function updateUserHeader(user) {
   const name = user.name || user.email || 'Пользователь';
   const role = user.role || 'executor';
   const roleLabels = { admin: 'Администратор', manager: 'Менеджер', executor: 'Исполнитель' };
-  document.getElementById('userNameDisplay').textContent = name;
+  document.getElementById('userNameDisplay').textContent = formatShortName(name);
   const roleEl = document.getElementById('userRoleDisplay');
   roleEl.textContent = roleLabels[role] || role;
   roleEl.className = 'user-role ' + role;
   document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
   document.getElementById('adminPanelBtn').style.display = (role === 'admin') ? 'inline-block' : 'none';
+  
+  // Скрываем вкладки для исполнителей
+  updateTabVisibility();
+}
+
+function updateTabVisibility() {
+  const tabs = ['projects', 'requests', 'base', 'employees', 'calendar', 'timesheet', 'dashboard'];
+  tabs.forEach(tab => {
+    const tabEl = document.getElementById('nav' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    if (tabEl) {
+      if (canViewTab(tab)) {
+        tabEl.classList.remove('hidden');
+      } else {
+        tabEl.classList.add('hidden');
+      }
+    }
+  });
 }
 
 function showApp() {
@@ -1059,7 +1114,13 @@ function showApp() {
   document.getElementById('mainApp').style.display = 'block';
   document.getElementById('adminPanelView').style.display = 'none';
   setupRealtimeListeners();
-  switchNavView('dashboard');
+  
+  // Если исполнитель — сразу на дашборд
+  if (isExecutor() && !canViewTab(currentNavView)) {
+    switchNavView('dashboard');
+  } else {
+    switchNavView(currentNavView);
+  }
 }
 
 function showAuth() {
@@ -1300,8 +1361,18 @@ function setupRealtimeListeners() {
   });
 }
 
-async function addClient() { const name = generateNewClientName(); await saveClientToFirebase(name, { name, contactPersons: [], notes: [], createdAt: today() }); setTimeout(() => openClientModalByName(name), 300); }
-async function addRequest() { const name = generateNewClientName(); await ensureClientExists(name); setTimeout(() => openClientModalByName(name), 300); }
+async function addClient() {
+  if (!isAdmin() && !isManager()) { alert('Только администратор или менеджер может создавать проекты'); return; }
+  const name = generateNewClientName();
+  await saveClientToFirebase(name, { name, contactPersons: [], notes: [], createdAt: today() });
+  setTimeout(() => openClientModalByName(name), 300);
+}
+async function addRequest() {
+  if (!isAdmin() && !isManager()) { alert('Только администратор или менеджер может создавать заявки'); return; }
+  const name = generateNewClientName();
+  await ensureClientExists(name);
+  setTimeout(() => openClientModalByName(name), 300);
+}
 
 function getClientList() {
   const names = new Set();
@@ -1447,6 +1518,7 @@ async function applyClientForm() {
 async function saveClientModal() { await applyClientForm(); closeClientModal(); }
 
 async function addRequestToClient(type) {
+  if (!isAdmin() && !isManager()) { alert('Только администратор или менеджер может создавать проекты/заявки'); return; }
   const clientName = await applyClientForm();
   const isReq = type === 'request';
   const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: '', title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false, createdBy: getCurrentUserDisplayName() };
@@ -1553,6 +1625,10 @@ function openRequestView(id, type) {
     const b = getDeadlineBadge(item.endDate, item.date);
     const db = document.getElementById('viewDaysBadge');
     db.textContent = b.text; db.className = 'days-badge ' + b.cls;
+    // Показываем список исполнителей
+    renderProjectExecutors(id);
+  } else {
+    document.getElementById('projectExecutorsBlock').style.display = 'none';
   }
   fillResponsibleSelect();
   document.getElementById('viewResponsible').value = item.responsible || '';
@@ -1560,6 +1636,27 @@ function openRequestView(id, type) {
   renderViewActions();
   renderComments();
   document.getElementById('viewModal').style.display = 'block';
+}
+
+function renderProjectExecutors(projectId) {
+  const projectTasks = tasks[projectId] || [];
+  const executors = new Set();
+  projectTasks.forEach(t => {
+    if (t.assignee) executors.add(t.assignee);
+  });
+  
+  const block = document.getElementById('projectExecutorsBlock');
+  const list = document.getElementById('projectExecutorsList');
+  
+  if (executors.size === 0) {
+    block.style.display = 'none';
+    return;
+  }
+  
+  block.style.display = 'block';
+  list.innerHTML = Array.from(executors).map(name => {
+    return `<div class="project-executor-item">• ${escapeHtml(formatShortName(name))}</div>`;
+  }).join('');
 }
 
 function fillResponsibleSelect() {
@@ -1593,12 +1690,17 @@ function refreshViewModal() {
     const b = getDeadlineBadge(u.endDate, u.date);
     const db = document.getElementById('viewDaysBadge');
     db.textContent = b.text; db.className = 'days-badge ' + b.cls;
+    renderProjectExecutors(u.id);
   }
   renderComments();
 }
 
 async function updateViewField(field, value) {
   if (!currentViewRequest || !currentViewType) return;
+  if (isExecutor() && !canEditProject(currentViewRequest.id)) {
+    alert('У вас нет прав на редактирование этого проекта');
+    return;
+  }
   const col = currentViewType === 'project' ? 'requests' : 'leads';
   const list = currentViewType === 'project' ? rows : leads;
   const item = list.find(r => r.id === currentViewRequest.id);
@@ -1609,6 +1711,10 @@ async function updateViewField(field, value) {
 
 async function addComment() {
   if (!currentViewRequest || !currentViewType) return;
+  if (isExecutor() && !canEditProject(currentViewRequest.id)) {
+    alert('У вас нет прав на добавление комментариев к этому проекту');
+    return;
+  }
   const text = document.getElementById('newCommentText').value.trim();
   if (!text) { alert('Введите текст комментария'); return; }
   const col = currentViewType === 'project' ? 'requests' : 'leads';
@@ -1664,7 +1770,7 @@ function renderViewActions() {
     div.appendChild(prodBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = ' В архив';
+    archBtn.textContent = '📦 В архив';
     archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveProject(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(archBtn);
     const convBtn = document.createElement('button');
@@ -1730,6 +1836,10 @@ function showAllProjects() {
 }
 
 function switchNavView(view) {
+  if (!canViewTab(view)) {
+    alert('У вас нет доступа к этой вкладке');
+    view = 'dashboard';
+  }
   currentNavView = view;
   document.getElementById('navDashboard').classList.toggle('active', view === 'dashboard');
   document.getElementById('navProjects').classList.toggle('active', view === 'projects');
@@ -1847,14 +1957,14 @@ function renderBase() {
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
         if (cp.name) {
-          let cpLine = ' ' + escapeHtml(cp.name);
+          let cpLine = '👤 ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
-          if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.website) + '</div>';
+          if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
           if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
       });
@@ -2239,19 +2349,31 @@ function renderCalendarList(year, month, events) {
   container.innerHTML = html;
 }
 
-// ===== ТАБЕЛЬ С КОММЕНТАРИЯМИ =====
-
+// ===== ТАБЕЛЬ С УЧЁТОМ ПРАВ =====
 function fillTimesheetEmployeeFilter() {
   const sel = document.getElementById('tsEmployeeFilter');
   const currentValue = sel.value;
   sel.innerHTML = '<option value="">Все сотрудники</option>';
-  employees.forEach(emp => {
-    const opt = document.createElement('option');
-    opt.value = emp.id;
-    opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
-    sel.appendChild(opt);
-  });
-  sel.value = currentValue;
+  
+  // Для исполнителя — только он сам
+  if (isExecutor()) {
+    const currentUserEmp = employees.find(e => e.name === currentUser.name);
+    if (currentUserEmp) {
+      const opt = document.createElement('option');
+      opt.value = currentUserEmp.id;
+      opt.textContent = currentUserEmp.name + (currentUserEmp.position ? ' (' + currentUserEmp.position + ')' : '');
+      sel.appendChild(opt);
+      sel.value = currentUserEmp.id;
+    }
+  } else {
+    employees.forEach(emp => {
+      const opt = document.createElement('option');
+      opt.value = emp.id;
+      opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
+      sel.appendChild(opt);
+    });
+    sel.value = currentValue;
+  }
 }
 function timesheetPrev() { timesheetDate.setMonth(timesheetDate.getMonth() - 1); renderTimesheet(); }
 function timesheetNext() { timesheetDate.setMonth(timesheetDate.getMonth() + 1); renderTimesheet(); }
@@ -2261,6 +2383,10 @@ function getEmployeeProjectsForTimesheet(empName) { return rows.filter(r => { if
 function getTimesheetKey(empId, dateStr) { return empId + '_' + dateStr; }
 
 function openTimesheetEntry(empId, dateStr) {
+  if (!canEditTimesheet(empId)) {
+    alert('У вас нет прав на редактирование этого табеля');
+    return;
+  }
   const emp = employees.find(e => e.id === empId);
   if (!emp) return;
   currentTsEntry = { empId, date: dateStr };
@@ -2282,7 +2408,7 @@ function openTimesheetEntry(empId, dateStr) {
         const canEdit = isAdmin() || !existingComment.edited;
         const historyHtml = existingComment.editHistory && existingComment.editHistory.length > 0 ? 
           `<div class="ts-comment-history">
-            <div class="history-title"> История изменений:</div>
+            <div class="history-title">📜 История изменений:</div>
             ${existingComment.editHistory.map(h => `<div class="history-item"><strong>${escapeHtml(h.action)}</strong> ${escapeHtml(h.date)} в ${escapeHtml(h.time)}<br><em>${escapeHtml(h.text)}</em></div>`).join('')}
           </div>` : '';
         commentHtml = `
@@ -2292,7 +2418,7 @@ function openTimesheetEntry(empId, dateStr) {
               <div class="ts-comment-meta">
                 <span>📅 Создан: ${escapeHtml(existingComment.createdAt)} в ${escapeHtml(existingComment.createdTime)}${existingComment.author ? ' • <span class="author-badge">' + escapeHtml(formatShortName(existingComment.author)) + '</span>' : ''}</span>
               </div>
-              ${canEdit ? `<div class="ts-comment-actions"><button class="btn-edit-comment" onclick="showTimesheetCommentForm('${p.id}', true)">✏️ Редактировать</button></div>` : '<div class="ts-comment-locked">🔒 Редактирование недоступно (уже редактировалось)</div>'}
+              ${canEdit ? `<div class="ts-comment-actions"><button class="btn-edit-comment" onclick="showTimesheetCommentForm('${p.id}', true)">✏️ Редактировать</button></div>` : '<div class="ts-comment-locked">🔒 Редактирование недоступно</div>'}
               ${historyHtml}
             </div>
           </div>
@@ -2300,7 +2426,7 @@ function openTimesheetEntry(empId, dateStr) {
       } else {
         commentHtml = `
           <div class="ts-comment-section">
-            <button class="ts-add-comment-btn" onclick="showTimesheetCommentForm('${p.id}', false)"> Добавить комментарий</button>
+            <button class="ts-add-comment-btn" onclick="showTimesheetCommentForm('${p.id}', false)">💬 Добавить комментарий</button>
             <div id="ts-comment-form-${p.id}" style="display:none;" class="ts-comment-form">
               <textarea id="ts-comment-text-${p.id}" class="ts-comment-textarea" placeholder="Комментарий к работе..."></textarea>
               <div class="ts-comment-form-actions">
@@ -2455,11 +2581,10 @@ function openTimesheetMonthSummary(empId, year, month) {
     const entry = timesheets[key];
     if (entry && entry.entries) {
       entry.entries.forEach(e => {
-        if (!projectHours[e.projectId]) projectHours[e.projectId] = { projectId: e.projectId, projectTitle: e.projectTitle, clientName: e.clientName, hours: 0, days: 0, comments: [] };
+        if (!projectHours[e.projectId]) projectHours[e.projectId] = { projectId: e.projectId, projectTitle: e.projectTitle, clientName: e.clientName, hours: 0, days: 0 };
         projectHours[e.projectId].hours += e.hours;
         projectHours[e.projectId].days += 1;
         totalHours += e.hours;
-        if (e.comment) projectHours[e.projectId].comments.push({ date: dateStr, text: e.comment.text, author: e.comment.author });
       });
     }
   }
@@ -2470,23 +2595,15 @@ function openTimesheetMonthSummary(empId, year, month) {
     projects.sort((a, b) => b.hours - a.hours);
     listEl.innerHTML = projects.map(p => {
       const percentage = totalHours > 0 ? ((p.hours / totalHours) * 100).toFixed(1) : 0;
-      const commentsHtml = p.comments.length > 0 ? 
-        `<div style="font-size:11px;color:#666;margin-top:4px;border-top:1px dashed #ddd;padding-top:4px;">
-          <strong>Комментарии (${p.comments.length}):</strong><br>
-          ${p.comments.map(c => `<div style="margin-top:2px;">📅 ${escapeHtml(c.date)}${c.author ? ' • <span class="author-badge">' + escapeHtml(formatShortName(c.author)) + '</span>' : ''}: ${escapeHtml(c.text.substring(0, 50))}${c.text.length > 50 ? '...' : ''}</div>`).join('')}
-        </div>` : '';
-      return `<div class="entry-item" style="cursor:pointer;flex-direction:column;align-items:flex-start;" onclick="closeTimesheetMonthSummary(); setTimeout(() => openRequestView('${p.projectId}', 'project'), 200)">
-        <div style="width:100%;display:flex;justify-content:space-between;align-items:center;">
-          <div style="flex:1;">
-            <div class="entry-project">${escapeHtml(p.projectTitle)}</div>
-            <div class="entry-client">${escapeHtml(p.clientName)} • ${p.days} дн.</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-size:18px;font-weight:bold;color:#004a99;">${p.hours.toFixed(1)} ч</div>
-            <div style="font-size:11px;color:#666;">${percentage}%</div>
-          </div>
+      return `<div class="entry-item" style="cursor:pointer;" onclick="closeTimesheetMonthSummary(); setTimeout(() => openRequestView('${p.projectId}', 'project'), 200)">
+        <div style="flex:1;">
+          <div class="entry-project">${escapeHtml(p.projectTitle)}</div>
+          <div class="entry-client">${escapeHtml(p.clientName)} • ${p.days} дн.</div>
         </div>
-        ${commentsHtml}
+        <div style="text-align:right;">
+          <div style="font-size:18px;font-weight:bold;color:#004a99;">${p.hours.toFixed(1)} ч</div>
+          <div style="font-size:11px;color:#666;">${percentage}%</div>
+        </div>
       </div>`;
     }).join('');
   }
@@ -2503,8 +2620,17 @@ function renderTimesheet() {
   const todayStr = today();
   const employeeFilter = document.getElementById('tsEmployeeFilter').value;
   document.getElementById('tsMonthLabel').textContent = MONTH_NAMES[month] + ' ' + year;
-  const filteredEmployees = employeeFilter ? employees.filter(e => e.id === employeeFilter) : employees;
-  if (!filteredEmployees.length) { container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Нет сотрудников. Добавьте первого во вкладке "Персонал".</div>'; return; }
+  
+  let filteredEmployees;
+  if (isExecutor()) {
+    // Исполнитель видит только себя
+    const currentUserEmp = employees.find(e => e.name === currentUser.name);
+    filteredEmployees = currentUserEmp ? [currentUserEmp] : [];
+  } else {
+    filteredEmployees = employeeFilter ? employees.filter(e => e.id === employeeFilter) : employees;
+  }
+  
+  if (!filteredEmployees.length) { container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Нет сотрудников</div>'; return; }
   let html = '<table class="timesheet-table"><thead><tr><th class="employee-col">Сотрудник</th>';
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = year + '-' + String(month + 1).padStart(2, '0') + '-' + String(day).padStart(2, '0');
@@ -2524,11 +2650,13 @@ function renderTimesheet() {
       const hours = entry ? entry.entries.reduce((sum, e) => sum + e.hours, 0) : 0;
       const hasComment = entry && entry.entries.some(e => e.comment);
       monthTotal += hours;
-      const cellClass = 'hours-cell' + (hours > 0 ? ' has-hours' : '') + (isToday ? ' today' : '') + (hasComment ? ' has-comment' : '');
+      const canEdit = canEditTimesheet(emp.id);
+      const cellClass = 'hours-cell' + (hours > 0 ? ' has-hours' : '') + (isToday ? ' today' : '') + (hasComment ? ' has-comment' : '') + (!canEdit ? ' disabled' : '');
       const title = hasComment ? 'Есть комментарий(и) к проекту' : '';
-      html += '<td class="' + cellClass + '" onclick="openTimesheetEntry(\'' + emp.id + '\', \'' + dateStr + '\')" title="' + title + '">' + (hours > 0 ? hours.toFixed(1) : '') + (hasComment ? ' 💬' : '') + '</td>';
+      const onclick = canEdit ? `onclick="openTimesheetEntry('${emp.id}', '${dateStr}')"` : '';
+      html += `<td class="${cellClass}" ${onclick} title="${title}">${hours > 0 ? hours.toFixed(1) : ''}${hasComment ? ' 💬' : ''}</td>`;
     }
-    html += '<td class="total-cell" onclick="openTimesheetMonthSummary(\'' + emp.id + '\', ' + year + ', ' + month + ')" title="Нажмите для детализации по проектам">' + monthTotal.toFixed(1) + '</td></tr>';
+    html += `<td class="total-cell" onclick="openTimesheetMonthSummary('${emp.id}', ${year}, ${month})" title="Нажмите для детализации по проектам">${monthTotal.toFixed(1)}</td></tr>`;
   });
   html += '</tbody></table>';
   container.innerHTML = html;
@@ -2799,7 +2927,7 @@ function renderTaskCard(t, projectId) {
   const totalStages = getProjectStages(projectId).length;
   return '<div class="task-card">' +
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
-    '<div class="task-meta"><div> ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
+    '<div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
     '<div class="task-dates">' +
       '<span style="font-size:11px;color:#666;">📅 ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
       '<span class="task-days-count ' + badge.cls + '">' + daysText + '</span>' +
@@ -2905,6 +3033,10 @@ function renderTaskComments() {
 
 async function addTaskComment() {
   if (!currentTaskCommentsTaskId || !currentTaskCommentsProjectId) return;
+  if (isExecutor() && !canEditProject(currentTaskCommentsProjectId)) {
+    alert('У вас нет прав на добавление комментариев к этому проекту');
+    return;
+  }
   const text = document.getElementById('newTaskCommentText').value.trim();
   if (!text) { alert('Введите текст комментария'); return; }
   const rt = getRequestTasks(currentTaskCommentsProjectId);
