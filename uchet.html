@@ -372,77 +372,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .all-projects-header h2 { margin: 0; color: #004a99; }
 .all-projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 
-/* ===== АВТОРИЗАЦИЯ ===== */
-.auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; box-sizing: border-box; }
-.auth-card { background: white; border-radius: 12px; padding: 32px; max-width: 420px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-.auth-card h1 { margin: 0 0 8px 0; color: #004a99; font-size: 24px; text-align: center; }
-.auth-card .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 24px; }
-.auth-card .form-group { margin-bottom: 16px; }
-.auth-card label { display: block; font-size: 12px; font-weight: bold; color: #555; margin-bottom: 6px; text-transform: uppercase; }
-.auth-card input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; transition: border-color 0.15s; }
-.auth-card input:focus { border-color: #004a99; outline: none; }
-.auth-card .auth-btn { width: 100%; padding: 12px; background: #004a99; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.15s; margin-top: 8px; }
-.auth-card .auth-btn:hover { background: #003366; }
-.auth-card .auth-btn.secondary { background: #5cb85c; }
-.auth-card .auth-btn.secondary:hover { background: #449d44; }
-.auth-error { background: #ffebee; color: #d9534f; padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 16px; border: 1px solid #f5c6cb; display: none; }
-.auth-error.show { display: block; }
-.auth-switch { text-align: center; margin-top: 16px; font-size: 13px; color: #666; }
-.auth-switch a { color: #004a99; cursor: pointer; text-decoration: underline; }
-.user-header { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
-.user-info { display: flex; align-items: center; gap: 12px; }
-.user-avatar { width: 36px; height: 36px; border-radius: 50%; background: #004a99; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; }
-.user-details { display: flex; flex-direction: column; }
-.user-name { font-weight: bold; color: #004a99; font-size: 14px; }
-.user-role { font-size: 11px; color: #666; text-transform: uppercase; }
-.user-role.admin { color: #d9534f; font-weight: bold; }
-.user-role.manager { color: #e6a817; font-weight: bold; }
-.user-role.executor { color: #5cb85c; font-weight: bold; }
-.logout-btn { background: #f0f0f0; border: 1px solid #ddd; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #555; transition: all 0.15s; }
-.logout-btn:hover { background: #ffebee; border-color: #d9534f; color: #d9534f; }
-.admin-btn { background: #9b59b6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.15s; }
-.admin-btn:hover { background: #8e44ad; }
-#mainApp { display: none; }
-#authScreen { display: flex; }
-
-/* ===== АДМИН-ПАНЕЛЬ ===== */
-.admin-panel { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-.admin-panel h2 { margin: 0 0 16px 0; color: #004a99; font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 12px; }
-.admin-user-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.admin-user-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; transition: all 0.15s; }
-.admin-user-item:hover { background: #f4f9ff; border-color: #004a99; }
-.admin-user-item .user-avatar-small { width: 32px; height: 32px; border-radius: 50%; background: #004a99; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0; }
-.admin-user-item .user-info-main { flex: 1; }
-.admin-user-item .user-name-main { font-weight: bold; color: #004a99; font-size: 14px; }
-.admin-user-item .user-email { font-size: 12px; color: #666; }
-.admin-user-item .user-role-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-.admin-user-item .user-role-badge.admin { background: #d9534f; color: white; }
-.admin-user-item .user-role-badge.manager { background: #e6a817; color: white; }
-.admin-user-item .user-role-badge.executor { background: #5cb85c; color: white; }
-.admin-user-item .user-status { font-size: 11px; color: #888; }
-.admin-user-item .user-status.inactive { color: #d9534f; }
-.admin-user-item .user-actions { display: flex; gap: 6px; }
-.admin-user-item .user-actions button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.15s; }
-.admin-user-item .user-actions .btn-edit { background: #5bc0de; color: white; }
-.admin-user-item .user-actions .btn-edit:hover { background: #31b0d5; }
-.admin-user-item .user-actions .btn-toggle { background: #f0ad4e; color: white; }
-.admin-user-item .user-actions .btn-toggle:hover { background: #ec971f; }
-.admin-user-item .user-actions .btn-delete { background: #d9534f; color: white; }
-.admin-user-item .user-actions .btn-delete:hover { background: #c9302c; }
-.admin-add-form { background: #f0f8ff; border: 1px solid #b7d4ff; border-radius: 6px; padding: 16px; margin-top: 16px; }
-.admin-add-form h3 { margin: 0 0 12px 0; color: #004a99; font-size: 16px; }
-.admin-add-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-@media (max-width: 700px) { .admin-add-form .form-row { grid-template-columns: 1fr; } }
-.admin-add-form label { display: block; font-size: 12px; font-weight: bold; color: #555; margin-bottom: 4px; text-transform: uppercase; }
-.admin-add-form input, .admin-add-form select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
-.admin-add-form input:focus, .admin-add-form select:focus { border-color: #004a99; outline: none; }
-.admin-add-form .form-actions { display: flex; gap: 8px; margin-top: 12px; }
-.admin-add-form .form-actions button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.15s; }
-.admin-add-form .form-actions .btn-save { background: #5cb85c; color: white; }
-.admin-add-form .form-actions .btn-save:hover { background: #449d44; }
-.admin-add-form .form-actions .btn-cancel { background: #95a5a6; color: white; }
-.admin-add-form .form-actions .btn-cancel:hover { background: #7f8c8d; }
-
 .author-badge {
   display: inline-block;
   background: #e3f2fd;
@@ -463,371 +392,284 @@ td input:focus { border-color: #888; background: white; outline: none; }
 </head>
 <body>
 
-<!-- ===== ЭКРАН АВТОРИЗАЦИИ ===== -->
-<div id="authScreen" class="auth-screen">
-  <div class="auth-card">
-    <h1>☁️ Учёт клиентов и проектов</h1>
-    <div class="subtitle" id="authSubtitle">Вход в систему</div>
-    <div class="auth-error" id="authError"></div>
-    <div id="loginForm">
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="loginEmail" placeholder="your@email.com">
-      </div>
-      <div class="form-group">
-        <label>Пароль</label>
-        <input type="password" id="loginPassword" placeholder="Введите пароль">
-      </div>
-      <button class="auth-btn" onclick="handleLogin()">Войти</button>
-      <div class="auth-switch">
-        <a onclick="showCreateAdminForm()" id="createAdminLink" style="display:none;">Создать первого администратора</a>
-      </div>
-    </div>
-    <div id="createAdminForm" style="display:none;">
-      <div style="background:#f0f8ff;border:1px solid #b7d4ff;border-radius:6px;padding:10px;margin-bottom:16px;font-size:13px;color:#004a99;">
-        ℹ️ Это первый запуск системы. Создайте аккаунт администратора.
-      </div>
-      <div class="form-group">
-        <label>ФИО</label>
-        <input type="text" id="adminName" placeholder="Иванов Иван Иванович">
-      </div>
-      <div class="form-group">
-        <label>Email</label>
-        <input type="email" id="adminEmail" placeholder="admin@company.com">
-      </div>
-      <div class="form-group">
-        <label>Пароль (минимум 6 символов)</label>
-        <input type="password" id="adminPassword" placeholder="Минимум 6 символов">
-      </div>
-      <button class="auth-btn secondary" onclick="handleCreateAdmin()">Создать администратора</button>
-      <div class="auth-switch">
-        <a onclick="showLoginForm()">← Вернуться ко входу</a>
-      </div>
-    </div>
-  </div>
+<h2>Учёт клиентов и проектов <span class="cloud-badge">☁ Облако</span> <span id="syncIndicator" class="sync-indicator"><span class="dot"></span><span>Подключение...</span></span></h2>
+
+<div class="nav-tabs">
+<button class="nav-tab active" id="navDashboard" onclick="switchNavView('dashboard')">📊 Дашборд</button>
+<button class="nav-tab" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
+<button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
+<button class="nav-tab" id="navBase" onclick="switchNavView('base')"> База клиентов</button>
+<button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
+<button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')"> Календарь</button>
+<button class="nav-tab" id="navTimesheet" onclick="switchNavView('timesheet')">⏱️ Табель</button>
 </div>
 
-<!-- ===== ШАПКА ПОЛЬЗОВАТЕЛЯ ===== -->
-<div id="userHeader" class="user-header" style="display:none;">
-  <div class="user-info">
-    <div class="user-avatar" id="userAvatar">А</div>
-    <div class="user-details">
-      <span class="user-name" id="userNameDisplay">—</span>
-      <span class="user-role" id="userRoleDisplay">—</span>
-    </div>
-  </div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <button class="admin-btn" id="adminPanelBtn" onclick="openAdminPanel()" style="display:none;">⚙️ Админ-панель</button>
-    <span id="syncIndicator" class="sync-indicator"><span class="dot"></span><span>Подключение...</span></span>
-    <button class="logout-btn" onclick="handleLogout()">🚪 Выйти</button>
-  </div>
+<div id="dashboardView" style="display:none;"><div class="dashboard-container" id="dashboardContent"></div></div>
+<div id="allProjectsView" style="display:none;">
+<div class="all-projects-view">
+<div class="all-projects-header">
+<div><h2>📁 Все активные проекты</h2><div style="font-size:13px;color:#666;margin-top:4px;">Всего: <strong id="allProjectsCount">0</strong></div></div>
+<button class="production-btn" onclick="switchNavView('dashboard')">← Назад к дашборду</button>
+</div>
+<div class="all-projects-grid" id="allProjectsGrid"></div>
+</div>
+</div>
+<div id="projectsView" style="display:none;">
+<div class="tabs">
+<button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
+<button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
+</div>
+<div class="toolbar">
+<input id="search" placeholder="Поиск..." style="width: 280px">
+<select id="statusFilter"><option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select>
+<button onclick="addClient()">+ Добавить проект</button>
+<button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
+<button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
+<input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
+<span id="info" class="muted"></span>
+</div>
+<table><thead><tr><th style="width:200px;">Клиент</th><th>Проекты</th></tr></thead><tbody id="tbody"></tbody></table>
+</div>
+<div id="requestsView" style="display:none;">
+<div class="tabs">
+<button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')"> Активные <span class="count" id="requestActiveCount">0</span></button>
+<button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
+</div>
+<div class="toolbar">
+<input id="requestSearch" placeholder="Поиск..." style="width: 280px">
+<button onclick="addRequest()">+ Добавить заявку</button>
+<button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
+<span id="requestInfo" class="muted"></span>
+</div>
+<table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
+</div>
+<div id="baseView" style="display:none;">
+<div class="toolbar"><input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px"><span id="baseInfo" class="muted"></span></div>
+<div id="baseList"></div>
+</div>
+<div id="employeesView" style="display:none;">
+<div class="toolbar">
+<input id="employeeSearch" placeholder="🔍 Поиск сотрудника..." style="width: 280px">
+<button onclick="showAddEmployeeForm()">+ Добавить сотрудника</button>
+<span id="employeeInfo" class="muted"></span>
+</div>
+<div id="addEmployeeForm" class="add-employee-form" style="display:none;">
+<input id="newEmployeeName" placeholder="ФИО сотрудника">
+<input id="newEmployeePosition" placeholder="Должность">
+<button class="production-btn" onclick="addEmployee()">Добавить</button>
+<button onclick="hideAddEmployeeForm()">Отмена</button>
+</div>
+<div id="employeeList" class="employee-list"></div>
+</div>
+<div id="calendarView" style="display:none;">
+<div class="calendar-toolbar">
+<div class="cal-nav">
+<button onclick="calendarPrev()">◀</button>
+<span class="cal-month-label" id="calMonthLabel">Октябрь 2026</span>
+<button onclick="calendarNext()">▶</button>
+<button onclick="calendarToday()">Сегодня</button>
+</div>
+<div class="cal-view-switch">
+<button id="calViewMonth" class="active" onclick="setCalendarView('month')">📅 Месяц</button>
+<button id="calViewList" onclick="setCalendarView('list')">📋 Список</button>
+</div>
+<div class="cal-filter">
+<select id="calEmployeeFilter"><option value="">Все сотрудники</option></select>
+<input id="calClientFilter" placeholder="🔍 Поиск по клиенту..." style="width: 200px">
+</div>
+</div>
+<div class="calendar-stats" id="calendarStats"></div>
+<div id="calendarContent"></div>
+</div>
+<div id="timesheetView" style="display:none;">
+<div class="timesheet-toolbar">
+<div class="ts-nav">
+<button onclick="timesheetPrev()">◀</button>
+<span class="ts-month-label" id="tsMonthLabel">Октябрь 2026</span>
+<button onclick="timesheetNext()">▶</button>
+<button onclick="timesheetToday()">Сегодня</button>
+</div>
+<div class="cal-filter">
+<select id="tsEmployeeFilter" onchange="renderTimesheet()"><option value="">Все сотрудники</option></select>
+</div>
+</div>
+<div class="timesheet-container" id="timesheetContainer"></div>
 </div>
 
-<!-- ===== АДМИН-ПАНЕЛЬ ===== -->
-<div id="adminPanelView" style="display:none;">
-  <div class="admin-panel">
-    <h2>⚙️ Управление пользователями</h2>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div>
-        <button class="production-btn" onclick="showAddUserForm()">+ Добавить пользователя</button>
-        <button class="archive-btn" onclick="closeAdminPanel()" style="margin-left:8px;">← Назад</button>
-      </div>
-      <div class="muted" id="adminUserCount">Всего пользователей: 0</div>
-    </div>
-    <div class="admin-user-list" id="adminUserList"></div>
-    <div class="admin-add-form" id="adminAddForm" style="display:none;">
-      <h3 id="adminFormTitle">Новый пользователь</h3>
-      <div class="form-row">
-        <div><label>ФИО</label><input type="text" id="adminUserName" placeholder="Иванов Иван Иванович"></div>
-        <div><label>Email</label><input type="email" id="adminUserEmail" placeholder="user@company.com"></div>
-      </div>
-      <div class="form-row">
-        <div><label>Пароль (минимум 6 символов, только при создании)</label><input type="password" id="adminUserPassword" placeholder="Только при создании"></div>
-        <div><label>Роль</label>
-          <select id="adminUserRole">
-            <option value="admin">Администратор</option>
-            <option value="manager">Менеджер</option>
-            <option value="executor">Исполнитель</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-actions">
-        <button class="btn-save" onclick="saveAdminUser()">💾 Сохранить</button>
-        <button class="btn-cancel" onclick="hideAddUserForm()">Отмена</button>
-      </div>
-    </div>
-  </div>
+<div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
+<div class="modal modal-large">
+<div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
+<label for="clientName">Наименование клиента</label><input id="clientName">
+<div class="client-columns">
+<div class="client-column-left"><div id="contactPersonsList"></div><button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button></div>
+<div class="client-column-right">
+<h4>📝 Заметки</h4>
+<div class="note-add-form"><textarea id="newNoteText" placeholder="Напишите заметку..."></textarea><button class="production-btn" onclick="addNote()">Добавить</button></div>
+<div class="notes-list" id="notesList"></div>
+</div>
+</div>
+<div class="requests-columns">
+<div class="requests-column projects-col"><h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
+<div class="requests-column requests-col"><h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4><div class="tiles-grid" id="requestsTiles"></div></div>
+</div>
+<div class="modal-actions"><button onclick="saveClientModal()">Сохранить и закрыть</button><button onclick="closeClientModal()">Закрыть</button></div>
+</div>
 </div>
 
-<!-- ===== ОСНОВНОЕ ПРИЛОЖЕНИЕ ===== -->
-<div id="mainApp">
-  <h2>Учёт клиентов и проектов <span class="cloud-badge">☁️ Облако</span></h2>
-  <div class="nav-tabs">
-    <button class="nav-tab active" id="navDashboard" onclick="switchNavView('dashboard')">📊 Дашборд</button>
-    <button class="nav-tab" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
-    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
-    <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
-    <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
-    <button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')">📅 Календарь</button>
-    <button class="nav-tab" id="navTimesheet" onclick="switchNavView('timesheet')">⏱️ Табель</button>
-  </div>
-  <div id="dashboardView" style="display:none;"><div class="dashboard-container" id="dashboardContent"></div></div>
-  <div id="allProjectsView" style="display:none;">
-    <div class="all-projects-view">
-      <div class="all-projects-header">
-        <div><h2>📁 Все активные проекты</h2><div style="font-size:13px;color:#666;margin-top:4px;">Всего: <strong id="allProjectsCount">0</strong></div></div>
-        <button class="production-btn" onclick="switchNavView('dashboard')">← Назад к дашборду</button>
-      </div>
-      <div class="all-projects-grid" id="allProjectsGrid"></div>
-    </div>
-  </div>
-  <div id="projectsView" style="display:none;">
-    <div class="tabs">
-      <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
-      <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
-    </div>
-    <div class="toolbar">
-      <input id="search" placeholder="Поиск..." style="width: 280px">
-      <select id="statusFilter"><option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select>
-      <button onclick="addClient()">+ Добавить проект</button>
-      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
-      <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
-      <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
-      <span id="info" class="muted"></span>
-    </div>
-    <table><thead><tr><th style="width:200px;">Клиент</th><th>Проекты</th></tr></thead><tbody id="tbody"></tbody></table>
-  </div>
-  <div id="requestsView" style="display:none;">
-    <div class="tabs">
-      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')">📝 Активные <span class="count" id="requestActiveCount">0</span></button>
-      <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
-    </div>
-    <div class="toolbar">
-      <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
-      <button onclick="addRequest()">+ Добавить заявку</button>
-      <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
-      <span id="requestInfo" class="muted"></span>
-    </div>
-    <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
-  </div>
-  <div id="baseView" style="display:none;">
-    <div class="toolbar"><input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px"><span id="baseInfo" class="muted"></span></div>
-    <div id="baseList"></div>
-  </div>
-  <div id="employeesView" style="display:none;">
-    <div class="toolbar">
-      <input id="employeeSearch" placeholder="🔍 Поиск сотрудника..." style="width: 280px">
-      <button onclick="showAddEmployeeForm()">+ Добавить сотрудника</button>
-      <span id="employeeInfo" class="muted"></span>
-    </div>
-    <div id="addEmployeeForm" class="add-employee-form" style="display:none;">
-      <input id="newEmployeeName" placeholder="ФИО сотрудника">
-      <input id="newEmployeePosition" placeholder="Должность">
-      <button class="production-btn" onclick="addEmployee()">Добавить</button>
-      <button onclick="hideAddEmployeeForm()">Отмена</button>
-    </div>
-    <div id="employeeList" class="employee-list"></div>
-  </div>
-  <div id="calendarView" style="display:none;">
-    <div class="calendar-toolbar">
-      <div class="cal-nav">
-        <button onclick="calendarPrev()">◀</button>
-        <span class="cal-month-label" id="calMonthLabel">Октябрь 2026</span>
-        <button onclick="calendarNext()">▶</button>
-        <button onclick="calendarToday()">Сегодня</button>
-      </div>
-      <div class="cal-view-switch">
-        <button id="calViewMonth" class="active" onclick="setCalendarView('month')">📅 Месяц</button>
-        <button id="calViewList" onclick="setCalendarView('list')">📋 Список</button>
-      </div>
-      <div class="cal-filter">
-        <select id="calEmployeeFilter"><option value="">Все сотрудники</option></select>
-        <input id="calClientFilter" placeholder="🔍 Поиск по клиенту..." style="width: 200px">
-      </div>
-    </div>
-    <div class="calendar-stats" id="calendarStats"></div>
-    <div id="calendarContent"></div>
-  </div>
-  <div id="timesheetView" style="display:none;">
-    <div class="timesheet-toolbar">
-      <div class="ts-nav">
-        <button onclick="timesheetPrev()">◀</button>
-        <span class="ts-month-label" id="tsMonthLabel">Октябрь 2026</span>
-        <button onclick="timesheetNext()">▶</button>
-        <button onclick="timesheetToday()">Сегодня</button>
-      </div>
-      <div class="cal-filter">
-        <select id="tsEmployeeFilter" onchange="renderTimesheet()"><option value="">Все сотрудники</option></select>
-      </div>
-    </div>
-    <div class="timesheet-container" id="timesheetContainer"></div>
-  </div>
-  <div id="clientModal" class="modal-overlay" onclick="if (event.target === this) closeClientModal()">
-    <div class="modal modal-large">
-      <div class="modal-header"><h3>Карточка клиента</h3><button class="close-btn" onclick="closeClientModal()">×</button></div>
-      <label for="clientName">Наименование клиента</label><input id="clientName">
-      <div class="client-columns">
-        <div class="client-column-left"><div id="contactPersonsList"></div><button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button></div>
-        <div class="client-column-right">
-          <h4>📝 Заметки</h4>
-          <div class="note-add-form"><textarea id="newNoteText" placeholder="Напишите заметку..."></textarea><button class="production-btn" onclick="addNote()">Добавить</button></div>
-          <div class="notes-list" id="notesList"></div>
-        </div>
-      </div>
-      <div class="requests-columns">
-        <div class="requests-column projects-col"><h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
-        <div class="requests-column requests-col"><h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4><div class="tiles-grid" id="requestsTiles"></div></div>
-      </div>
-      <div class="modal-actions"><button onclick="saveClientModal()">Сохранить и закрыть</button><button onclick="closeClientModal()">Закрыть</button></div>
-    </div>
-  </div>
-  <div id="viewModal" class="modal-overlay" onclick="if (event.target === this) closeViewModal()">
-    <div class="modal modal-large">
-      <div class="view-modal-header">
-        <div style="width: 100%;">
-          <input type="text" id="viewTitleInput" class="view-title-input" placeholder="Введите название проекта/заявки">
-          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
-            <span id="viewTypeBadge" class="view-type-badge">ТИП</span>
-            <span style="font-size:13px;color:#666;">Клиент: <strong id="viewClientName"></strong></span>
-          </div>
-        </div>
-        <button class="close-btn" onclick="closeViewModal()" style="flex-shrink:0;">×</button>
-      </div>
-      <div class="view-info-grid">
-        <div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate"></div></div>
-        <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
-        <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select></div></div>
-        <div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
-        <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
-      </div>
-      <div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание"></textarea></div>
-      <div class="view-comment-section">
-        <h4>💬 Комментарии и заметки</h4>
-        <div class="comment-add-form"><textarea id="newCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addComment()">Добавить</button></div>
-        <div class="comments-list" id="commentsList"></div>
-      </div>
-      <div class="view-actions" id="viewActions"></div>
-    </div>
-  </div>
-  <div id="employeePageModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeePage()">
-    <div class="modal modal-large">
-      <div class="employee-page-header">
-        <div class="emp-edit-fields">
-          <label>ФИО сотрудника</label>
-          <input type="text" id="employeePageNameInput" placeholder="Введите ФИО">
-          <label>Должность</label>
-          <input type="text" id="employeePagePositionInput" class="position-input" placeholder="Введите должность">
-        </div>
-        <button class="close-btn" onclick="closeEmployeePage()" style="flex-shrink:0;margin-left:12px;">×</button>
-      </div>
-      <div class="requests-columns" style="margin-top:0;">
-        <div class="requests-column projects-col"><h4>📁 Проекты сотрудника</h4><div class="tiles-grid" id="employeeProjectsTiles"></div></div>
-      </div>
-      <div class="modal-actions">
-        <button class="production-btn" onclick="saveEmployeeChanges()">💾 Сохранить изменения</button>
-        <button class="delete-final-btn" onclick="deleteEmployee()">🗑 Удалить сотрудника</button>
-        <button onclick="closeEmployeePage()">Закрыть</button>
-      </div>
-    </div>
-  </div>
-  <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
-    <div class="modal kanban-modal">
-      <div class="modal-header">
-        <h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
-        <button class="close-btn" onclick="closeProduction()">×</button>
-      </div>
-      <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
-      <div class="project-stages-info" id="projectStagesInfo"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="production-btn" onclick="openStagesModal()">⚙️ Этапы этого проекта</button>
-        <button onclick="openEmployeesModal()">👷 Сотрудники</button>
-        <button onclick="openStatsModal()">📊 Статистика</button>
-      </div>
-      <div class="add-task-form">
-        <h4>➕ Новое задание</h4>
-        <div class="form-row">
-          <div><label>Название</label><input id="newTaskTitle" placeholder="Название задания"></div>
-          <div><label>Исполнитель</label><select id="newTaskAssignee"><option value="">— Выберите —</option></select></div>
-        </div>
-        <div class="form-row">
-          <div><label>Дата начала</label><input id="newTaskStartDate" type="date"></div>
-          <div><label>Дата окончания</label><input id="newTaskEndDate" type="date"></div>
-        </div>
-        <button onclick="addTask()">Добавить задание</button>
-      </div>
-      <div class="kanban-hint">← Прокручивайте этапы горизонтально →</div>
-      <div class="kanban-board" id="kanbanBoard"></div>
-    </div>
-  </div>
-  <div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
-    <div class="modal">
-      <div class="modal-header"><h3>⚙️ Этапы проекта: <span id="stagesProjectName"></span></h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
-      <p class="muted" style="margin-top:0;">Настройте этапы для этого проекта. Изменения коснутся только этого проекта.</p>
-      <div class="stages-list" id="stagesList"></div>
-      <div class="add-stage-form">
-        <input id="newStageName" placeholder="Название нового этапа">
-        <button class="production-btn" onclick="addKanbanStage()">+ Добавить этап</button>
-      </div>
-      <div class="modal-actions">
-        <button class="production-btn" onclick="saveStagesAndClose()">💾 Сохранить и закрыть</button>
-        <button onclick="closeStagesModal()">Отмена</button>
-      </div>
-    </div>
-  </div>
-  <div id="employeesModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeesModal()">
-    <div class="modal">
-      <div class="modal-header"><h3>👷 Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
-      <p class="muted" style="margin-top:0;">Список сотрудников синхронизирован с вкладкой "Персонал".</p>
-      <div id="employeesModalList"></div>
-      <div class="modal-actions"><button onclick="closeEmployeesModal()">Закрыть</button></div>
-    </div>
-  </div>
-  <div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
-    <div class="modal">
-      <div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
-      <div id="statsContent"></div>
-      <div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
-    </div>
-  </div>
-  <div id="dayEventsModal" class="modal-overlay" onclick="if (event.target === this) closeDayEventsModal()">
-    <div class="modal">
-      <div class="day-modal-header"><h3 id="dayModalTitle">События дня</h3><div class="day-subtitle" id="dayModalSubtitle"></div></div>
-      <div class="day-events-list" id="dayEventsList"></div>
-      <div class="modal-actions"><button onclick="closeDayEventsModal()">Закрыть</button></div>
-    </div>
-  </div>
-  <div id="taskCommentsModal" class="modal-overlay" onclick="if (event.target === this) closeTaskCommentsModal()">
-    <div class="modal">
-      <div class="modal-header"><h3>💬 Комментарии к заданию: <span id="taskCommentsTitle"></span></h3><button class="close-btn" onclick="closeTaskCommentsModal()">×</button></div>
-      <div class="comment-add-form"><textarea id="newTaskCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addTaskComment()">Добавить</button></div>
-      <div class="comments-list" id="taskCommentsList"></div>
-      <div class="modal-actions"><button onclick="closeTaskCommentsModal()">Закрыть</button></div>
-    </div>
-  </div>
-  <div id="timesheetEntryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetEntryModal()">
-    <div class="modal">
-      <div class="modal-header"><h3>⏱️ Учет времени: <span id="tsEntryEmployeeName"></span></h3><button class="close-btn" onclick="closeTimesheetEntryModal()">×</button></div>
-      <div style="font-size:13px;color:#666;margin-bottom:12px;">Дата: <strong id="tsEntryDate"></strong></div>
-      <div class="entry-list" id="tsEntryList"></div>
-      <div class="entry-total">Всего часов: <span id="tsEntryTotal">0</span></div>
-      <div class="modal-actions"><button class="production-btn" onclick="saveTimesheetEntry()">💾 Сохранить</button><button onclick="closeTimesheetEntryModal()">Отмена</button></div>
-    </div>
-  </div>
-  <div id="timesheetMonthSummaryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetMonthSummary()">
-    <div class="modal">
-      <div class="modal-header"><h3>📊 Итого за месяц: <span id="tsMonthSummaryEmployee"></span></h3><button class="close-btn" onclick="closeTimesheetMonthSummary()">×</button></div>
-      <div style="font-size:13px;color:#666;margin-bottom:12px;" id="tsMonthSummaryPeriod"></div>
-      <div id="tsMonthSummaryList"></div>
-      <div class="entry-total">Всего часов за месяц: <span id="tsMonthSummaryTotal">0</span></div>
-      <div class="modal-actions"><button onclick="closeTimesheetMonthSummary()">Закрыть</button></div>
-    </div>
-  </div>
+<div id="viewModal" class="modal-overlay" onclick="if (event.target === this) closeViewModal()">
+<div class="modal modal-large">
+<div class="view-modal-header">
+<div style="width: 100%;">
+<input type="text" id="viewTitleInput" class="view-title-input" placeholder="Введите название проекта/заявки">
+<div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+<span id="viewTypeBadge" class="view-type-badge">ТИП</span>
+<span style="font-size:13px;color:#666;">Клиент: <strong id="viewClientName"></strong></span>
+</div>
+</div>
+<button class="close-btn" onclick="closeViewModal()" style="flex-shrink:0;">×</button>
+</div>
+<div class="view-info-grid">
+<div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate"></div></div>
+<div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
+<div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select></div></div>
+<div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
+<div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
+</div>
+<div style="margin-top:16px;"><label style="font-weight:bold;">Описание</label><textarea id="viewComment" rows="4" placeholder="Основное описание"></textarea></div>
+<div class="view-comment-section">
+<h4>💬 Комментарии и заметки</h4>
+<div class="comment-add-form"><textarea id="newCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addComment()">Добавить</button></div>
+<div class="comments-list" id="commentsList"></div>
+</div>
+<div class="view-actions" id="viewActions"></div>
+</div>
+</div>
+
+<div id="employeePageModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeePage()">
+<div class="modal modal-large">
+<div class="employee-page-header">
+<div class="emp-edit-fields">
+<label>ФИО сотрудника</label>
+<input type="text" id="employeePageNameInput" placeholder="Введите ФИО">
+<label>Должность</label>
+<input type="text" id="employeePagePositionInput" class="position-input" placeholder="Введите должность">
+</div>
+<button class="close-btn" onclick="closeEmployeePage()" style="flex-shrink:0;margin-left:12px;">×</button>
+</div>
+<div class="requests-columns" style="margin-top:0;">
+<div class="requests-column projects-col"><h4>📁 Проекты сотрудника</h4><div class="tiles-grid" id="employeeProjectsTiles"></div></div>
+</div>
+<div class="modal-actions">
+<button class="production-btn" onclick="saveEmployeeChanges()">💾 Сохранить изменения</button>
+<button class="delete-final-btn" onclick="deleteEmployee()">🗑 Удалить сотрудника</button>
+<button onclick="closeEmployeePage()">Закрыть</button>
+</div>
+</div>
+</div>
+
+<div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
+<div class="modal kanban-modal">
+<div class="modal-header">
+<h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
+<button class="close-btn" onclick="closeProduction()">×</button>
+</div>
+<div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
+<div class="project-stages-info" id="projectStagesInfo"></div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+<button class="production-btn" onclick="openStagesModal()">⚙️ Этапы этого проекта</button>
+<button onclick="openEmployeesModal()">👷 Сотрудники</button>
+<button onclick="openStatsModal()">📊 Статистика</button>
+</div>
+<div class="add-task-form">
+<h4>➕ Новое задание</h4>
+<div class="form-row">
+<div><label>Название</label><input id="newTaskTitle" placeholder="Название задания"></div>
+<div><label>Исполнитель</label><select id="newTaskAssignee"><option value="">— Выберите —</option></select></div>
+</div>
+<div class="form-row">
+<div><label>Дата начала</label><input id="newTaskStartDate" type="date"></div>
+<div><label>Дата окончания</label><input id="newTaskEndDate" type="date"></div>
+</div>
+<button onclick="addTask()">Добавить задание</button>
+</div>
+<div class="kanban-hint">← Прокручивайте этапы горизонтально →</div>
+<div class="kanban-board" id="kanbanBoard"></div>
+</div>
+</div>
+
+<div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
+<div class="modal">
+<div class="modal-header"><h3>⚙️ Этапы проекта: <span id="stagesProjectName"></span></h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
+<p class="muted" style="margin-top:0;">Настройте этапы для этого проекта. Изменения коснутся только этого проекта.</p>
+<div class="stages-list" id="stagesList"></div>
+<div class="add-stage-form">
+<input id="newStageName" placeholder="Название нового этапа">
+<button class="production-btn" onclick="addKanbanStage()">+ Добавить этап</button>
+</div>
+<div class="modal-actions">
+<button class="production-btn" onclick="saveStagesAndClose()">💾 Сохранить и закрыть</button>
+<button onclick="closeStagesModal()">Отмена</button>
+</div>
+</div>
+</div>
+
+<div id="employeesModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeesModal()">
+<div class="modal">
+<div class="modal-header"><h3>👷 Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
+<p class="muted" style="margin-top:0;">Список сотрудников синхронизирован с вкладкой "Персонал".</p>
+<div id="employeesModalList"></div>
+<div class="modal-actions"><button onclick="closeEmployeesModal()">Закрыть</button></div>
+</div>
+</div>
+
+<div id="statsModal" class="modal-overlay" onclick="if (event.target === this) closeStatsModal()">
+<div class="modal">
+<div class="modal-header"><h3>📊 Статистика</h3><button class="close-btn" onclick="closeStatsModal()">×</button></div>
+<div id="statsContent"></div>
+<div class="modal-actions"><button onclick="closeStatsModal()">Закрыть</button></div>
+</div>
+</div>
+
+<div id="dayEventsModal" class="modal-overlay" onclick="if (event.target === this) closeDayEventsModal()">
+<div class="modal">
+<div class="day-modal-header"><h3 id="dayModalTitle">События дня</h3><div class="day-subtitle" id="dayModalSubtitle"></div></div>
+<div class="day-events-list" id="dayEventsList"></div>
+<div class="modal-actions"><button onclick="closeDayEventsModal()">Закрыть</button></div>
+</div>
+</div>
+
+<div id="taskCommentsModal" class="modal-overlay" onclick="if (event.target === this) closeTaskCommentsModal()">
+<div class="modal">
+<div class="modal-header"><h3>💬 Комментарии к заданию: <span id="taskCommentsTitle"></span></h3><button class="close-btn" onclick="closeTaskCommentsModal()">×</button></div>
+<div class="comment-add-form"><textarea id="newTaskCommentText" placeholder="Напишите комментарий..."></textarea><button class="production-btn" onclick="addTaskComment()">Добавить</button></div>
+<div class="comments-list" id="taskCommentsList"></div>
+<div class="modal-actions"><button onclick="closeTaskCommentsModal()">Закрыть</button></div>
+</div>
+</div>
+
+<div id="timesheetEntryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetEntryModal()">
+<div class="modal">
+<div class="modal-header"><h3>⏱️ Учет времени: <span id="tsEntryEmployeeName"></span></h3><button class="close-btn" onclick="closeTimesheetEntryModal()">×</button></div>
+<div style="font-size:13px;color:#666;margin-bottom:12px;">Дата: <strong id="tsEntryDate"></strong></div>
+<div class="entry-list" id="tsEntryList"></div>
+<div class="entry-total">Всего часов: <span id="tsEntryTotal">0</span></div>
+<div class="modal-actions"><button class="production-btn" onclick="saveTimesheetEntry()">💾 Сохранить</button><button onclick="closeTimesheetEntryModal()">Отмена</button></div>
+</div>
+</div>
+
+<div id="timesheetMonthSummaryModal" class="modal-overlay timesheet-entry-modal" onclick="if (event.target === this) closeTimesheetMonthSummary()">
+<div class="modal">
+<div class="modal-header"><h3> Итого за месяц: <span id="tsMonthSummaryEmployee"></span></h3><button class="close-btn" onclick="closeTimesheetMonthSummary()">×</button></div>
+<div style="font-size:13px;color:#666;margin-bottom:12px;" id="tsMonthSummaryPeriod"></div>
+<div id="tsMonthSummaryList"></div>
+<div class="entry-total">Всего часов за месяц: <span id="tsMonthSummaryTotal">0</span></div>
+<div class="modal-actions"><button onclick="closeTimesheetMonthSummary()">Закрыть</button></div>
+</div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBr7FYUUm3HXb8vWypUiDS_gIYS8wlYpOU",
@@ -841,7 +683,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
 let rows = [], leads = [], clients = {}, employees = [], tasks = {}, timesheets = {}, globalStagesTemplate = [], allUsers = [];
 let currentClientOldName = '', currentProductionRequest = null, currentView = 'active', currentRequestView = 'active';
@@ -900,6 +741,7 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 function today() { return new Date().toISOString().slice(0, 10); }
 function todayDate() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 function nowDateTime() { const n = new Date(); return { date: n.toLocaleDateString('ru-RU'), time: n.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) }; }
+
 function parseDate(s) { if (!s) return null; const p = String(s).split('-'); if (p.length !== 3) return null; return new Date(Number(p[0]), Number(p[1])-1, Number(p[2])); }
 function daysBetween(a, b) { const x = parseDate(a), y = parseDate(b); if (!x || !y) return 0; return Math.floor((y.getTime()-x.getTime())/(1000*60*60*24)); }
 function daysFromStart(d) { return daysBetween(d, today()); }
@@ -926,6 +768,7 @@ function daysLabel(d) {
 
 function getClientName(r) { return String(r.client || '').trim(); }
 function getRequestTitle(r) { return String(r.title || r.request || '').trim(); }
+
 function generateNewClientName() {
   let base = 'Новый клиент', name = base, n = 1;
   while (rows.some(r => getClientName(r) === name) || leads.some(l => getClientName(l) === name) || clients[name]) { n++; name = base + ' ' + n; }
@@ -939,6 +782,7 @@ async function saveEmployeeToFirebase(id, data) { try { await setDoc(doc(db, 'em
 async function deleteEmployeeFromFirebase(id) { try { await deleteDoc(doc(db, 'employees', id)); } catch (e) { console.error(e); } }
 async function saveTasksToFirebase(id, list) { try { await setDoc(doc(db, 'tasks', id), { tasks: list }); } catch (e) { console.error(e); } }
 async function saveTimesheetToFirebase(id, data) { try { await setDoc(doc(db, 'timesheets', id), data); setSyncStatus('synced', 'Синхронизировано'); } catch (e) { console.error(e); setSyncStatus('error', 'Ошибка'); } }
+
 async function ensureClientExists(name) {
   if (!clients[name]) { clients[name] = { name, contactPersons: [], notes: [], createdAt: today() }; await saveClientToFirebase(name, clients[name]); }
   return clients[name];
@@ -975,222 +819,6 @@ async function ensureProjectHasStages(projectId) {
   if (changed) { tasks[projectId] = rt; await saveTasksToFirebase(projectId, rt); }
 }
 
-// ===== АВТОРИЗАЦИЯ =====
-function showAuthError(msg) { const el = document.getElementById('authError'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 5000); }
-function showLoginForm() { document.getElementById('loginForm').style.display = 'block'; document.getElementById('createAdminForm').style.display = 'none'; document.getElementById('authSubtitle').textContent = 'Вход в систему'; document.getElementById('authError').classList.remove('show'); }
-function showCreateAdminForm() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('createAdminForm').style.display = 'block'; document.getElementById('authSubtitle').textContent = 'Создание первого администратора'; document.getElementById('authError').classList.remove('show'); }
-
-async function checkIfUsersExist() {
-  try { const q = query(collection(db, 'users'), limit(1)); const snap = await getDocs(q); return !snap.empty; }
-  catch (e) { console.error(e); return false; }
-}
-
-async function handleLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  if (!email || !password) { showAuthError('Заполните email и пароль'); return; }
-  try { await signInWithEmailAndPassword(auth, email, password); }
-  catch (e) {
-    let msg = 'Ошибка входа';
-    if (e.code === 'auth/user-not-found') msg = 'Пользователь не найден';
-    else if (e.code === 'auth/wrong-password') msg = 'Неверный пароль';
-    else if (e.code === 'auth/invalid-email') msg = 'Некорректный email';
-    else if (e.code === 'auth/too-many-requests') msg = 'Слишком много попыток';
-    showAuthError(msg);
-  }
-}
-
-async function handleCreateAdmin() {
-  const name = document.getElementById('adminName').value.trim();
-  const email = document.getElementById('adminEmail').value.trim();
-  const password = document.getElementById('adminPassword').value;
-  if (!name || !email || !password) { showAuthError('Заполните все поля'); return; }
-  if (password.length < 6) { showAuthError('Пароль минимум 6 символов'); return; }
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, 'users', cred.user.uid), { uid: cred.user.uid, email, name, role: 'admin', active: true, createdAt: today() });
-  } catch (e) {
-    let msg = 'Ошибка создания';
-    if (e.code === 'auth/email-already-in-use') msg = 'Email уже используется';
-    else if (e.code === 'auth/weak-password') msg = 'Слишком слабый пароль';
-    showAuthError(msg);
-  }
-}
-
-async function handleLogout() { try { await signOut(auth); } catch (e) { console.error(e); } }
-
-function updateUserHeader(user) {
-  if (!user) return;
-  const name = user.name || user.email || 'Пользователь';
-  const role = user.role || 'executor';
-  const roleLabels = { admin: 'Администратор', manager: 'Менеджер', executor: 'Исполнитель' };
-  document.getElementById('userNameDisplay').textContent = name;
-  const roleEl = document.getElementById('userRoleDisplay');
-  roleEl.textContent = roleLabels[role] || role;
-  roleEl.className = 'user-role ' + role;
-  document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
-  document.getElementById('adminPanelBtn').style.display = (role === 'admin') ? 'inline-block' : 'none';
-}
-
-function showApp() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('userHeader').style.display = 'flex';
-  document.getElementById('mainApp').style.display = 'block';
-  document.getElementById('adminPanelView').style.display = 'none';
-  setupRealtimeListeners();
-  switchNavView('dashboard');
-}
-
-function showAuth() {
-  document.getElementById('authScreen').style.display = 'flex';
-  document.getElementById('userHeader').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('adminPanelView').style.display = 'none';
-  [unsubscribeClients, unsubscribeRequests, unsubscribeLeads, unsubscribeEmployees, unsubscribeTasks, unsubscribeTimesheets, unsubscribeGlobalStages, unsubscribeUsers].forEach(u => { if (u) { u(); } });
-  unsubscribeClients = unsubscribeRequests = unsubscribeLeads = unsubscribeEmployees = unsubscribeTasks = unsubscribeTimesheets = unsubscribeGlobalStages = unsubscribeUsers = null;
-}
-
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    try {
-      const userDoc = await getDocs(query(collection(db, 'users'), limit(100)));
-      let userData = null;
-      userDoc.forEach(d => { if (d.data().uid === user.uid) userData = { id: d.id, ...d.data() }; });
-      if (!userData) {
-        userData = { uid: user.uid, email: user.email, name: user.email.split('@')[0], role: 'executor', active: true, createdAt: today() };
-        await setDoc(doc(db, 'users', user.uid), userData);
-      }
-      currentUser = userData;
-      updateUserHeader(userData);
-      showApp();
-    } catch (e) { console.error(e); showAuthError('Ошибка загрузки пользователя'); }
-  } else {
-    currentUser = null;
-    showAuth();
-    const usersExist = await checkIfUsersExist();
-    document.getElementById('createAdminLink').style.display = usersExist ? 'none' : 'inline';
-  }
-});
-
-// ===== АДМИН-ПАНЕЛЬ =====
-function openAdminPanel() {
-  if (!isAdmin()) { alert('Только администратор'); return; }
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('adminPanelView').style.display = 'block';
-  renderAdminUsers();
-}
-function closeAdminPanel() { document.getElementById('adminPanelView').style.display = 'none'; document.getElementById('mainApp').style.display = 'block'; }
-
-async function loadAllUsers() {
-  try {
-    const snap = await getDocs(collection(db, 'users'));
-    allUsers = [];
-    snap.forEach(d => { allUsers.push({ id: d.id, ...d.data() }); });
-  } catch (e) { console.error(e); }
-}
-
-function renderAdminUsers() {
-  const container = document.getElementById('adminUserList');
-  document.getElementById('adminUserCount').textContent = 'Всего пользователей: ' + allUsers.length;
-  if (!allUsers.length) { container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Пользователи не найдены</div>'; return; }
-  const roleLabels = { admin: 'Администратор', manager: 'Менеджер', executor: 'Исполнитель' };
-  container.innerHTML = allUsers.map(user => {
-    const isInactive = !user.active;
-    const isCurrentUser = user.uid === currentUser.uid;
-    return `<div class="admin-user-item">
-      <div class="user-avatar-small">${(user.name || user.email || '?').charAt(0).toUpperCase()}</div>
-      <div class="user-info-main">
-        <div class="user-name-main">${escapeHtml(user.name || 'Без имени')}${isCurrentUser ? ' (вы)' : ''}</div>
-        <div class="user-email">${escapeHtml(user.email || '—')}</div>
-      </div>
-      <div class="user-role-badge ${user.role || 'executor'}">${roleLabels[user.role] || user.role}</div>
-      <div class="user-status ${isInactive ? 'inactive' : ''}">${isInactive ? 'Неактивен' : 'Активен'}</div>
-      <div class="user-actions">
-        <button class="btn-edit" onclick="editAdminUser('${user.id}')">✏️</button>
-        ${!isCurrentUser ? `<button class="btn-toggle" onclick="toggleAdminUser('${user.id}')">${isInactive ? '✅' : '⏸️'}</button>` : ''}
-        ${!isCurrentUser ? `<button class="btn-delete" onclick="deleteAdminUser('${user.id}', '${escapeHtml(user.name || user.email)}')">🗑️</button>` : ''}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function showAddUserForm() {
-  editingUserId = null;
-  document.getElementById('adminFormTitle').textContent = 'Новый пользователь';
-  document.getElementById('adminUserName').value = '';
-  document.getElementById('adminUserEmail').value = '';
-  document.getElementById('adminUserPassword').value = '';
-  document.getElementById('adminUserRole').value = 'executor';
-  document.getElementById('adminAddForm').style.display = 'block';
-}
-function hideAddUserForm() { editingUserId = null; document.getElementById('adminAddForm').style.display = 'none'; }
-
-function editAdminUser(userId) {
-  const user = allUsers.find(u => u.id === userId);
-  if (!user) return;
-  editingUserId = userId;
-  document.getElementById('adminFormTitle').textContent = 'Редактирование: ' + (user.name || user.email);
-  document.getElementById('adminUserName').value = user.name || '';
-  document.getElementById('adminUserEmail').value = user.email || '';
-  document.getElementById('adminUserPassword').value = '';
-  document.getElementById('adminUserRole').value = user.role || 'executor';
-  document.getElementById('adminAddForm').style.display = 'block';
-}
-
-async function saveAdminUser() {
-  if (!isAdmin()) { alert('Только администратор'); return; }
-  const name = document.getElementById('adminUserName').value.trim();
-  const email = document.getElementById('adminUserEmail').value.trim();
-  const password = document.getElementById('adminUserPassword').value;
-  const role = document.getElementById('adminUserRole').value;
-  if (!name || !email) { alert('Заполните имя и email'); return; }
-  if (editingUserId) {
-    const user = allUsers.find(u => u.id === editingUserId);
-    if (!user) return;
-    user.name = name; user.role = role;
-    await setDoc(doc(db, 'users', editingUserId), user);
-    if (password && password.length >= 6) alert('⚠️ Изменение пароля другого пользователя невозможно из интерфейса.');
-    alert('✅ Пользователь обновлён');
-  } else {
-    if (!password || password.length < 6) { alert('Пароль минимум 6 символов'); return; }
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, password);
-      await setDoc(doc(db, 'users', cred.user.uid), { uid: cred.user.uid, email, name, role, active: true, createdAt: today() });
-      alert('✅ Пользователь создан');
-    } catch (e) {
-      let msg = 'Ошибка создания';
-      if (e.code === 'auth/email-already-in-use') msg = 'Email уже используется';
-      alert(msg); return;
-    }
-  }
-  hideAddUserForm();
-  await loadAllUsers();
-  renderAdminUsers();
-}
-
-async function toggleAdminUser(userId) {
-  if (!isAdmin()) { alert('Только администратор'); return; }
-  const user = allUsers.find(u => u.id === userId);
-  if (!user) return;
-  user.active = !user.active;
-  await setDoc(doc(db, 'users', userId), user);
-  await loadAllUsers();
-  renderAdminUsers();
-}
-
-async function deleteAdminUser(userId, userName) {
-  if (!isAdmin()) { alert('Только администратор'); return; }
-  if (userId === currentUser.id) { alert('Нельзя удалить себя'); return; }
-  if (!confirm('Удалить пользователя "' + userName + '"?')) return;
-  try {
-    await deleteDoc(doc(db, 'users', userId));
-    alert('✅ Пользователь удалён из базы. Для полного удаления зайдите в Firebase Console → Authentication.');
-    await loadAllUsers();
-    renderAdminUsers();
-  } catch (e) { console.error(e); alert('Ошибка: ' + e.message); }
-}
-
-// ===== ОБРАБОТЧИКИ ПОЛЕЙ =====
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('statusFilter').addEventListener('change', render);
 document.getElementById('requestSearch').addEventListener('input', renderRequests);
@@ -1198,6 +826,7 @@ document.getElementById('baseSearch').addEventListener('input', renderBase);
 document.getElementById('employeeSearch').addEventListener('input', renderEmployees);
 document.getElementById('calEmployeeFilter').addEventListener('change', renderCalendar);
 document.getElementById('calClientFilter').addEventListener('input', renderCalendar);
+
 document.getElementById('viewTitleInput').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('title', this.value); });
 document.getElementById('viewDate').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('date', this.value); });
 document.getElementById('viewEndDate').addEventListener('change', function() { if (currentViewRequest && currentViewType) updateViewField('endDate', this.value); });
@@ -1275,7 +904,6 @@ function setupRealtimeListeners() {
   unsubscribeUsers = onSnapshot(collection(db, 'users'), snap => {
     allUsers = [];
     snap.forEach(d => { allUsers.push({ id: d.id, ...d.data() }); });
-    if (document.getElementById('adminPanelView').style.display === 'block') renderAdminUsers();
   });
 }
 
@@ -1655,14 +1283,14 @@ function renderViewActions() {
     div.appendChild(convBtn);
     const archBtn = document.createElement('button');
     archBtn.className = 'archive-btn';
-    archBtn.textContent = '📦 В архив';
+    archBtn.textContent = ' В архив';
     archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(archBtn);
   }
   if (isAdmin()) {
     const delBtn = document.createElement('button');
     delBtn.className = 'delete-final-btn';
-    delBtn.textContent = '🗑️ Удалить навсегда';
+    delBtn.textContent = '🗑 Удалить навсегда';
     delBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); if (itemType === 'project') await deleteProjectFinal(itemId); else await deleteRequestFinal(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
     div.appendChild(delBtn);
   }
@@ -1678,7 +1306,7 @@ function renderClientRequests(clientName) {
   if (!ap.length) { pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>'; }
   else { pc.innerHTML = ap.map(r => { const badge = getDeadlineBadge(r.endDate, r.date); const daysText = badge.days < 0 ? badge.days : badge.days; return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>'; }).join(''); }
   if (!ar.length) { rc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет заявок</div>'; }
-  else { rc.innerHTML = ar.map(l => { const days = daysFromStart(String(l.date||'').trim()); return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span>📅 ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>'; }).join(''); }
+  else { rc.innerHTML = ar.map(l => { const days = daysFromStart(String(l.date||'').trim()); return '<div class="request-tile request-tile-type" onclick="openRequestView(\'' + l.id + '\', \'request\')"><div class="tile-title">' + escapeHtml(getRequestTitle(l) || '(без названия)') + '</div><div class="tile-date"><span> ' + escapeHtml(l.date || '—') + '</span><span class="tile-days neutral">' + days + '</span></div>' + (l.status ? '<span class="tile-status">' + escapeHtml(l.status) + '</span>' : '') + '</div>'; }).join(''); }
 }
 
 function showAllProjects() {
@@ -1759,8 +1387,8 @@ function render() {
         let actionsHtml = '';
         if (currentView === 'archive') {
           actionsHtml = '<div class="req-actions">' +
-            '<button class="req-action-btn" onclick="event.stopPropagation(); restoreProject(\'' + r.id + '\')" title="Вернуть">↩️</button>' +
-            (isAdmin() ? '<button class="req-action-btn delete" onclick="event.stopPropagation(); if(confirm(\'Удалить проект БЕЗВОЗВРАТНО?\')) { deleteRequestFromFirebase(\'' + r.id + '\', \'requests\'); delete tasks[\'' + r.id + '\']; rows = rows.filter(x => x.id !== \'' + r.id + '\'); render(); }" title="Удалить">🗑️</button>' : '') +
+            '<button class="req-action-btn" onclick="event.stopPropagation(); restoreProject(\'' + r.id + '\')" title="Вернуть">↩</button>' +
+            (isAdmin() ? '<button class="req-action-btn delete" onclick="event.stopPropagation(); if(confirm(\'Удалить проект БЕЗВОЗВРАТНО?\')) { deleteRequestFromFirebase(\'' + r.id + '\', \'requests\'); delete tasks[\'' + r.id + '\']; rows = rows.filter(x => x.id !== \'' + r.id + '\'); render(); }" title="Удалить">🗑</button>' : '') +
             '</div>';
         }
         return '<div class="req-line" onclick="openRequestView(\'' + r.id + '\', \'project\')"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + actionsHtml + '</div>';
@@ -1795,9 +1423,9 @@ function renderRequests() {
     td2.appendChild(div); tr.appendChild(td2);
     const td3 = document.createElement('td');
     if (currentRequestView === 'archive') {
-      const rb = document.createElement('button'); rb.textContent = '↩️ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
+      const rb = document.createElement('button'); rb.textContent = '↩ Вернуть'; rb.className = 'restore-btn'; rb.style.marginRight = '4px'; rb.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) restoreRequest(arr[0].id); else if (confirm('Вернуть все архивные заявки?')) arr.forEach(l => restoreRequest(l.id)); }; td3.appendChild(rb);
       if (isAdmin()) {
-        const db = document.createElement('button'); db.textContent = '🗑️ Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
+        const db = document.createElement('button'); db.textContent = '🗑 Удалить'; db.className = 'delete-final-btn'; db.onclick = (e) => { e.stopPropagation(); const arr = leads.filter(l => getClientName(l) === c.name && l.archived); if (arr.length === 1) deleteRequestFinal(arr[0].id); else if (confirm('Удалить ВСЕ архивные заявки БЕЗВОЗВРАТНО?')) { arr.forEach(l => deleteRequestFromFirebase(l.id, 'leads')); leads = leads.filter(l => !(getClientName(l) === c.name && l.archived)); renderRequests(); } }; td3.appendChild(db);
       }
     } else {
       const ab = document.createElement('button'); ab.textContent = '📋 Открыть'; ab.className = 'production-btn'; ab.onclick = (e) => { e.stopPropagation(); openClientModalByName(c.name); }; td3.appendChild(ab);
@@ -1817,7 +1445,7 @@ function renderBase() {
   visible.forEach(c => {
     const div = document.createElement('div');
     div.className = 'client-base-item';
-    const deleteBtn = isAdmin() ? '<button class="icon-btn" onclick="event.stopPropagation(); if(confirm(\'Удалить клиента \\\'' + escapeHtml(c.name) + '\\\' и все его проекты и заявки БЕЗВОЗВРАТНО?\')) { deleteClientFromBase(\'' + escapeHtml(c.name) + '\'); }" title="Удалить клиента">🗑️</button>' : '';
+    const deleteBtn = isAdmin() ? '<button class="icon-btn" onclick="event.stopPropagation(); if(confirm(\'Удалить клиента \\\'' + escapeHtml(c.name) + '\\\' и все его проекты и заявки БЕЗВОЗВРАТНО?\')) { deleteClientFromBase(\'' + escapeHtml(c.name) + '\'); }" title="Удалить клиента">🗑</button>' : '';
     let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions">' + deleteBtn + '</div></div>';
     if (c.contactPersons && c.contactPersons.length) {
       c.contactPersons.forEach(cp => {
@@ -1825,16 +1453,16 @@ function renderBase() {
           let cpLine = '👤 ' + escapeHtml(cp.name);
           if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
           html += '<div class="client-base-info">' + cpLine + '</div>';
-          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
+          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
-          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
+          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.phone3) + '</div>';
           if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
-          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
+          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;"> ' + escapeHtml(cp.address) + '</div>';
         }
       });
     }
-    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
+    html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span> Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     div.onclick = () => openClientModalByName(c.name);
     bl.appendChild(div);
@@ -1942,7 +1570,7 @@ function renderEmployeeProjects(empId) {
     const isResponsible = r.responsible === emp.name;
     const hasTasks = (tasks[r.id] || []).some(t => t.assignee === emp.name);
     const roleLabel = isResponsible ? ' (ответственный)' : (hasTasks ? ' (исполнитель)' : '');
-    return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + roleLabel + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+    return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + roleLabel + '</div><div class="tile-date"><span> ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
   }).join('');
 }
 
@@ -2418,7 +2046,7 @@ function renderDashboard() {
   const totalProjects = activeProjects.length || 1;
   const onTime = activeProjects.length - overdueProjects.length - warningProjects.length - todayDeadlineProjects.length;
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">✅ В срок</span><span class="bar-value">' + onTime + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill ok" style="width:' + Math.round((onTime/totalProjects)*100) + '%;"></div></div></div>';
-  html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">⚠️ Скоро дедлайн (≤30 дн.)</span><span class="bar-value">' + warningProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((warningProjects.length/totalProjects)*100) + '%;"></div></div></div>';
+  html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">️ Скоро дедлайн (≤30 дн.)</span><span class="bar-value">' + warningProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((warningProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">🔴 Срок сегодня</span><span class="bar-value">' + todayDeadlineProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((todayDeadlineProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">❌ Просрочено</span><span class="bar-value">' + overdueProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill danger" style="width:' + Math.round((overdueProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '</div></div>';
@@ -2810,22 +2438,8 @@ function getEmployeeLoad(empName) {
   return { total: t, active: a };
 }
 
-// Загружаем пользователей при старте
-loadAllUsers();
+setupRealtimeListeners();
 
-window.handleLogin = handleLogin;
-window.handleCreateAdmin = handleCreateAdmin;
-window.handleLogout = handleLogout;
-window.showCreateAdminForm = showCreateAdminForm;
-window.showLoginForm = showLoginForm;
-window.openAdminPanel = openAdminPanel;
-window.closeAdminPanel = closeAdminPanel;
-window.showAddUserForm = showAddUserForm;
-window.hideAddUserForm = hideAddUserForm;
-window.editAdminUser = editAdminUser;
-window.saveAdminUser = saveAdminUser;
-window.toggleAdminUser = toggleAdminUser;
-window.deleteAdminUser = deleteAdminUser;
 window.addClient = addClient;
 window.addRequest = addRequest;
 window.deleteClientFromBase = deleteClientFromBase;
