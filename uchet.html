@@ -95,6 +95,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .view-modal-header h2 { margin: 0 0 4px 0; font-size: 22px; color: #004a99; }
 .view-title-input { font-size: 22px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; margin-bottom: 8px; }
 .view-title-input:focus { border-color: #004a99; outline: none; }
+.view-title-input:read-only { background: #f5f5f5; color: #666; cursor: not-allowed; }
 .view-type-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; color: white; }
 .view-type-badge.project { background: #5bc0de; }
 .view-type-badge.request { background: #9b59b6; }
@@ -103,6 +104,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .view-info-item .value { font-size: 14px; font-weight: bold; color: #222; }
 .view-info-item .value input, .view-info-item .value select { font-size: 14px; font-weight: bold; color: #222; padding: 4px 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; box-sizing: border-box; background: white; }
 .view-info-item .value input:focus, .view-info-item .value select:focus { border-color: #004a99; outline: none; }
+.view-info-item .value input:disabled, .view-info-item .value select:disabled { background: #f5f5f5; color: #666; cursor: not-allowed; }
 .view-comment-section { margin-top: 20px; border-top: 2px solid #eee; padding-top: 16px; }
 .view-comment-section h4 { margin: 0 0 12px 0; font-size: 16px; }
 .comment-add-form { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -158,7 +160,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .add-task-form { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
 .add-task-form h4 { margin: 0 0 8px 0; font-size: 14px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-.assignee-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #f9f9f9; border: 1px solid #eee; border-radius: 4px; margin-bottom: 4px; }
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
 .stat-card { background: #f0f8ff; border: 1px solid #b7d4ff; border-radius: 6px; padding: 10px; }
 .stat-card .stat-value { font-size: 24px; font-weight: bold; color: #004a99; }
@@ -195,7 +196,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .employee-row .emp-delete:hover { background: #c9302c; }
 .employee-page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
 .employee-page-header h2 { margin: 0; color: #004a99; }
-.employee-page-header .emp-info { font-size: 14px; color: #666; }
 .employee-page-header .emp-edit-fields { width: 100%; }
 .employee-page-header .emp-edit-fields label { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 8px; }
 .employee-page-header .emp-edit-fields input { font-size: 16px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; }
@@ -286,15 +286,11 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .timesheet-table td.hours-cell.disabled { background: #f5f5f5; cursor: not-allowed; color: #999; }
 .timesheet-table td.total-cell { font-weight: bold; background: #e3f2fd; color: #004a99; font-size: 13px; cursor: pointer; transition: background 0.15s; }
 .timesheet-table td.total-cell:hover { background: #bbdefb; }
-.timesheet-table tr.weekend td.hours-cell { background: #fafafa; }
-.timesheet-table tr.weekend td.employee-cell { background: #fafafa; }
 .timesheet-entry-modal .entry-list { max-height: 500px; overflow-y: auto; }
 .timesheet-entry-modal .entry-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; background: #fafafa; flex-direction: column; }
-.timesheet-entry-modal .entry-item .entry-header { display: flex; align-items: center; gap: 10px; width: 100%; }
+.timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
 .timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
 .timesheet-entry-modal .entry-item .entry-client { font-size: 11px; color: #666; }
-.timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
-.timesheet-entry-modal .entry-item input[type="number"]:focus { border-color: #004a99; outline: none; }
 .timesheet-entry-modal .entry-total { margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color: #004a99; }
 .timesheet-entry-modal .entry-total span { font-size: 24px; }
 .stages-list { margin: 12px 0; }
@@ -302,6 +298,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .stage-item .stage-order { font-weight: bold; color: #004a99; min-width: 24px; text-align: center; }
 .stage-item input { flex: 1; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
 .stage-item input:focus { border-color: #004a99; outline: none; }
+.stage-item input:read-only { background: #f5f5f5; color: #666; cursor: not-allowed; }
 .stage-item button { padding: 4px 8px; border-radius: 4px; border: none; cursor: pointer; font-size: 12px; }
 .stage-item .stage-up, .stage-item .stage-down { background: #f0f0f0; }
 .stage-item .stage-up:hover, .stage-item .stage-down:hover { background: #e0e0e0; }
@@ -381,9 +378,9 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .auth-card .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 24px; }
 .auth-card .form-group { margin-bottom: 16px; }
 .auth-card label { display: block; font-size: 12px; font-weight: bold; color: #555; margin-bottom: 6px; text-transform: uppercase; }
-.auth-card input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; transition: border-color 0.15s; }
+.auth-card input { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
 .auth-card input:focus { border-color: #004a99; outline: none; }
-.auth-card .auth-btn { width: 100%; padding: 12px; background: #004a99; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; transition: background 0.15s; margin-top: 8px; }
+.auth-card .auth-btn { width: 100%; padding: 12px; background: #004a99; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 8px; }
 .auth-card .auth-btn:hover { background: #003366; }
 .auth-card .auth-btn.secondary { background: #5cb85c; }
 .auth-card .auth-btn.secondary:hover { background: #449d44; }
@@ -400,9 +397,9 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .user-role.admin { color: #d9534f; font-weight: bold; }
 .user-role.manager { color: #e6a817; font-weight: bold; }
 .user-role.executor { color: #5cb85c; font-weight: bold; }
-.logout-btn { background: #f0f0f0; border: 1px solid #ddd; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #555; transition: all 0.15s; }
+.logout-btn { background: #f0f0f0; border: 1px solid #ddd; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; color: #555; }
 .logout-btn:hover { background: #ffebee; border-color: #d9534f; color: #d9534f; }
-.admin-btn { background: #9b59b6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.15s; }
+.admin-btn { background: #9b59b6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold; }
 .admin-btn:hover { background: #8e44ad; }
 #mainApp { display: none; }
 #authScreen { display: flex; }
@@ -410,7 +407,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .admin-panel { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
 .admin-panel h2 { margin: 0 0 16px 0; color: #004a99; font-size: 20px; border-bottom: 2px solid #eee; padding-bottom: 12px; }
 .admin-user-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.admin-user-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; transition: all 0.15s; }
+.admin-user-item { display: flex; align-items: center; gap: 12px; padding: 12px; background: #f9f9f9; border: 1px solid #ddd; border-radius: 6px; }
 .admin-user-item:hover { background: #f4f9ff; border-color: #004a99; }
 .admin-user-item .user-avatar-small { width: 32px; height: 32px; border-radius: 50%; background: #004a99; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; flex-shrink: 0; }
 .admin-user-item .user-info-main { flex: 1; }
@@ -423,51 +420,39 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .admin-user-item .user-status { font-size: 11px; color: #888; }
 .admin-user-item .user-status.inactive { color: #d9534f; }
 .admin-user-item .user-actions { display: flex; gap: 6px; }
-.admin-user-item .user-actions button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.15s; }
+.admin-user-item .user-actions button { padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
 .admin-user-item .user-actions .btn-edit { background: #5bc0de; color: white; }
-.admin-user-item .user-actions .btn-edit:hover { background: #31b0d5; }
 .admin-user-item .user-actions .btn-toggle { background: #f0ad4e; color: white; }
-.admin-user-item .user-actions .btn-toggle:hover { background: #ec971f; }
 .admin-user-item .user-actions .btn-delete { background: #d9534f; color: white; }
-.admin-user-item .user-actions .btn-delete:hover { background: #c9302c; }
 .admin-add-form { background: #f0f8ff; border: 1px solid #b7d4ff; border-radius: 6px; padding: 16px; margin-top: 16px; }
 .admin-add-form h3 { margin: 0 0 12px 0; color: #004a99; font-size: 16px; }
 .admin-add-form .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
 @media (max-width: 700px) { .admin-add-form .form-row { grid-template-columns: 1fr; } }
 .admin-add-form label { display: block; font-size: 12px; font-weight: bold; color: #555; margin-bottom: 4px; text-transform: uppercase; }
 .admin-add-form input, .admin-add-form select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; box-sizing: border-box; }
-.admin-add-form input:focus, .admin-add-form select:focus { border-color: #004a99; outline: none; }
 .admin-add-form .form-actions { display: flex; gap: 8px; margin-top: 12px; }
-.admin-add-form .form-actions button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.15s; }
+.admin-add-form .form-actions button { padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
 .admin-add-form .form-actions .btn-save { background: #5cb85c; color: white; }
-.admin-add-form .form-actions .btn-save:hover { background: #449d44; }
 .admin-add-form .form-actions .btn-cancel { background: #95a5a6; color: white; }
-.admin-add-form .form-actions .btn-cancel:hover { background: #7f8c8d; }
 
 .ts-comment-section { width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ddd; }
 .ts-comment-display { background: white; border: 1px solid #b7d4ff; border-radius: 4px; padding: 8px; }
 .ts-comment-text { font-size: 13px; color: #222; white-space: pre-wrap; word-break: break-word; margin-bottom: 4px; }
 .ts-comment-meta { font-size: 11px; color: #888; display: flex; flex-direction: column; gap: 2px; }
-.ts-comment-meta .edited-info { color: #e6a817; font-style: italic; }
 .ts-comment-actions { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
 .ts-comment-actions button { font-size: 11px; padding: 3px 8px; border-radius: 3px; border: none; cursor: pointer; }
 .ts-comment-actions .btn-edit-comment { background: #5bc0de; color: white; }
-.ts-comment-actions .btn-edit-comment:hover { background: #31b0d5; }
-.ts-comment-actions .btn-edit-comment:disabled { background: #ccc; cursor: not-allowed; }
 .ts-comment-form { margin-top: 8px; }
 .ts-comment-textarea { width: 100%; min-height: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; resize: vertical; }
-.ts-comment-textarea:focus { border-color: #004a99; outline: none; }
 .ts-comment-form-actions { display: flex; gap: 4px; margin-top: 6px; }
 .ts-comment-form-actions button { font-size: 11px; padding: 4px 10px; border-radius: 4px; border: none; cursor: pointer; }
 .ts-comment-form-actions .btn-save-comment { background: #5cb85c; color: white; }
-.ts-comment-form-actions .btn-save-comment:hover { background: #449d44; }
 .ts-comment-form-actions .btn-cancel-comment { background: #95a5a6; color: white; }
-.ts-comment-form-actions .btn-cancel-comment:hover { background: #7f8c8d; }
 .ts-comment-history { margin-top: 8px; padding: 8px; background: #fffbe6; border: 1px solid #ffe58f; border-radius: 4px; font-size: 11px; color: #666; }
 .ts-comment-history .history-title { font-weight: bold; color: #e6a817; margin-bottom: 4px; }
 .ts-comment-history .history-item { margin-bottom: 4px; padding-left: 8px; border-left: 2px solid #ffe58f; }
 .ts-comment-locked { font-size: 11px; color: #d9534f; margin-top: 4px; font-style: italic; }
-.ts-add-comment-btn { background: none; border: 1px dashed #b7d4ff; color: #004a99; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-top: 6px; transition: all 0.15s; }
+.ts-add-comment-btn { background: none; border: 1px dashed #b7d4ff; color: #004a99; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-top: 6px; }
 .ts-add-comment-btn:hover { background: #e3f0ff; border-style: solid; }
 
 .author-badge {
@@ -499,15 +484,8 @@ td input:focus { border-color: #888; background: white; outline: none; }
   color: #666;
   margin-bottom: 4px;
 }
-.project-executors-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.project-executor-item {
-  color: #555;
-  padding-left: 8px;
-}
+.project-executors-list { display: flex; flex-direction: column; gap: 2px; }
+.project-executor-item { color: #555; padding-left: 8px; }
 </style>
 </head>
 <body>
@@ -613,7 +591,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
     <div class="toolbar">
       <input id="search" placeholder="Поиск..." style="width: 280px">
       <select id="statusFilter"><option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option></select>
-      <button onclick="addClient()">+ Добавить проект</button>
+      <button id="btnAddProject" onclick="addClient()">+ Добавить проект</button>
       <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
       <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
@@ -628,7 +606,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
     </div>
     <div class="toolbar">
       <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
-      <button onclick="addRequest()">+ Добавить заявку</button>
+      <button id="btnAddRequest" onclick="addRequest()">+ Добавить заявку</button>
       <button class="export-btn" onclick="exportRequestsCSV()">📤 Экспорт</button>
       <span id="requestInfo" class="muted"></span>
     </div>
@@ -767,7 +745,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div class="project-stages-info" id="projectStagesInfo"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="production-btn" onclick="openStagesModal()">⚙️ Этапы этого проекта</button>
+        <button id="btnStagesModal" class="production-btn" onclick="openStagesModal()">⚙️ Этапы этого проекта</button>
         <button onclick="openEmployeesModal()">👷 Сотрудники</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
@@ -790,15 +768,14 @@ td input:focus { border-color: #888; background: white; outline: none; }
   <div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
     <div class="modal">
       <div class="modal-header"><h3>⚙️ Этапы проекта: <span id="stagesProjectName"></span></h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
-      <p class="muted" style="margin-top:0;">Настройте этапы для этого проекта. Изменения коснутся только этого проекта.</p>
+      <p class="muted" style="margin-top:0;" id="stagesModalHint">Настройте этапы для этого проекта. Изменения коснутся только этого проекта.</p>
       <div class="stages-list" id="stagesList"></div>
-      <div class="add-stage-form">
+      <div class="add-stage-form" id="addStageFormBlock">
         <input id="newStageName" placeholder="Название нового этапа">
         <button class="production-btn" onclick="addKanbanStage()">+ Добавить этап</button>
       </div>
       <div class="modal-actions">
-        <button class="production-btn" onclick="saveStagesAndClose()">💾 Сохранить и закрыть</button>
-        <button onclick="closeStagesModal()">Отмена</button>
+        <button class="production-btn" onclick="saveStagesAndClose()">💾 Закрыть</button>
       </div>
     </div>
   </div>
@@ -889,7 +866,7 @@ const DEFAULT_STAGES = [
   { id: 'done', name: 'Готово', order: 3 }
 ];
 
-// ===== ФОРМАТИРОВАНИЕ ИМЕНИ: ВСЕГДА ДВА ИНИЦИАЛА =====
+// ===== ФОРМАТИРОВАНИЕ ИМЕНИ: ФАМИЛИЯ + ДВА ИНИЦИАЛА =====
 function formatShortName(fullName) {
   if (!fullName) return 'Неизвестно';
   if (fullName.includes('@')) return fullName.split('@')[0];
@@ -910,7 +887,7 @@ function getCurrentUserDisplayName() {
   return 'Неизвестно';
 }
 
-// ===== ПРОВЕРКА ПРАВ ДОСТУПА =====
+// ===== ПРОВЕРКА ПРАВ =====
 function isAdmin() { return currentUser && currentUser.role === 'admin'; }
 function isManager() { return currentUser && currentUser.role === 'manager'; }
 function isExecutor() { return currentUser && currentUser.role === 'executor'; }
@@ -947,7 +924,7 @@ function canEditTimesheet(empId) {
   return false;
 }
 
-function canViewAllTimesheets() {
+function canEditStages() {
   return isAdmin() || isManager();
 }
 
@@ -1089,23 +1066,32 @@ function updateUserHeader(user) {
   roleEl.className = 'user-role ' + role;
   document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
   document.getElementById('adminPanelBtn').style.display = (role === 'admin') ? 'inline-block' : 'none';
-  
-  // Скрываем вкладки для исполнителей
   updateTabVisibility();
+  updateUIPermissions();
 }
 
 function updateTabVisibility() {
-  const tabs = ['projects', 'requests', 'base', 'employees', 'calendar', 'timesheet', 'dashboard'];
+  const tabs = ['dashboard', 'projects', 'requests', 'base', 'employees', 'calendar', 'timesheet'];
   tabs.forEach(tab => {
     const tabEl = document.getElementById('nav' + tab.charAt(0).toUpperCase() + tab.slice(1));
     if (tabEl) {
-      if (canViewTab(tab)) {
-        tabEl.classList.remove('hidden');
-      } else {
-        tabEl.classList.add('hidden');
-      }
+      if (canViewTab(tab)) tabEl.classList.remove('hidden');
+      else tabEl.classList.add('hidden');
     }
   });
+}
+
+function updateUIPermissions() {
+  if (!currentUser) return;
+  const isExec = isExecutor();
+  // Скрываем кнопки создания для исполнителя
+  const btnAddProject = document.getElementById('btnAddProject');
+  if (btnAddProject) btnAddProject.style.display = isExec ? 'none' : 'inline-block';
+  const btnAddRequest = document.getElementById('btnAddRequest');
+  if (btnAddRequest) btnAddRequest.style.display = isExec ? 'none' : 'inline-block';
+  // Скрываем кнопку этапов для исполнителя
+  const btnStages = document.getElementById('btnStagesModal');
+  if (btnStages) btnStages.style.display = isExec ? 'none' : 'inline-block';
 }
 
 function showApp() {
@@ -1114,13 +1100,8 @@ function showApp() {
   document.getElementById('mainApp').style.display = 'block';
   document.getElementById('adminPanelView').style.display = 'none';
   setupRealtimeListeners();
-  
-  // Если исполнитель — сразу на дашборд
-  if (isExecutor() && !canViewTab(currentNavView)) {
-    switchNavView('dashboard');
-  } else {
-    switchNavView(currentNavView);
-  }
+  if (isExecutor() && !canViewTab(currentNavView)) switchNavView('dashboard');
+  else switchNavView(currentNavView);
 }
 
 function showAuth() {
@@ -1128,7 +1109,7 @@ function showAuth() {
   document.getElementById('userHeader').style.display = 'none';
   document.getElementById('mainApp').style.display = 'none';
   document.getElementById('adminPanelView').style.display = 'none';
-  [unsubscribeClients, unsubscribeRequests, unsubscribeLeads, unsubscribeEmployees, unsubscribeTasks, unsubscribeTimesheets, unsubscribeGlobalStages, unsubscribeUsers].forEach(u => { if (u) { u(); } });
+  [unsubscribeClients, unsubscribeRequests, unsubscribeLeads, unsubscribeEmployees, unsubscribeTasks, unsubscribeTimesheets, unsubscribeGlobalStages, unsubscribeUsers].forEach(u => { if (u) u(); });
   unsubscribeClients = unsubscribeRequests = unsubscribeLeads = unsubscribeEmployees = unsubscribeTasks = unsubscribeTimesheets = unsubscribeGlobalStages = unsubscribeUsers = null;
 }
 
@@ -1231,7 +1212,6 @@ async function saveAdminUser() {
     if (!user) return;
     user.name = name; user.role = role;
     await setDoc(doc(db, 'users', editingUserId), user);
-    if (password && password.length >= 6) alert('⚠️ Изменение пароля другого пользователя невозможно из интерфейса.');
     alert('✅ Пользователь обновлён');
   } else {
     if (!password || password.length < 6) { alert('Пароль минимум 6 символов'); return; }
@@ -1266,13 +1246,13 @@ async function deleteAdminUser(userId, userName) {
   if (!confirm('Удалить пользователя "' + userName + '"?')) return;
   try {
     await deleteDoc(doc(db, 'users', userId));
-    alert('✅ Пользователь удалён из базы. Для полного удаления зайдите в Firebase Console → Authentication.');
+    alert('✅ Пользователь удалён из базы.');
     await loadAllUsers();
     renderAdminUsers();
   } catch (e) { console.error(e); alert('Ошибка: ' + e.message); }
 }
 
-// ===== ОБРАБОТЧИКИ ПОЛЕЙ =====
+// ===== ОБРАБОТЧИКИ =====
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('statusFilter').addEventListener('change', render);
 document.getElementById('requestSearch').addEventListener('input', renderRequests);
@@ -1362,13 +1342,13 @@ function setupRealtimeListeners() {
 }
 
 async function addClient() {
-  if (!isAdmin() && !isManager()) { alert('Только администратор или менеджер может создавать проекты'); return; }
+  if (isExecutor()) { alert('Только администратор или менеджер может создавать проекты'); return; }
   const name = generateNewClientName();
   await saveClientToFirebase(name, { name, contactPersons: [], notes: [], createdAt: today() });
   setTimeout(() => openClientModalByName(name), 300);
 }
 async function addRequest() {
-  if (!isAdmin() && !isManager()) { alert('Только администратор или менеджер может создавать заявки'); return; }
+  if (isExecutor()) { alert('Только администратор или менеджер может создавать заявки'); return; }
   const name = generateNewClientName();
   await ensureClientExists(name);
   setTimeout(() => openClientModalByName(name), 300);
@@ -1405,7 +1385,7 @@ function getBaseList() {
 
 async function deleteClientFromBase(name) {
   if (!isAdmin()) { alert('Только администратор может удалять клиентов'); return; }
-  if (!confirm('Удалить клиента "' + name + '" и все его проекты и заявки БЕЗВОЗВРАТНО?')) return;
+  if (!confirm('Удалить клиента "' + name + '" БЕЗВОЗВРАТНО?')) return;
   delete clients[name];
   await deleteDoc(doc(db, 'clients', name));
   for (const r of rows.filter(r => getClientName(r) === name)) await deleteRequestFromFirebase(r.id, 'requests');
@@ -1429,18 +1409,18 @@ function openClientModalByName(name) {
 
 function renderContactPersons(contactPersons) {
   const container = document.getElementById('contactPersonsList');
-  if (!contactPersons || !contactPersons.length) { container.innerHTML = '<div class="muted">Контактных лиц пока нет. Нажмите кнопку ниже, чтобы добавить.</div>'; return; }
+  if (!contactPersons || !contactPersons.length) { container.innerHTML = '<div class="muted">Контактных лиц пока нет.</div>'; return; }
   container.innerHTML = contactPersons.map((cp, idx) => `
     <div class="contact-person-block">
       <div class="cp-header"><span>Контактное лицо №${idx + 1}</span><button class="remove-cp-btn" onclick="removeContactPerson(${idx})">✖ Удалить</button></div>
-      <div class="cp-field"><label>ФИО</label><input type="text" placeholder="Иванов Иван Иванович" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${idx}, 'name', this.value)"></div>
-      <div class="cp-field"><label>Должность</label><input type="text" placeholder="Директор, менеджер..." value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${idx}, 'position', this.value)"></div>
-      <div class="cp-field"><label>Телефон 1</label><input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone1 || '')}" onchange="updateContactPerson(${idx}, 'phone1', this.value)"></div>
-      <div class="cp-field"><label>Телефон 2</label><input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone2 || '')}" onchange="updateContactPerson(${idx}, 'phone2', this.value)"></div>
-      <div class="cp-field"><label>Телефон 3</label><input type="text" placeholder="+7 900 000-00-00" value="${escapeHtml(cp.phone3 || '')}" onchange="updateContactPerson(${idx}, 'phone3', this.value)"></div>
-      <div class="cp-field"><label>Электронная почта</label><input type="email" placeholder="email@example.com" value="${escapeHtml(cp.email || '')}" onchange="updateContactPerson(${idx}, 'email', this.value)"></div>
-      <div class="cp-field"><label>Сайт</label><input type="text" placeholder="https://example.com" value="${escapeHtml(cp.website || '')}" onchange="updateContactPerson(${idx}, 'website', this.value)"></div>
-      <div class="cp-field"><label>Адрес</label><input type="text" placeholder="Город, улица, дом, офис" value="${escapeHtml(cp.address || '')}" onchange="updateContactPerson(${idx}, 'address', this.value)"></div>
+      <div class="cp-field"><label>ФИО</label><input type="text" value="${escapeHtml(cp.name || '')}" onchange="updateContactPerson(${idx}, 'name', this.value)"></div>
+      <div class="cp-field"><label>Должность</label><input type="text" value="${escapeHtml(cp.position || '')}" onchange="updateContactPerson(${idx}, 'position', this.value)"></div>
+      <div class="cp-field"><label>Телефон 1</label><input type="text" value="${escapeHtml(cp.phone1 || '')}" onchange="updateContactPerson(${idx}, 'phone1', this.value)"></div>
+      <div class="cp-field"><label>Телефон 2</label><input type="text" value="${escapeHtml(cp.phone2 || '')}" onchange="updateContactPerson(${idx}, 'phone2', this.value)"></div>
+      <div class="cp-field"><label>Телефон 3</label><input type="text" value="${escapeHtml(cp.phone3 || '')}" onchange="updateContactPerson(${idx}, 'phone3', this.value)"></div>
+      <div class="cp-field"><label>Email</label><input type="email" value="${escapeHtml(cp.email || '')}" onchange="updateContactPerson(${idx}, 'email', this.value)"></div>
+      <div class="cp-field"><label>Сайт</label><input type="text" value="${escapeHtml(cp.website || '')}" onchange="updateContactPerson(${idx}, 'website', this.value)"></div>
+      <div class="cp-field"><label>Адрес</label><input type="text" value="${escapeHtml(cp.address || '')}" onchange="updateContactPerson(${idx}, 'address', this.value)"></div>
     </div>
   `).join('');
 }
@@ -1459,13 +1439,7 @@ function renderNotes() {
     const authorDisplay = n.author ? '<span class="author-badge">' + escapeHtml(formatShortName(n.author)) + '</span>' : '';
     const editedInfo = n.editedAt ? '<span class="edited-info">✏️ Изменено: ' + escapeHtml(n.editedAt) + ' в ' + escapeHtml(n.editedTime) + (n.editedBy ? ' • ' + escapeHtml(formatShortName(n.editedBy)) : '') + '</span>' : '';
     const deleteBtn = isAdmin() ? '<button class="note-delete" onclick="deleteNote(\'' + n.id + '\')">Удалить</button>' : '';
-    return `<div class="note-item">
-      <div class="note-meta">
-        <span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)} ${authorDisplay} ${editedInfo}</span>
-        ${deleteBtn}
-      </div>
-      <div class="note-text">${escapeHtml(n.text)}</div>
-    </div>`;
+    return `<div class="note-item"><div class="note-meta"><span>📅 ${escapeHtml(n.date)} в ${escapeHtml(n.time)} ${authorDisplay} ${editedInfo}</span>${deleteBtn}</div><div class="note-text">${escapeHtml(n.text)}</div></div>`;
   }).join('');
 }
 
@@ -1518,7 +1492,7 @@ async function applyClientForm() {
 async function saveClientModal() { await applyClientForm(); closeClientModal(); }
 
 async function addRequestToClient(type) {
-  if (!isAdmin() && !isManager()) { alert('Только администратор или менеджер может создавать проекты/заявки'); return; }
+  if (isExecutor()) { alert('Только администратор или менеджер может создавать проекты/заявки'); return; }
   const clientName = await applyClientForm();
   const isReq = type === 'request';
   const newItem = { id: uid(), date: today(), endDate: '', client: clientName, contact: '', title: '', request: '', comment: '', comments: [], priority: 'Средний', status: 'Новая', responsible: '', archived: false, createdBy: getCurrentUserDisplayName() };
@@ -1591,6 +1565,17 @@ async function openProduction(id) {
 }
 function closeProduction() { const modal = document.getElementById('productionModal'); if (modal) modal.style.display = 'none'; currentProductionRequest = null; }
 
+// ===== Установить режим чтения/редактирования полей проекта =====
+function applyProjectFieldPermissions(projectId) {
+  const canEdit = !isExecutor() || canEditProject(projectId);
+  document.getElementById('viewTitleInput').readOnly = !canEdit;
+  document.getElementById('viewDate').disabled = !canEdit;
+  document.getElementById('viewEndDate').disabled = !canEdit;
+  document.getElementById('viewStatus').disabled = !canEdit;
+  document.getElementById('viewResponsible').disabled = !canEdit;
+  document.getElementById('viewComment').readOnly = !canEdit;
+}
+
 function openRequestView(id, type) {
   const list = type === 'project' ? rows : leads;
   const item = list.find(r => r.id === id);
@@ -1625,7 +1610,6 @@ function openRequestView(id, type) {
     const b = getDeadlineBadge(item.endDate, item.date);
     const db = document.getElementById('viewDaysBadge');
     db.textContent = b.text; db.className = 'days-badge ' + b.cls;
-    // Показываем список исполнителей
     renderProjectExecutors(id);
   } else {
     document.getElementById('projectExecutorsBlock').style.display = 'none';
@@ -1633,6 +1617,10 @@ function openRequestView(id, type) {
   fillResponsibleSelect();
   document.getElementById('viewResponsible').value = item.responsible || '';
   document.getElementById('viewComment').value = item.comment || '';
+  
+  // Применяем права доступа к полям
+  applyProjectFieldPermissions(id);
+  
   renderViewActions();
   renderComments();
   document.getElementById('viewModal').style.display = 'block';
@@ -1641,22 +1629,12 @@ function openRequestView(id, type) {
 function renderProjectExecutors(projectId) {
   const projectTasks = tasks[projectId] || [];
   const executors = new Set();
-  projectTasks.forEach(t => {
-    if (t.assignee) executors.add(t.assignee);
-  });
-  
+  projectTasks.forEach(t => { if (t.assignee) executors.add(t.assignee); });
   const block = document.getElementById('projectExecutorsBlock');
   const list = document.getElementById('projectExecutorsList');
-  
-  if (executors.size === 0) {
-    block.style.display = 'none';
-    return;
-  }
-  
+  if (executors.size === 0) { block.style.display = 'none'; return; }
   block.style.display = 'block';
-  list.innerHTML = Array.from(executors).map(name => {
-    return `<div class="project-executor-item">• ${escapeHtml(formatShortName(name))}</div>`;
-  }).join('');
+  list.innerHTML = Array.from(executors).map(name => `<div class="project-executor-item">• ${escapeHtml(formatShortName(name))}</div>`).join('');
 }
 
 function fillResponsibleSelect() {
@@ -1692,6 +1670,7 @@ function refreshViewModal() {
     db.textContent = b.text; db.className = 'days-badge ' + b.cls;
     renderProjectExecutors(u.id);
   }
+  applyProjectFieldPermissions(u.id);
   renderComments();
 }
 
@@ -1762,34 +1741,44 @@ function renderViewActions() {
   if (!currentViewRequest || !currentViewType) return;
   const itemId = currentViewRequest.id;
   const itemType = currentViewType;
+  
+  // Кнопка "Производство" — для всех, кто имеет доступ к проекту
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
     prodBtn.textContent = '🏭 Производство';
     prodBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); const savedId = itemId; document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; setTimeout(function() { openProduction(savedId); }, 200); });
     div.appendChild(prodBtn);
-    const archBtn = document.createElement('button');
-    archBtn.className = 'archive-btn';
-    archBtn.textContent = '📦 В архив';
-    archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveProject(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
-    div.appendChild(archBtn);
-    const convBtn = document.createElement('button');
-    convBtn.className = 'convert-btn';
-    convBtn.textContent = '🔄 В заявку';
-    convBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await convertProjectToRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
-    div.appendChild(convBtn);
-  } else {
-    const convBtn = document.createElement('button');
-    convBtn.className = 'convert-btn';
-    convBtn.textContent = '🔄 В проект';
-    convBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await convertRequestToProject(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
-    div.appendChild(convBtn);
-    const archBtn = document.createElement('button');
-    archBtn.className = 'archive-btn';
-    archBtn.textContent = '📦 В архив';
-    archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
-    div.appendChild(archBtn);
   }
+  
+  // Кнопки "В архив", "В заявку", "В проект" — ТОЛЬКО для админа/менеджера
+  if (!isExecutor()) {
+    if (itemType === 'project') {
+      const archBtn = document.createElement('button');
+      archBtn.className = 'archive-btn';
+      archBtn.textContent = '📦 В архив';
+      archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveProject(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
+      div.appendChild(archBtn);
+      const convBtn = document.createElement('button');
+      convBtn.className = 'convert-btn';
+      convBtn.textContent = '🔄 В заявку';
+      convBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await convertProjectToRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
+      div.appendChild(convBtn);
+    } else {
+      const convBtn = document.createElement('button');
+      convBtn.className = 'convert-btn';
+      convBtn.textContent = '🔄 В проект';
+      convBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await convertRequestToProject(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
+      div.appendChild(convBtn);
+      const archBtn = document.createElement('button');
+      archBtn.className = 'archive-btn';
+      archBtn.textContent = '📦 В архив';
+      archBtn.addEventListener('click', async function(e) { e.preventDefault(); e.stopPropagation(); await archiveRequest(itemId); document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; });
+      div.appendChild(archBtn);
+    }
+  }
+  
+  // Кнопка "Удалить" — только для админа
   if (isAdmin()) {
     const delBtn = document.createElement('button');
     delBtn.className = 'delete-final-btn';
@@ -1836,10 +1825,7 @@ function showAllProjects() {
 }
 
 function switchNavView(view) {
-  if (!canViewTab(view)) {
-    alert('У вас нет доступа к этой вкладке');
-    view = 'dashboard';
-  }
+  if (!canViewTab(view)) { alert('У вас нет доступа к этой вкладке'); view = 'dashboard'; }
   currentNavView = view;
   document.getElementById('navDashboard').classList.toggle('active', view === 'dashboard');
   document.getElementById('navProjects').classList.toggle('active', view === 'projects');
@@ -2087,15 +2073,24 @@ function closeEmployeesModal() { document.getElementById('employeesModal').style
 
 function renderEmployeesModal() {
   const container = document.getElementById('employeesModalList');
-  if (!employees.length) { container.innerHTML = '<div class="muted">Сотрудников пока нет. Добавьте первого во вкладке "Персонал".</div>'; return; }
+  if (!employees.length) { container.innerHTML = '<div class="muted">Сотрудников пока нет.</div>'; return; }
   container.innerHTML = employees.map(emp => { const empProjects = getEmployeeProjects(emp.name).length; return `<div class="employee-row" style="cursor:default;"><div class="emp-name">${escapeHtml(emp.name)}</div><div class="emp-position">${escapeHtml(emp.position || '—')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div></div>`; }).join('');
 }
 
+// ===== ЭТАПЫ С УЧЁТОМ ПРАВ =====
 function openStagesModal() {
   if (!currentProductionRequest) return;
   const project = rows.find(r => r.id === currentProductionRequest);
   if (!project) return;
   document.getElementById('stagesProjectName').textContent = getRequestTitle(project) || '(без названия)';
+  
+  // Для исполнителя — скрываем форму добавления и показываем подсказку
+  const canEdit = canEditStages();
+  document.getElementById('addStageFormBlock').style.display = canEdit ? 'flex' : 'none';
+  document.getElementById('stagesModalHint').textContent = canEdit 
+    ? 'Настройте этапы для этого проекта. Изменения коснутся только этого проекта.'
+    : 'Этапы проекта (только для просмотра).';
+  
   renderStagesList();
   document.getElementById('stagesModal').style.display = 'block';
 }
@@ -2105,19 +2100,23 @@ function renderStagesList() {
   const container = document.getElementById('stagesList');
   if (!currentProductionRequest) return;
   const projectStages = getSortedProjectStages(currentProductionRequest);
-  if (!projectStages.length) { container.innerHTML = '<div class="muted">Этапов пока нет. Добавьте первый.</div>'; return; }
+  const canEdit = canEditStages();
+  if (!projectStages.length) { container.innerHTML = '<div class="muted">Этапов пока нет.</div>'; return; }
   container.innerHTML = projectStages.map((stage, idx) => `
     <div class="stage-item">
       <span class="stage-order">${idx + 1}</span>
-      <input type="text" value="${escapeHtml(stage.name)}" onchange="updateStageName('${stage.id}', this.value)" placeholder="Название этапа">
-      <button class="stage-up" onclick="moveStage('${stage.id}', -1)" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}>▲</button>
-      <button class="stage-down" onclick="moveStage('${stage.id}', 1)" ${idx === projectStages.length - 1 ? 'disabled style="opacity:0.3;"' : ''}>▼</button>
-      <button class="stage-remove" onclick="removeKanbanStage('${stage.id}')">✖</button>
+      <input type="text" value="${escapeHtml(stage.name)}" ${canEdit ? `onchange="updateStageName('${stage.id}', this.value)"` : 'readonly'} placeholder="Название этапа">
+      ${canEdit ? `
+        <button class="stage-up" onclick="moveStage('${stage.id}', -1)" ${idx === 0 ? 'disabled style="opacity:0.3;"' : ''}>▲</button>
+        <button class="stage-down" onclick="moveStage('${stage.id}', 1)" ${idx === projectStages.length - 1 ? 'disabled style="opacity:0.3;"' : ''}>▼</button>
+        <button class="stage-remove" onclick="removeKanbanStage('${stage.id}')">✖</button>
+      ` : ''}
     </div>
   `).join('');
 }
 
 async function updateStageName(stageId, newName) {
+  if (!canEditStages()) { alert('Только администратор или менеджер может изменять этапы'); return; }
   if (!currentProductionRequest) return;
   const project = rows.find(r => r.id === currentProductionRequest);
   if (!project || !project.stages) return;
@@ -2126,6 +2125,7 @@ async function updateStageName(stageId, newName) {
 }
 
 async function moveStage(stageId, direction) {
+  if (!canEditStages()) { alert('Только администратор или менеджер может изменять этапы'); return; }
   if (!currentProductionRequest) return;
   const project = rows.find(r => r.id === currentProductionRequest);
   if (!project || !project.stages) return;
@@ -2143,6 +2143,7 @@ async function moveStage(stageId, direction) {
 }
 
 async function addKanbanStage() {
+  if (!canEditStages()) { alert('Только администратор или менеджер может добавлять этапы'); return; }
   if (!currentProductionRequest) return;
   const input = document.getElementById('newStageName');
   const name = input.value.trim();
@@ -2158,11 +2159,12 @@ async function addKanbanStage() {
 }
 
 async function removeKanbanStage(stageId) {
+  if (!canEditStages()) { alert('Только администратор или менеджер может удалять этапы'); return; }
   if (!currentProductionRequest) return;
   const project = rows.find(r => r.id === currentProductionRequest);
   if (!project || !project.stages) return;
   if (project.stages.length <= 1) { alert('Должен остаться хотя бы один этап'); return; }
-  if (!confirm('Удалить этот этап? Задания этого этапа будут перемещены в предыдущий.')) return;
+  if (!confirm('Удалить этот этап?')) return;
   const sorted = [...project.stages].sort((a, b) => a.order - b.order);
   const idx = sorted.findIndex(s => s.id === stageId);
   project.stages = project.stages.filter(s => s.id !== stageId);
@@ -2178,11 +2180,6 @@ async function removeKanbanStage(stageId) {
 }
 
 async function saveStagesAndClose() {
-  if (!currentProductionRequest) return;
-  const project = rows.find(r => r.id === currentProductionRequest);
-  if (!project || !project.stages) return;
-  const empty = project.stages.some(s => !s.name.trim());
-  if (empty) { alert('Все этапы должны иметь название'); return; }
   closeStagesModal();
   renderProduction();
 }
@@ -2349,13 +2346,11 @@ function renderCalendarList(year, month, events) {
   container.innerHTML = html;
 }
 
-// ===== ТАБЕЛЬ С УЧЁТОМ ПРАВ =====
+// ===== ТАБЕЛЬ =====
 function fillTimesheetEmployeeFilter() {
   const sel = document.getElementById('tsEmployeeFilter');
   const currentValue = sel.value;
   sel.innerHTML = '<option value="">Все сотрудники</option>';
-  
-  // Для исполнителя — только он сам
   if (isExecutor()) {
     const currentUserEmp = employees.find(e => e.name === currentUser.name);
     if (currentUserEmp) {
@@ -2383,10 +2378,7 @@ function getEmployeeProjectsForTimesheet(empName) { return rows.filter(r => { if
 function getTimesheetKey(empId, dateStr) { return empId + '_' + dateStr; }
 
 function openTimesheetEntry(empId, dateStr) {
-  if (!canEditTimesheet(empId)) {
-    alert('У вас нет прав на редактирование этого табеля');
-    return;
-  }
+  if (!canEditTimesheet(empId)) { alert('У вас нет прав на редактирование этого табеля'); return; }
   const emp = employees.find(e => e.id === empId);
   if (!emp) return;
   currentTsEntry = { empId, date: dateStr };
@@ -2402,10 +2394,9 @@ function openTimesheetEntry(empId, dateStr) {
       const existingEntryForProject = existingEntry.entries.find(e => e.projectId === p.id);
       const existingHours = existingEntryForProject?.hours || 0;
       const existingComment = existingEntryForProject?.comment || null;
-      
       let commentHtml = '';
       if (existingComment) {
-        const canEdit = isAdmin() || !existingComment.edited;
+        const canEditComment = isAdmin() || !existingComment.edited;
         const historyHtml = existingComment.editHistory && existingComment.editHistory.length > 0 ? 
           `<div class="ts-comment-history">
             <div class="history-title">📜 История изменений:</div>
@@ -2418,7 +2409,7 @@ function openTimesheetEntry(empId, dateStr) {
               <div class="ts-comment-meta">
                 <span>📅 Создан: ${escapeHtml(existingComment.createdAt)} в ${escapeHtml(existingComment.createdTime)}${existingComment.author ? ' • <span class="author-badge">' + escapeHtml(formatShortName(existingComment.author)) + '</span>' : ''}</span>
               </div>
-              ${canEdit ? `<div class="ts-comment-actions"><button class="btn-edit-comment" onclick="showTimesheetCommentForm('${p.id}', true)">✏️ Редактировать</button></div>` : '<div class="ts-comment-locked">🔒 Редактирование недоступно</div>'}
+              ${canEditComment ? `<div class="ts-comment-actions"><button class="btn-edit-comment" onclick="showTimesheetCommentForm('${p.id}', true)">✏️ Редактировать</button></div>` : '<div class="ts-comment-locked">🔒 Редактирование недоступно</div>'}
               ${historyHtml}
             </div>
           </div>
@@ -2437,9 +2428,8 @@ function openTimesheetEntry(empId, dateStr) {
           </div>
         `;
       }
-      
       return `<div class="entry-item">
-        <div class="entry-header" style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;width:100%;">
           <div style="flex:1;">
             <div class="entry-project">${escapeHtml(getRequestTitle(p))}</div>
             <div class="entry-client">${escapeHtml(getClientName(p))}</div>
@@ -2461,9 +2451,7 @@ function showTimesheetCommentForm(projectId, isEdit) {
       const key = getTimesheetKey(currentTsEntry.empId, currentTsEntry.date);
       const existingEntry = timesheets[key] || { entries: [] };
       const entry = existingEntry.entries.find(e => e.projectId === projectId);
-      if (entry && entry.comment) {
-        document.getElementById('ts-comment-text-' + projectId).value = entry.comment.text;
-      }
+      if (entry && entry.comment) document.getElementById('ts-comment-text-' + projectId).value = entry.comment.text;
     } else {
       document.getElementById('ts-comment-text-' + projectId).value = '';
     }
@@ -2480,36 +2468,23 @@ async function saveTimesheetComment(projectId) {
   if (!currentTsEntry) return;
   const text = document.getElementById('ts-comment-text-' + projectId).value.trim();
   if (!text) { alert('Введите текст комментария'); return; }
-  
   const { empId, date } = currentTsEntry;
   const key = getTimesheetKey(empId, date);
   const existingEntry = timesheets[key] || { entries: [] };
   const dt = nowDateTime();
-  
   let entry = existingEntry.entries.find(e => e.projectId === projectId);
   if (!entry) {
     entry = { projectId, projectTitle: '', clientName: '', hours: 0, comment: null };
     existingEntry.entries.push(entry);
     const project = rows.find(r => r.id === projectId);
-    if (project) {
-      entry.projectTitle = getRequestTitle(project);
-      entry.clientName = getClientName(project);
-    }
+    if (project) { entry.projectTitle = getRequestTitle(project); entry.clientName = getClientName(project); }
   }
-  
   const editHistory = entry.comment?.editHistory || [];
   if (entry.comment) {
-    editHistory.push({
-      action: 'Редактирование',
-      text: entry.comment.text,
-      date: entry.comment.editedAt || entry.comment.createdAt,
-      time: entry.comment.editedTime || entry.comment.createdTime
-    });
+    editHistory.push({ action: 'Редактирование', text: entry.comment.text, date: entry.comment.editedAt || entry.comment.createdAt, time: entry.comment.editedTime || entry.comment.createdTime });
   }
-  
   const isAlreadyEdited = entry.comment?.edited || false;
   const newEditedFlag = isAdmin() ? isAlreadyEdited : true;
-  
   entry.comment = {
     text: text,
     createdAt: entry.comment?.createdAt || dt.date,
@@ -2521,10 +2496,8 @@ async function saveTimesheetComment(projectId) {
     editedBy: getCurrentUserDisplayName(),
     editHistory: editHistory
   };
-  
   await saveTimesheetToFirebase(key, { empId, date, entries: existingEntry.entries, updatedAt: today() });
   timesheets[key] = { empId, date, entries: existingEntry.entries, updatedAt: today() };
-  
   hideTimesheetCommentForm(projectId);
   openTimesheetEntry(empId, date);
 }
@@ -2550,13 +2523,7 @@ async function saveTimesheetEntry() {
     const existingComment = existingEntryForProject?.comment || null;
     if (hours > 0 || existingComment) {
       const project = rows.find(r => r.id === projectId);
-      entries.push({
-        projectId,
-        projectTitle: project ? getRequestTitle(project) : 'Неизвестно',
-        clientName: project ? getClientName(project) : '',
-        hours,
-        comment: existingComment
-      });
+      entries.push({ projectId, projectTitle: project ? getRequestTitle(project) : 'Неизвестно', clientName: project ? getClientName(project) : '', hours, comment: existingComment });
     }
   });
   if (entries.length === 0) { await deleteDoc(doc(db, 'timesheets', key)); delete timesheets[key]; }
@@ -2620,16 +2587,13 @@ function renderTimesheet() {
   const todayStr = today();
   const employeeFilter = document.getElementById('tsEmployeeFilter').value;
   document.getElementById('tsMonthLabel').textContent = MONTH_NAMES[month] + ' ' + year;
-  
   let filteredEmployees;
   if (isExecutor()) {
-    // Исполнитель видит только себя
     const currentUserEmp = employees.find(e => e.name === currentUser.name);
     filteredEmployees = currentUserEmp ? [currentUserEmp] : [];
   } else {
     filteredEmployees = employeeFilter ? employees.filter(e => e.id === employeeFilter) : employees;
   }
-  
   if (!filteredEmployees.length) { container.innerHTML = '<div class="muted" style="padding:20px;text-align:center;">Нет сотрудников</div>'; return; }
   let html = '<table class="timesheet-table"><thead><tr><th class="employee-col">Сотрудник</th>';
   for (let day = 1; day <= daysInMonth; day++) {
@@ -2913,8 +2877,6 @@ function renderProduction() {
     const stageTasks = rt.filter(t => t.stage === stage.id);
     return `<div class="kanban-column"><h4>${escapeHtml(stage.name)} <span class="count">${stageTasks.length}</span></h4><div>${stageTasks.length ? stageTasks.map(t => renderTaskCard(t, id)).join('') : '<div class="muted">Пусто</div>'}</div></div>`;
   }).join('');
-  const infoEl = document.getElementById('productionInfo');
-  if (infoEl) infoEl.textContent = 'Всего: ' + rt.length;
 }
 
 function renderTaskCard(t, projectId) {
@@ -2986,7 +2948,7 @@ async function editTask(tid) {
   if (!t) return;
   const nt = prompt('Название:', t.title); if (nt === null) return;
   const empNames = employees.map(e => e.name).join('\n');
-  const na = prompt('Исполнитель (выберите из списка):\n' + empNames + '\n\nВведите имя:', t.assignee); if (na === null) return;
+  const na = prompt('Исполнитель:\n' + empNames + '\n\nВведите имя:', t.assignee); if (na === null) return;
   const nsd = prompt('Дата начала (ГГГГ-ММ-ДД):', t.startDate || ''); if (nsd === null) return;
   const ned = prompt('Дата окончания (ГГГГ-ММ-ДД):', t.endDate || ''); if (ned === null) return;
   t.title = nt.trim(); t.assignee = na.trim(); t.startDate = nsd.trim(); t.endDate = ned.trim();
