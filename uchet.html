@@ -355,7 +355,6 @@
     .dashboard-bar-fill.warn { background: #e6a817; }
     .dashboard-bar-fill.danger { background: #d9534f; }
     .dashboard-bar-fill.info { background: #5bc0de; }
-    .dashboard-bar-fill.purple { background: #9b59b6; }
     
     .dashboard-status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
     .status-card { background: #f9f9f9; border-radius: 6px; padding: 12px; text-align: center; border: 1px solid #eee; }
@@ -402,7 +401,7 @@
   <div class="nav-tabs">
     <button class="nav-tab active" id="navDashboard" onclick="switchNavView('dashboard')">📊 Дашборд</button>
     <button class="nav-tab" id="navProjects" onclick="switchNavView('projects')">📁 Проекты</button>
-    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')">📝 Заявки</button>
+    <button class="nav-tab" id="navRequests" onclick="switchNavView('requests')"> Заявки</button>
     <button class="nav-tab" id="navBase" onclick="switchNavView('base')">👥 База клиентов</button>
     <button class="nav-tab" id="navEmployees" onclick="switchNavView('employees')">👷 Персонал</button>
     <button class="nav-tab" id="navCalendar" onclick="switchNavView('calendar')">📅 Календарь</button>
@@ -428,7 +427,7 @@
 
   <div id="projectsView" style="display:none;">
     <div class="tabs">
-      <button class="tab active" id="tabActive" onclick="switchView('active')">📋 Активные <span class="count" id="activeCount">0</span></button>
+      <button class="tab active" id="tabActive" onclick="switchView('active')"> Активные <span class="count" id="activeCount">0</span></button>
       <button class="tab" id="tabArchive" onclick="switchView('archive')">📦 Архив <span class="count" id="archiveCount">0</span></button>
     </div>
     <div class="toolbar">
@@ -437,7 +436,7 @@
         <option value="">Все статусы</option><option>Новая</option><option>В работе</option><option>Выполнена</option><option>Отменена</option>
       </select>
       <button onclick="addClient()">+ Добавить проект</button>
-      <button class="export-btn" onclick="exportCSV()"> Экспорт</button>
+      <button class="export-btn" onclick="exportCSV()">📤 Экспорт</button>
       <button class="import-btn" onclick="document.getElementById('importFile').click()">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;" onchange="importCSV(event)">
       <span id="info" class="muted"></span>
@@ -447,7 +446,7 @@
 
   <div id="requestsView" style="display:none;">
     <div class="tabs">
-      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')"> Активные <span class="count" id="requestActiveCount">0</span></button>
+      <button class="tab active" id="tabRequestActive" onclick="switchRequestView('active')">📋 Активные <span class="count" id="requestActiveCount">0</span></button>
       <button class="tab" id="tabRequestArchive" onclick="switchRequestView('archive')">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
     </div>
     <div class="toolbar">
@@ -491,7 +490,7 @@
         <button onclick="calendarToday()">Сегодня</button>
       </div>
       <div class="cal-view-switch">
-        <button id="calViewMonth" class="active" onclick="setCalendarView('month')">📅 Месяц</button>
+        <button id="calViewMonth" class="active" onclick="setCalendarView('month')"> Месяц</button>
         <button id="calViewList" onclick="setCalendarView('list')">📋 Список</button>
       </div>
       <div class="cal-filter">
@@ -525,13 +524,13 @@
       <div class="client-columns">
         <div class="client-column-left"><div id="contactPersonsList"></div><button class="add-cp-btn" onclick="addContactPerson()">+ Добавить контактное лицо</button></div>
         <div class="client-column-right">
-          <h4> Заметки</h4>
+          <h4>📝 Заметки</h4>
           <div class="note-add-form"><textarea id="newNoteText" placeholder="Напишите заметку..."></textarea><button class="production-btn" onclick="addNote()">Добавить</button></div>
           <div class="notes-list" id="notesList"></div>
         </div>
       </div>
       <div class="requests-columns">
-        <div class="requests-column projects-col"><h4> Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
+        <div class="requests-column projects-col"><h4>📁 Проекты <button onclick="addRequestToClient('project')" style="font-size:12px;">+ Проект</button></h4><div class="tiles-grid" id="projectsTiles"></div></div>
         <div class="requests-column requests-col"><h4>📝 Заявки <button onclick="addRequestToClient('request')" style="font-size:12px;">+ Заявку</button></h4><div class="tiles-grid" id="requestsTiles"></div></div>
       </div>
       <div class="modal-actions"><button onclick="saveClientModal()">Сохранить и закрыть</button><button onclick="closeClientModal()">Закрыть</button></div>
@@ -583,7 +582,7 @@
       </div>
       <div class="modal-actions">
         <button class="production-btn" onclick="saveEmployeeChanges()">💾 Сохранить изменения</button>
-        <button class="delete-final-btn" onclick="deleteEmployee()"> Удалить сотрудника</button>
+        <button class="delete-final-btn" onclick="deleteEmployee()">🗑 Удалить сотрудника</button>
         <button onclick="closeEmployeePage()">Закрыть</button>
       </div>
     </div>
@@ -592,13 +591,13 @@
   <div id="productionModal" class="modal-overlay" onclick="if (event.target === this) closeProduction()">
     <div class="modal kanban-modal">
       <div class="modal-header">
-        <h3>🏭 Производство: <span id="productionRequestTitle"></span></h3>
+        <h3> Производство: <span id="productionRequestTitle"></span></h3>
         <button class="close-btn" onclick="closeProduction()">×</button>
       </div>
       <div style="font-size:13px;color:#666;margin-bottom:12px;">Клиент: <strong id="productionClientName"></strong></div>
       <div class="project-stages-info" id="projectStagesInfo"></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
-        <button class="production-btn" onclick="openStagesModal()">⚙️ Этапы этого проекта</button>
+        <button class="production-btn" onclick="openStagesModal()">️ Этапы этого проекта</button>
         <button onclick="openEmployeesModal()">👷 Сотрудники</button>
         <button onclick="openStatsModal()">📊 Статистика</button>
       </div>
@@ -637,7 +636,7 @@
 
   <div id="employeesModal" class="modal-overlay" onclick="if (event.target === this) closeEmployeesModal()">
     <div class="modal">
-      <div class="modal-header"><h3>👷 Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
+      <div class="modal-header"><h3> Сотрудники (исполнители)</h3><button class="close-btn" onclick="closeEmployeesModal()">×</button></div>
       <p class="muted" style="margin-top:0;">Список сотрудников синхронизирован с вкладкой "Персонал".</p>
       <div id="employeesModalList"></div>
       <div class="modal-actions"><button onclick="closeEmployeesModal()">Закрыть</button></div>
@@ -1289,7 +1288,7 @@ function renderViewActions() {
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
-    prodBtn.textContent = ' Производство';
+    prodBtn.textContent = '🏭 Производство';
     prodBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); const savedId = itemId; document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; setTimeout(function() { openProduction(savedId); }, 200); });
     div.appendChild(prodBtn);
     const archBtn = document.createElement('button');
@@ -1344,7 +1343,7 @@ function showAllProjects() {
     grid.innerHTML = activeProjects.map(r => {
       const badge = getDeadlineBadge(r.endDate, r.date);
       const daysText = badge.days < 0 ? badge.days : badge.days;
-      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div style="font-size:12px;color:#666;margin-bottom:4px;">👤 ' + escapeHtml(getClientName(r)) + '</div><div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
+      return '<div class="request-tile project-tile" onclick="openRequestView(\'' + r.id + '\', \'project\')"><div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div><div style="font-size:12px;color:#666;margin-bottom:4px;"> ' + escapeHtml(getClientName(r)) + '</div><div class="tile-date"><span> ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + daysText + '</span></div>' + (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') + '</div>';
     }).join('');
   }
   document.getElementById('dashboardView').style.display = 'none';
@@ -1423,7 +1422,7 @@ function render() {
       }).join('');
     } else { div.innerHTML = '<span class="muted">Нет проектов</span>'; }
     td2.appendChild(div); tr.appendChild(td2);
-    tr.appendChild(td3); tbody.appendChild(tr);
+    tbody.appendChild(tr);
   });
 }
 
@@ -1481,7 +1480,7 @@ function renderBase() {
           if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
           if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
           if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
-          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">️ ' + escapeHtml(cp.email) + '</div>';
+          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
           if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
           if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
         }
@@ -1599,7 +1598,7 @@ function closeEmployeesModal() { document.getElementById('employeesModal').style
 function renderEmployeesModal() {
   const container = document.getElementById('employeesModalList');
   if (!employees.length) { container.innerHTML = '<div class="muted">Сотрудников пока нет. Добавьте первого во вкладке "Персонал".</div>'; return; }
-  container.innerHTML = employees.map(emp => { const empProjects = getEmployeeProjects(emp.name).length; return `<div class="employee-row" style="cursor:default;"><div class="emp-name">${escapeHtml(emp.name)}</div><div class="emp-position">${escapeHtml(emp.position || '—')}</div><div class="emp-projects"> Проектов: ${empProjects}</div></div>`; }).join('');
+  container.innerHTML = employees.map(emp => { const empProjects = getEmployeeProjects(emp.name).length; return `<div class="employee-row" style="cursor:default;"><div class="emp-name">${escapeHtml(emp.name)}</div><div class="emp-position">${escapeHtml(emp.position || '—')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div></div>`; }).join('');
 }
 
 function openStagesModal() {
@@ -2012,7 +2011,6 @@ function renderDashboard() {
   const todayStr = today();
   
   const activeProjects = rows.filter(r => !r.archived);
-  const archivedProjects = rows.filter(r => r.archived);
   const activeLeads = leads.filter(l => !l.archived);
   const overdueProjects = activeProjects.filter(r => {
     const left = daysUntilEnd(r.endDate);
@@ -2069,7 +2067,7 @@ function renderDashboard() {
   
   let html = '';
   
-  html += '<div class="dashboard-section"><h3>📊 Ключевые показатели</h3>';
+  html += '<div class="dashboard-section"><h3> Ключевые показатели</h3>';
   html += '<div class="dashboard-kpi-grid">';
   html += `<div class="kpi-card info clickable" onclick="showAllProjects()" title="Нажмите, чтобы увидеть все проекты"><div class="kpi-icon">📁</div><div class="kpi-value">${activeProjects.length}</div><div class="kpi-label">Активных проектов</div></div>`;
   html += `<div class="kpi-card info"><div class="kpi-icon">📝</div><div class="kpi-value">${activeLeads.length}</div><div class="kpi-label">Активных заявок</div></div>`;
@@ -2102,7 +2100,7 @@ function renderDashboard() {
   const totalProjects = activeProjects.length || 1;
   const onTime = activeProjects.length - overdueProjects.length - warningProjects.length - todayDeadlineProjects.length;
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">✅ В срок</span><span class="bar-value">' + onTime + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill ok" style="width:' + Math.round((onTime/totalProjects)*100) + '%;"></div></div></div>';
-  html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">️ Скоро дедлайн (≤30 дн.)</span><span class="bar-value">' + warningProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((warningProjects.length/totalProjects)*100) + '%;"></div></div></div>';
+  html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">⚠️ Скоро дедлайн (≤30 дн.)</span><span class="bar-value">' + warningProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((warningProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">🔴 Срок сегодня</span><span class="bar-value">' + todayDeadlineProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill warn" style="width:' + Math.round((todayDeadlineProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '<div class="dashboard-bar-item"><div class="dashboard-bar-header"><span class="bar-label">❌ Просрочено</span><span class="bar-value">' + overdueProjects.length + '</span></div><div class="dashboard-bar"><div class="dashboard-bar-fill danger" style="width:' + Math.round((overdueProjects.length/totalProjects)*100) + '%;"></div></div></div>';
   html += '</div>';
@@ -2311,7 +2309,7 @@ function renderTaskCard(t, projectId) {
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
     '<div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
     '<div class="task-dates">' +
-      '<span style="font-size:11px;color:#666;"> ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
+      '<span style="font-size:11px;color:#666;">📅 ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
       '<span class="task-days-count ' + badge.cls + '">' + daysText + '</span>' +
     '</div>' +
     '<div class="task-footer">' +
