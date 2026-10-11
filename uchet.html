@@ -196,6 +196,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .employee-row .emp-delete:hover { background: #c9302c; }
 .employee-page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
 .employee-page-header h2 { margin: 0; color: #004a99; }
+.employee-page-header .emp-info { font-size: 14px; color: #666; }
 .employee-page-header .emp-edit-fields { width: 100%; }
 .employee-page-header .emp-edit-fields label { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 8px; }
 .employee-page-header .emp-edit-fields input { font-size: 16px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; }
@@ -289,7 +290,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .timesheet-entry-modal .entry-list { max-height: 500px; overflow-y: auto; }
 .timesheet-entry-modal .entry-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; background: #fafafa; flex-direction: column; }
 .timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
-.timesheet-entry-modal .entry-item input[type="number"]:focus { border-color: #004a99; outline: none; }
 .timesheet-entry-modal .entry-item input[type="number"]:disabled { background: #f5f5f5; color: #666; cursor: not-allowed; border-color: #ddd; }
 .timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
 .timesheet-entry-modal .entry-item .entry-client { font-size: 11px; color: #666; }
@@ -867,7 +867,7 @@ const DEFAULT_STAGES = [
   { id: 'done', name: 'Готово', order: 3 }
 ];
 
-// ===== ФОРМАТИРОВАНИЕ ИМЕНИ: ФАМИЛИЯ + ДВА ИНИЦИАЛА =====
+// ===== ИСПРАВЛЕНО: Форматирование имени — Фамилия + два инициала =====
 function formatShortName(fullName) {
   if (!fullName) return 'Неизвестно';
   if (fullName.includes('@')) return fullName.split('@')[0];
@@ -876,6 +876,7 @@ function formatShortName(fullName) {
   const surname = parts[0];
   if (parts.length === 1) return surname;
   if (parts.length === 2) return surname + ' ' + parts[1].charAt(0).toUpperCase() + '.';
+  // Берём первые ДВА инициала (второе и третье слово)
   const initials = parts.slice(1, 3).map(p => p.charAt(0).toUpperCase() + '.').join('');
   return surname + ' ' + initials;
 }
@@ -914,6 +915,7 @@ function canEditProject(projectId) {
 
 function canEditTimesheet(empId) {
   if (!currentUser) return false;
+  // Админ и менеджер могут редактировать любой табель
   if (isAdmin() || isManager()) return true;
   if (isExecutor()) {
     const emp = employees.find(e => e.id === empId);
@@ -2376,7 +2378,7 @@ function renderCalendarList(year, month, events) {
   container.innerHTML = html;
 }
 
-// ===== ТАБЕЛЬ С БЛОКИРОВКОЙ ЧАСОВ =====
+// ===== ИСПРАВЛЕНО: ТАБЕЛЬ — АДМИН МОЖЕТ КОММЕНТИРОВАТЬ =====
 function fillTimesheetEmployeeFilter() {
   const sel = document.getElementById('tsEmployeeFilter');
   const currentValue = sel.value;
@@ -2408,7 +2410,11 @@ function getEmployeeProjectsForTimesheet(empName) { return rows.filter(r => { if
 function getTimesheetKey(empId, dateStr) { return empId + '_' + dateStr; }
 
 function openTimesheetEntry(empId, dateStr) {
-  if (!canEditTimesheet(empId)) { alert('У вас нет прав на редактирование этого табеля'); return; }
+  // ИСПРАВЛЕНО: проверка прав — админ и менеджер могут открывать любой табель
+  if (!canEditTimesheet(empId)) {
+    alert('У вас нет прав на редактирование этого табеля');
+    return;
+  }
   const emp = employees.find(e => e.id === empId);
   if (!emp) return;
   currentTsEntry = { empId, date: dateStr };
@@ -2426,12 +2432,14 @@ function openTimesheetEntry(empId, dateStr) {
       const existingComment = existingEntryForProject?.comment || null;
       const hoursEdited = existingEntryForProject?.hoursEdited || false;
       
-      // Часы можно редактировать: админу/менеджеру всегда, исполнителю — только если ещё не зафиксированы
+      // ИСПРАВЛЕНО: Админ и менеджер могут редактировать часы всегда
+      // Исполнитель — только если ещё не зафиксированы
       const canEditHours = isAdmin() || isManager() || !hoursEdited;
       
       let commentHtml = '';
       if (existingComment) {
-        const canEditComment = isAdmin() || !existingComment.edited;
+        // ИСПРАВЛЕНО: Админ может редактировать комментарии всегда
+        const canEditComment = isAdmin() || isManager() || !existingComment.edited;
         const historyHtml = existingComment.editHistory && existingComment.editHistory.length > 0 ?
           `<div class="ts-comment-history">
             <div class="history-title">📜 История изменений:</div>
@@ -2450,6 +2458,7 @@ function openTimesheetEntry(empId, dateStr) {
           </div>
         `;
       } else {
+        // ИСПРАВЛЕНО: Кнопка добавления комментария видна всем, кто может редактировать табель
         commentHtml = `
           <div class="ts-comment-section">
             <button class="ts-add-comment-btn" onclick="showTimesheetCommentForm('${p.id}', false)">💬 Добавить комментарий</button>
@@ -2522,8 +2531,9 @@ async function saveTimesheetComment(projectId) {
   if (entry.comment) {
     editHistory.push({ action: 'Редактирование', text: entry.comment.text, date: entry.comment.editedAt || entry.comment.createdAt, time: entry.comment.editedTime || entry.comment.createdTime });
   }
+  // ИСПРАВЛЕНО: Админ и менеджер могут редактировать комментарии неограниченно
   const isAlreadyEdited = entry.comment?.edited || false;
-  const newEditedFlag = isAdmin() ? isAlreadyEdited : true;
+  const newEditedFlag = (isAdmin() || isManager()) ? isAlreadyEdited : true;
   entry.comment = {
     text: text,
     createdAt: entry.comment?.createdAt || dt.date,
@@ -2548,7 +2558,6 @@ function updateTimesheetTotal() {
   document.getElementById('tsEntryTotal').textContent = total.toFixed(1);
 }
 
-// ===== ИЗМЕНЕНО: при сохранении часов устанавливаем флаг hoursEdited =====
 async function saveTimesheetEntry() {
   if (!currentTsEntry) return;
   const { empId, date } = currentTsEntry;
@@ -2566,9 +2575,8 @@ async function saveTimesheetEntry() {
     if (hours > 0 || existingComment) {
       const project = rows.find(r => r.id === projectId);
       
-      // Логика фиксации часов:
-      // - Админ/менеджер: флаг не меняется (могут редактировать всегда)
-      // - Исполнитель: после первого сохранения флаг становится true
+      // ИСПРАВЛЕНО: Флаг фиксации часов — только для исполнителей
+      // Админ и менеджер могут редактировать всегда
       const newHoursEdited = existingHoursEdited || (!isAdmin() && !isManager() && hours > 0);
       
       entries.push({
