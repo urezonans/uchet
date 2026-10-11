@@ -196,6 +196,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .employee-row .emp-delete:hover { background: #c9302c; }
 .employee-page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
 .employee-page-header h2 { margin: 0; color: #004a99; }
+.employee-page-header .emp-info { font-size: 14px; color: #666; }
 .employee-page-header .emp-edit-fields { width: 100%; }
 .employee-page-header .emp-edit-fields label { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 8px; }
 .employee-page-header .emp-edit-fields input { font-size: 16px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; }
@@ -471,7 +472,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
   font-style: italic;
   margin-left: 6px;
 }
-
 .project-executors {
   margin-top: 8px;
   padding: 8px;
@@ -875,7 +875,6 @@ function formatShortName(fullName) {
   const surname = parts[0];
   if (parts.length === 1) return surname;
   if (parts.length === 2) return surname + ' ' + parts[1].charAt(0).toUpperCase() + '.';
-  // Берём первые ДВА инициала (второе и третье слово)
   const initials = parts.slice(1, 3).map(p => p.charAt(0).toUpperCase() + '.').join('');
   return surname + ' ' + initials;
 }
@@ -895,9 +894,7 @@ function isExecutor() { return currentUser && currentUser.role === 'executor'; }
 function canViewTab(tabName) {
   if (!currentUser) return false;
   if (isAdmin() || isManager()) return true;
-  if (isExecutor()) {
-    return ['dashboard', 'employees', 'calendar', 'timesheet'].includes(tabName);
-  }
+  if (isExecutor()) return ['dashboard', 'employees', 'calendar', 'timesheet'].includes(tabName);
   return false;
 }
 
@@ -924,9 +921,7 @@ function canEditTimesheet(empId) {
   return false;
 }
 
-function canEditStages() {
-  return isAdmin() || isManager();
-}
+function canEditStages() { return isAdmin() || isManager(); }
 
 function setSyncStatus(status, message) {
   const indicator = document.getElementById('syncIndicator');
@@ -978,6 +973,51 @@ async function saveTimesheetToFirebase(id, data) { try { await setDoc(doc(db, 't
 async function ensureClientExists(name) {
   if (!clients[name]) { clients[name] = { name, contactPersons: [], notes: [], createdAt: today() }; await saveClientToFirebase(name, clients[name]); }
   return clients[name];
+}
+
+// ===== ОЧИСТКА ТАБЕЛЯ ПРИ УДАЛЕНИИ =====
+async function cleanupTimesheetsForProject(projectId) {
+  try {
+    const snap = await getDocs(collection(db, 'timesheets'));
+    let cleanedCount = 0;
+    for (const d of snap.docs) {
+      const data = d.data();
+      if (!data.entries || !Array.isArray(data.entries)) continue;
+      const originalLength = data.entries.length;
+      const newEntries = data.entries.filter(e => e.projectId !== projectId);
+      if (newEntries.length !== originalLength) {
+        if (newEntries.length === 0) {
+          await deleteDoc(doc(db, 'timesheets', d.id));
+          delete timesheets[d.id];
+        } else {
+          const updatedData = { ...data, entries: newEntries, updatedAt: today() };
+          await setDoc(doc(db, 'timesheets', d.id), updatedData);
+          timesheets[d.id] = updatedData;
+        }
+        cleanedCount++;
+      }
+    }
+    if (cleanedCount > 0) console.log('Очищено записей табеля для проекта:', cleanedCount);
+  } catch (e) {
+    console.error('Ошибка очистки табеля для проекта:', e);
+  }
+}
+
+async function cleanupTimesheetsForEmployee(empId) {
+  try {
+    const snap = await getDocs(collection(db, 'timesheets'));
+    let deletedCount = 0;
+    for (const d of snap.docs) {
+      if (d.id.startsWith(empId + '_')) {
+        await deleteDoc(doc(db, 'timesheets', d.id));
+        delete timesheets[d.id];
+        deletedCount++;
+      }
+    }
+    if (deletedCount > 0) console.log('Удалено записей табеля сотрудника:', deletedCount);
+  } catch (e) {
+    console.error('Ошибка очистки табеля сотрудника:', e);
+  }
 }
 
 function getProjectStages(projectId) { const project = rows.find(r => r.id === projectId); if (!project) return []; return project.stages || []; }
@@ -1084,12 +1124,10 @@ function updateTabVisibility() {
 function updateUIPermissions() {
   if (!currentUser) return;
   const isExec = isExecutor();
-  // Скрываем кнопки создания для исполнителя
   const btnAddProject = document.getElementById('btnAddProject');
   if (btnAddProject) btnAddProject.style.display = isExec ? 'none' : 'inline-block';
   const btnAddRequest = document.getElementById('btnAddRequest');
   if (btnAddRequest) btnAddRequest.style.display = isExec ? 'none' : 'inline-block';
-  // Скрываем кнопку этапов для исполнителя
   const btnStages = document.getElementById('btnStagesModal');
   if (btnStages) btnStages.style.display = isExec ? 'none' : 'inline-block';
 }
@@ -1383,12 +1421,18 @@ function getBaseList() {
   }).sort((a,b) => a.name.localeCompare(b.name, 'ru'));
 }
 
+// ===== ИЗМЕНЕНО: очистка табеля при удалении клиента =====
 async function deleteClientFromBase(name) {
   if (!isAdmin()) { alert('Только администратор может удалять клиентов'); return; }
   if (!confirm('Удалить клиента "' + name + '" БЕЗВОЗВРАТНО?')) return;
+  // Очищаем табель для всех проектов клиента
+  const clientProjects = rows.filter(r => getClientName(r) === name);
+  for (const p of clientProjects) {
+    await cleanupTimesheetsForProject(p.id);
+  }
   delete clients[name];
   await deleteDoc(doc(db, 'clients', name));
-  for (const r of rows.filter(r => getClientName(r) === name)) await deleteRequestFromFirebase(r.id, 'requests');
+  for (const r of clientProjects) await deleteRequestFromFirebase(r.id, 'requests');
   for (const l of leads.filter(l => getClientName(l) === name)) await deleteRequestFromFirebase(l.id, 'leads');
   rows = rows.filter(r => getClientName(r) !== name);
   leads = leads.filter(l => getClientName(l) !== name);
@@ -1515,9 +1559,11 @@ async function archiveRequest(id) { if (!confirm('Отправить заявк�
 async function restoreProject(id) { const item = rows.find(r => r.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'requests'); }
 async function restoreRequest(id) { const item = leads.find(l => l.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'leads'); }
 
+// ===== ИЗМЕНЕНО: очистка табеля при удалении проекта =====
 async function deleteProjectFinal(id) {
   if (!isAdmin()) { alert('Только администратор может удалять проекты'); return; }
-  if (!confirm('Удалить проект БЕЗВОЗВРАТНО?')) return;
+  if (!confirm('Удалить проект БЕЗВОЗВРАТНО?\n\nВсе связанные записи в табеле также будут удалены.')) return;
+  await cleanupTimesheetsForProject(id);
   await deleteRequestFromFirebase(id, 'requests');
   rows = rows.filter(r => r.id !== id);
   delete tasks[id];
@@ -1565,7 +1611,6 @@ async function openProduction(id) {
 }
 function closeProduction() { const modal = document.getElementById('productionModal'); if (modal) modal.style.display = 'none'; currentProductionRequest = null; }
 
-// ===== Установить режим чтения/редактирования полей проекта =====
 function applyProjectFieldPermissions(projectId) {
   const canEdit = !isExecutor() || canEditProject(projectId);
   document.getElementById('viewTitleInput').readOnly = !canEdit;
@@ -1617,10 +1662,7 @@ function openRequestView(id, type) {
   fillResponsibleSelect();
   document.getElementById('viewResponsible').value = item.responsible || '';
   document.getElementById('viewComment').value = item.comment || '';
-  
-  // Применяем права доступа к полям
   applyProjectFieldPermissions(id);
-  
   renderViewActions();
   renderComments();
   document.getElementById('viewModal').style.display = 'block';
@@ -1741,8 +1783,6 @@ function renderViewActions() {
   if (!currentViewRequest || !currentViewType) return;
   const itemId = currentViewRequest.id;
   const itemType = currentViewType;
-  
-  // Кнопка "Производство" — для всех, кто имеет доступ к проекту
   if (itemType === 'project') {
     const prodBtn = document.createElement('button');
     prodBtn.className = 'production-btn';
@@ -1750,8 +1790,6 @@ function renderViewActions() {
     prodBtn.addEventListener('click', function(e) { e.preventDefault(); e.stopPropagation(); const savedId = itemId; document.getElementById('viewModal').style.display = 'none'; currentViewRequest = null; currentViewType = null; setTimeout(function() { openProduction(savedId); }, 200); });
     div.appendChild(prodBtn);
   }
-  
-  // Кнопки "В архив", "В заявку", "В проект" — ТОЛЬКО для админа/менеджера
   if (!isExecutor()) {
     if (itemType === 'project') {
       const archBtn = document.createElement('button');
@@ -1777,8 +1815,6 @@ function renderViewActions() {
       div.appendChild(archBtn);
     }
   }
-  
-  // Кнопка "Удалить" — только для админа
   if (isAdmin()) {
     const delBtn = document.createElement('button');
     delBtn.className = 'delete-final-btn';
@@ -1881,7 +1917,7 @@ function render() {
         if (currentView === 'archive') {
           actionsHtml = '<div class="req-actions">' +
             '<button class="req-action-btn" onclick="event.stopPropagation(); restoreProject(\'' + r.id + '\')" title="Вернуть">↩️</button>' +
-            (isAdmin() ? '<button class="req-action-btn delete" onclick="event.stopPropagation(); if(confirm(\'Удалить проект БЕЗВОЗВРАТНО?\')) { deleteRequestFromFirebase(\'' + r.id + '\', \'requests\'); delete tasks[\'' + r.id + '\']; rows = rows.filter(x => x.id !== \'' + r.id + '\'); render(); }" title="Удалить">🗑️</button>' : '') +
+            (isAdmin() ? '<button class="req-action-btn delete" onclick="event.stopPropagation(); if(confirm(\'Удалить проект БЕЗВОЗВРАТНО?\')) { deleteProjectFinal(\'' + r.id + '\'); }" title="Удалить">🗑️</button>' : '') +
             '</div>';
         }
         return '<div class="req-line" onclick="openRequestView(\'' + r.id + '\', \'project\')"><span class="req-days ' + getDeadlineBadge(r.endDate, r.date).cls + '">' + escapeHtml(getDeadlineBadge(r.endDate, r.date).text) + '</span><span class="req-date">' + escapeHtml(r.date) + '</span><span class="req-title">' + escapeHtml(r.title) + '</span>' + (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') + actionsHtml + '</div>';
@@ -1991,7 +2027,8 @@ function getEmployeeProjects(empName) {
 
 async function quickDeleteEmployee(empId, empName) {
   if (!isAdmin()) { alert('Только администратор может удалять сотрудников'); return; }
-  if (!confirm('Удалить сотрудника "' + empName + '"?')) return;
+  if (!confirm('Удалить сотрудника "' + empName + '"?\n\nВсе его записи в табеле также будут удалены.')) return;
+  await cleanupTimesheetsForEmployee(empId);
   await deleteEmployeeFromFirebase(empId);
 }
 function showAddEmployeeForm() { document.getElementById('addEmployeeForm').style.display = 'flex'; document.getElementById('newEmployeeName').value = ''; document.getElementById('newEmployeePosition').value = ''; document.getElementById('newEmployeeName').focus(); }
@@ -2007,12 +2044,14 @@ async function addEmployee() {
   hideAddEmployeeForm();
 }
 
+// ===== ИЗМЕНЕНО: очистка табеля при удалении сотрудника =====
 async function deleteEmployee() {
   if (!isAdmin()) { alert('Только администратор может удалять сотрудников'); return; }
   if (!currentEmployeeId) return;
   const emp = employees.find(e => e.id === currentEmployeeId);
   if (!emp) return;
-  if (!confirm('Удалить сотрудника "' + emp.name + '"?')) return;
+  if (!confirm('Удалить сотрудника "' + emp.name + '"?\n\nВсе его записи в табеле также будут удалены.')) return;
+  await cleanupTimesheetsForEmployee(currentEmployeeId);
   await deleteEmployeeFromFirebase(currentEmployeeId);
   closeEmployeePage();
 }
@@ -2077,20 +2116,14 @@ function renderEmployeesModal() {
   container.innerHTML = employees.map(emp => { const empProjects = getEmployeeProjects(emp.name).length; return `<div class="employee-row" style="cursor:default;"><div class="emp-name">${escapeHtml(emp.name)}</div><div class="emp-position">${escapeHtml(emp.position || '—')}</div><div class="emp-projects">📁 Проектов: ${empProjects}</div></div>`; }).join('');
 }
 
-// ===== ЭТАПЫ С УЧЁТОМ ПРАВ =====
 function openStagesModal() {
   if (!currentProductionRequest) return;
   const project = rows.find(r => r.id === currentProductionRequest);
   if (!project) return;
   document.getElementById('stagesProjectName').textContent = getRequestTitle(project) || '(без названия)';
-  
-  // Для исполнителя — скрываем форму добавления и показываем подсказку
   const canEdit = canEditStages();
   document.getElementById('addStageFormBlock').style.display = canEdit ? 'flex' : 'none';
-  document.getElementById('stagesModalHint').textContent = canEdit 
-    ? 'Настройте этапы для этого проекта. Изменения коснутся только этого проекта.'
-    : 'Этапы проекта (только для просмотра).';
-  
+  document.getElementById('stagesModalHint').textContent = canEdit ? 'Настройте этапы для этого проекта. Изменения коснутся только этого проекта.' : 'Этапы проекта (только для просмотра).';
   renderStagesList();
   document.getElementById('stagesModal').style.display = 'block';
 }
@@ -2397,7 +2430,7 @@ function openTimesheetEntry(empId, dateStr) {
       let commentHtml = '';
       if (existingComment) {
         const canEditComment = isAdmin() || !existingComment.edited;
-        const historyHtml = existingComment.editHistory && existingComment.editHistory.length > 0 ? 
+        const historyHtml = existingComment.editHistory && existingComment.editHistory.length > 0 ?
           `<div class="ts-comment-history">
             <div class="history-title">📜 История изменений:</div>
             ${existingComment.editHistory.map(h => `<div class="history-item"><strong>${escapeHtml(h.action)}</strong> ${escapeHtml(h.date)} в ${escapeHtml(h.time)}<br><em>${escapeHtml(h.text)}</em></div>`).join('')}
@@ -3174,6 +3207,8 @@ window.addKanbanStage = addKanbanStage;
 window.removeKanbanStage = removeKanbanStage;
 window.saveStagesAndClose = saveStagesAndClose;
 window.showAllProjects = showAllProjects;
+window.cleanupTimesheetsForProject = cleanupTimesheetsForProject;
+window.cleanupTimesheetsForEmployee = cleanupTimesheetsForEmployee;
 </script>
 </body>
 </html>
