@@ -196,7 +196,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .employee-row .emp-delete:hover { background: #c9302c; }
 .employee-page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #eee; }
 .employee-page-header h2 { margin: 0; color: #004a99; }
-.employee-page-header .emp-info { font-size: 14px; color: #666; }
 .employee-page-header .emp-edit-fields { width: 100%; }
 .employee-page-header .emp-edit-fields label { font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 2px; display: block; margin-top: 8px; }
 .employee-page-header .emp-edit-fields input { font-size: 16px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; }
@@ -290,6 +289,8 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .timesheet-entry-modal .entry-list { max-height: 500px; overflow-y: auto; }
 .timesheet-entry-modal .entry-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px; background: #fafafa; flex-direction: column; }
 .timesheet-entry-modal .entry-item input[type="number"] { width: 70px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; text-align: center; }
+.timesheet-entry-modal .entry-item input[type="number"]:focus { border-color: #004a99; outline: none; }
+.timesheet-entry-modal .entry-item input[type="number"]:disabled { background: #f5f5f5; color: #666; cursor: not-allowed; border-color: #ddd; }
 .timesheet-entry-modal .entry-item .entry-project { flex: 1; font-weight: bold; color: #004a99; font-size: 13px; }
 .timesheet-entry-modal .entry-item .entry-client { font-size: 11px; color: #666; }
 .timesheet-entry-modal .entry-total { margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color: #004a99; }
@@ -768,7 +769,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
   <div id="stagesModal" class="modal-overlay" onclick="if (event.target === this) closeStagesModal()">
     <div class="modal">
       <div class="modal-header"><h3>⚙️ Этапы проекта: <span id="stagesProjectName"></span></h3><button class="close-btn" onclick="closeStagesModal()">×</button></div>
-      <p class="muted" style="margin-top:0;" id="stagesModalHint">Настройте этапы для этого проекта. Изменения коснутся только этого проекта.</p>
+      <p class="muted" style="margin-top:0;" id="stagesModalHint">Настройте этапы для этого проекта.</p>
       <div class="stages-list" id="stagesList"></div>
       <div class="add-stage-form" id="addStageFormBlock">
         <input id="newStageName" placeholder="Название нового этапа">
@@ -1421,11 +1422,9 @@ function getBaseList() {
   }).sort((a,b) => a.name.localeCompare(b.name, 'ru'));
 }
 
-// ===== ИЗМЕНЕНО: очистка табеля при удалении клиента =====
 async function deleteClientFromBase(name) {
   if (!isAdmin()) { alert('Только администратор может удалять клиентов'); return; }
   if (!confirm('Удалить клиента "' + name + '" БЕЗВОЗВРАТНО?')) return;
-  // Очищаем табель для всех проектов клиента
   const clientProjects = rows.filter(r => getClientName(r) === name);
   for (const p of clientProjects) {
     await cleanupTimesheetsForProject(p.id);
@@ -1559,7 +1558,6 @@ async function archiveRequest(id) { if (!confirm('Отправить заявк�
 async function restoreProject(id) { const item = rows.find(r => r.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'requests'); }
 async function restoreRequest(id) { const item = leads.find(l => l.id === id); if (!item) return; item.archived = false; await saveRequestToFirebase(id, item, 'leads'); }
 
-// ===== ИЗМЕНЕНО: очистка табеля при удалении проекта =====
 async function deleteProjectFinal(id) {
   if (!isAdmin()) { alert('Только администратор может удалять проекты'); return; }
   if (!confirm('Удалить проект БЕЗВОЗВРАТНО?\n\nВсе связанные записи в табеле также будут удалены.')) return;
@@ -2044,7 +2042,6 @@ async function addEmployee() {
   hideAddEmployeeForm();
 }
 
-// ===== ИЗМЕНЕНО: очистка табеля при удалении сотрудника =====
 async function deleteEmployee() {
   if (!isAdmin()) { alert('Только администратор может удалять сотрудников'); return; }
   if (!currentEmployeeId) return;
@@ -2379,7 +2376,7 @@ function renderCalendarList(year, month, events) {
   container.innerHTML = html;
 }
 
-// ===== ТАБЕЛЬ =====
+// ===== ТАБЕЛЬ С БЛОКИРОВКОЙ ЧАСОВ =====
 function fillTimesheetEmployeeFilter() {
   const sel = document.getElementById('tsEmployeeFilter');
   const currentValue = sel.value;
@@ -2427,6 +2424,11 @@ function openTimesheetEntry(empId, dateStr) {
       const existingEntryForProject = existingEntry.entries.find(e => e.projectId === p.id);
       const existingHours = existingEntryForProject?.hours || 0;
       const existingComment = existingEntryForProject?.comment || null;
+      const hoursEdited = existingEntryForProject?.hoursEdited || false;
+      
+      // Часы можно редактировать: админу/менеджеру всегда, исполнителю — только если ещё не зафиксированы
+      const canEditHours = isAdmin() || isManager() || !hoursEdited;
+      
       let commentHtml = '';
       if (existingComment) {
         const canEditComment = isAdmin() || !existingComment.edited;
@@ -2461,14 +2463,18 @@ function openTimesheetEntry(empId, dateStr) {
           </div>
         `;
       }
+      
+      const hoursLockedHtml = !canEditHours ? '<div class="ts-comment-locked">🔒 Часы зафиксированы</div>' : '';
+      
       return `<div class="entry-item">
         <div style="display:flex;align-items:center;gap:10px;width:100%;">
           <div style="flex:1;">
             <div class="entry-project">${escapeHtml(getRequestTitle(p))}</div>
             <div class="entry-client">${escapeHtml(getClientName(p))}</div>
           </div>
-          <input type="number" min="0" max="24" step="0.5" value="${existingHours}" onchange="updateTimesheetTotal()" data-project-id="${p.id}" style="width:70px;">
+          <input type="number" min="0" max="24" step="0.5" value="${existingHours}" onchange="updateTimesheetTotal()" data-project-id="${p.id}" style="width:70px;" ${!canEditHours ? 'disabled' : ''}>
         </div>
+        ${hoursLockedHtml}
         ${commentHtml}
       </div>`;
     }).join('');
@@ -2507,7 +2513,7 @@ async function saveTimesheetComment(projectId) {
   const dt = nowDateTime();
   let entry = existingEntry.entries.find(e => e.projectId === projectId);
   if (!entry) {
-    entry = { projectId, projectTitle: '', clientName: '', hours: 0, comment: null };
+    entry = { projectId, projectTitle: '', clientName: '', hours: 0, comment: null, hoursEdited: false };
     existingEntry.entries.push(entry);
     const project = rows.find(r => r.id === projectId);
     if (project) { entry.projectTitle = getRequestTitle(project); entry.clientName = getClientName(project); }
@@ -2542,6 +2548,7 @@ function updateTimesheetTotal() {
   document.getElementById('tsEntryTotal').textContent = total.toFixed(1);
 }
 
+// ===== ИЗМЕНЕНО: при сохранении часов устанавливаем флаг hoursEdited =====
 async function saveTimesheetEntry() {
   if (!currentTsEntry) return;
   const { empId, date } = currentTsEntry;
@@ -2554,9 +2561,24 @@ async function saveTimesheetEntry() {
     const hours = parseFloat(input.value) || 0;
     const existingEntryForProject = existingEntry.entries.find(e => e.projectId === projectId);
     const existingComment = existingEntryForProject?.comment || null;
+    const existingHoursEdited = existingEntryForProject?.hoursEdited || false;
+    
     if (hours > 0 || existingComment) {
       const project = rows.find(r => r.id === projectId);
-      entries.push({ projectId, projectTitle: project ? getRequestTitle(project) : 'Неизвестно', clientName: project ? getClientName(project) : '', hours, comment: existingComment });
+      
+      // Логика фиксации часов:
+      // - Админ/менеджер: флаг не меняется (могут редактировать всегда)
+      // - Исполнитель: после первого сохранения флаг становится true
+      const newHoursEdited = existingHoursEdited || (!isAdmin() && !isManager() && hours > 0);
+      
+      entries.push({
+        projectId,
+        projectTitle: project ? getRequestTitle(project) : 'Неизвестно',
+        clientName: project ? getClientName(project) : '',
+        hours,
+        comment: existingComment,
+        hoursEdited: newHoursEdited
+      });
     }
   });
   if (entries.length === 0) { await deleteDoc(doc(db, 'timesheets', key)); delete timesheets[key]; }
