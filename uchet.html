@@ -888,6 +888,164 @@ function getCurrentUserDisplayName() {
   return 'Неизвестно';
 }
 
+// ===== МИГРАЦИЯ СТАРЫХ ДАННЫХ: исправляем формат имени во всех записях =====
+async function migrateAuthorNames() {
+  console.log('🔄 Начинаем миграцию имён авторов...');
+  let migratedCount = 0;
+  
+  // Мигрируем заметки клиентов
+  for (const clientName in clients) {
+    const c = clients[clientName];
+    if (!c.notes || !Array.isArray(c.notes)) continue;
+    let changed = false;
+    for (const note of c.notes) {
+      if (note.author && typeof note.author === 'string') {
+        const hasTwoInitials = /\.\s*\w\.$/.test(note.author) || /\.\w\.$/.test(note.author);
+        if (!hasTwoInitials && note.author.includes('.')) {
+          const fullName = findFullNameByShortName(note.author);
+          if (fullName) {
+            note.author = formatShortName(fullName);
+            changed = true;
+            migratedCount++;
+          }
+        }
+      }
+    }
+    if (changed) {
+      await saveClientToFirebase(clientName, c);
+    }
+  }
+  
+  // Мигрируем комментарии проектов
+  for (const r of rows) {
+    if (!r.comments || !Array.isArray(r.comments)) continue;
+    let changed = false;
+    for (const comment of r.comments) {
+      if (comment.author && typeof comment.author === 'string') {
+        const hasTwoInitials = /\.\s*\w\.$/.test(comment.author) || /\.\w\.$/.test(comment.author);
+        if (!hasTwoInitials && comment.author.includes('.')) {
+          const fullName = findFullNameByShortName(comment.author);
+          if (fullName) {
+            comment.author = formatShortName(fullName);
+            changed = true;
+            migratedCount++;
+          }
+        }
+      }
+    }
+    if (changed) {
+      await saveRequestToFirebase(r.id, r, 'requests');
+    }
+  }
+  
+  // Мигрируем комментарии заявок
+  for (const l of leads) {
+    if (!l.comments || !Array.isArray(l.comments)) continue;
+    let changed = false;
+    for (const comment of l.comments) {
+      if (comment.author && typeof comment.author === 'string') {
+        const hasTwoInitials = /\.\s*\w\.$/.test(comment.author) || /\.\w\.$/.test(comment.author);
+        if (!hasTwoInitials && comment.author.includes('.')) {
+          const fullName = findFullNameByShortName(comment.author);
+          if (fullName) {
+            comment.author = formatShortName(fullName);
+            changed = true;
+            migratedCount++;
+          }
+        }
+      }
+    }
+    if (changed) {
+      await saveRequestToFirebase(l.id, l, 'leads');
+    }
+  }
+  
+  // Мигрируем комментарии заданий
+  for (const projectId in tasks) {
+    const rt = tasks[projectId];
+    if (!Array.isArray(rt)) continue;
+    let projectChanged = false;
+    for (const task of rt) {
+      if (!task.comments || !Array.isArray(task.comments)) continue;
+      for (const comment of task.comments) {
+        if (comment.author && typeof comment.author === 'string') {
+          const hasTwoInitials = /\.\s*\w\.$/.test(comment.author) || /\.\w\.$/.test(comment.author);
+          if (!hasTwoInitials && comment.author.includes('.')) {
+            const fullName = findFullNameByShortName(comment.author);
+            if (fullName) {
+              comment.author = formatShortName(fullName);
+              projectChanged = true;
+              migratedCount++;
+            }
+          }
+        }
+      }
+    }
+    if (projectChanged) {
+      await saveTasksToFirebase(projectId, rt);
+    }
+  }
+  
+  // Мигрируем комментарии табеля
+  for (const key in timesheets) {
+    const ts = timesheets[key];
+    if (!ts.entries || !Array.isArray(ts.entries)) continue;
+    let tsChanged = false;
+    for (const entry of ts.entries) {
+      if (entry.comment && entry.comment.author && typeof entry.comment.author === 'string') {
+        const hasTwoInitials = /\.\s*\w\.$/.test(entry.comment.author) || /\.\w\.$/.test(entry.comment.author);
+        if (!hasTwoInitials && entry.comment.author.includes('.')) {
+          const fullName = findFullNameByShortName(entry.comment.author);
+          if (fullName) {
+            entry.comment.author = formatShortName(fullName);
+            tsChanged = true;
+            migratedCount++;
+          }
+        }
+      }
+    }
+    if (tsChanged) {
+      await saveTimesheetToFirebase(key, ts);
+    }
+  }
+  
+  console.log(`✅ Миграция завершена. Обновлено записей: ${migratedCount}`);
+  return migratedCount;
+}
+
+// ===== ПОМОЩНИК: найти полное имя по короткому формату =====
+function findFullNameByShortName(shortName) {
+  if (!shortName) return null;
+  const parts = shortName.trim().split(/\s+/);
+  if (parts.length < 2) return null;
+  const surname = parts[0];
+  const firstInitial = parts[1].charAt(0).toUpperCase();
+  
+  for (const user of allUsers) {
+    if (user.name) {
+      const userParts = user.name.trim().split(/\s+/);
+      if (userParts.length >= 2 && 
+          userParts[0] === surname && 
+          userParts[1].charAt(0).toUpperCase() === firstInitial) {
+        return user.name;
+      }
+    }
+  }
+  
+  for (const emp of employees) {
+    if (emp.name) {
+      const empParts = emp.name.trim().split(/\s+/);
+      if (empParts.length >= 2 && 
+          empParts[0] === surname && 
+          empParts[1].charAt(0).toUpperCase() === firstInitial) {
+        return emp.name;
+      }
+    }
+  }
+  
+  return null;
+}
+
 // ===== ПРОВЕРКА ПРАВ =====
 function isAdmin() { return currentUser && currentUser.role === 'admin'; }
 function isManager() { return currentUser && currentUser.role === 'manager'; }
@@ -915,7 +1073,6 @@ function canEditProject(projectId) {
 
 function canEditTimesheet(empId) {
   if (!currentUser) return false;
-  // Админ и менеджер могут редактировать любой табель
   if (isAdmin() || isManager()) return true;
   if (isExecutor()) {
     const emp = employees.find(e => e.id === empId);
@@ -978,7 +1135,6 @@ async function ensureClientExists(name) {
   return clients[name];
 }
 
-// ===== ОЧИСТКА ТАБЕЛЯ ПРИ УДАЛЕНИИ =====
 async function cleanupTimesheetsForProject(projectId) {
   try {
     const snap = await getDocs(collection(db, 'timesheets'));
@@ -1054,7 +1210,6 @@ async function ensureProjectHasStages(projectId) {
   if (changed) { tasks[projectId] = rt; await saveTasksToFirebase(projectId, rt); }
 }
 
-// ===== АВТОРИЗАЦИЯ =====
 function showAuthError(msg) { const el = document.getElementById('authError'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 5000); }
 function showLoginForm() { document.getElementById('loginForm').style.display = 'block'; document.getElementById('createAdminForm').style.display = 'none'; document.getElementById('authSubtitle').textContent = 'Вход в систему'; document.getElementById('authError').classList.remove('show'); }
 function showCreateAdminForm() { document.getElementById('loginForm').style.display = 'none'; document.getElementById('createAdminForm').style.display = 'block'; document.getElementById('authSubtitle').textContent = 'Создание первого администратора'; document.getElementById('authError').classList.remove('show'); }
@@ -1176,7 +1331,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// ===== АДМИН-ПАНЕЛЬ =====
 function openAdminPanel() {
   if (!isAdmin()) { alert('Только администратор'); return; }
   document.getElementById('mainApp').style.display = 'none';
@@ -1293,7 +1447,6 @@ async function deleteAdminUser(userId, userName) {
   } catch (e) { console.error(e); alert('Ошибка: ' + e.message); }
 }
 
-// ===== ОБРАБОТЧИКИ =====
 document.getElementById('search').addEventListener('input', render);
 document.getElementById('statusFilter').addEventListener('change', render);
 document.getElementById('requestSearch').addEventListener('input', renderRequests);
@@ -2378,7 +2531,6 @@ function renderCalendarList(year, month, events) {
   container.innerHTML = html;
 }
 
-// ===== ИСПРАВЛЕНО: ТАБЕЛЬ — АДМИН МОЖЕТ КОММЕНТИРОВАТЬ =====
 function fillTimesheetEmployeeFilter() {
   const sel = document.getElementById('tsEmployeeFilter');
   const currentValue = sel.value;
@@ -2410,7 +2562,6 @@ function getEmployeeProjectsForTimesheet(empName) { return rows.filter(r => { if
 function getTimesheetKey(empId, dateStr) { return empId + '_' + dateStr; }
 
 function openTimesheetEntry(empId, dateStr) {
-  // ИСПРАВЛЕНО: проверка прав — админ и менеджер могут открывать любой табель
   if (!canEditTimesheet(empId)) {
     alert('У вас нет прав на редактирование этого табеля');
     return;
@@ -2432,13 +2583,10 @@ function openTimesheetEntry(empId, dateStr) {
       const existingComment = existingEntryForProject?.comment || null;
       const hoursEdited = existingEntryForProject?.hoursEdited || false;
       
-      // ИСПРАВЛЕНО: Админ и менеджер могут редактировать часы всегда
-      // Исполнитель — только если ещё не зафиксированы
       const canEditHours = isAdmin() || isManager() || !hoursEdited;
       
       let commentHtml = '';
       if (existingComment) {
-        // ИСПРАВЛЕНО: Админ может редактировать комментарии всегда
         const canEditComment = isAdmin() || isManager() || !existingComment.edited;
         const historyHtml = existingComment.editHistory && existingComment.editHistory.length > 0 ?
           `<div class="ts-comment-history">
@@ -2458,7 +2606,6 @@ function openTimesheetEntry(empId, dateStr) {
           </div>
         `;
       } else {
-        // ИСПРАВЛЕНО: Кнопка добавления комментария видна всем, кто может редактировать табель
         commentHtml = `
           <div class="ts-comment-section">
             <button class="ts-add-comment-btn" onclick="showTimesheetCommentForm('${p.id}', false)">💬 Добавить комментарий</button>
@@ -2531,7 +2678,6 @@ async function saveTimesheetComment(projectId) {
   if (entry.comment) {
     editHistory.push({ action: 'Редактирование', text: entry.comment.text, date: entry.comment.editedAt || entry.comment.createdAt, time: entry.comment.editedTime || entry.comment.createdTime });
   }
-  // ИСПРАВЛЕНО: Админ и менеджер могут редактировать комментарии неограниченно
   const isAlreadyEdited = entry.comment?.edited || false;
   const newEditedFlag = (isAdmin() || isManager()) ? isAlreadyEdited : true;
   entry.comment = {
@@ -2575,8 +2721,6 @@ async function saveTimesheetEntry() {
     if (hours > 0 || existingComment) {
       const project = rows.find(r => r.id === projectId);
       
-      // ИСПРАВЛЕНО: Флаг фиксации часов — только для исполнителей
-      // Админ и менеджер могут редактировать всегда
       const newHoursEdited = existingHoursEdited || (!isAdmin() && !isManager() && hours > 0);
       
       entries.push({
@@ -2952,7 +3096,7 @@ function renderTaskCard(t, projectId) {
   const totalStages = getProjectStages(projectId).length;
   return '<div class="task-card">' +
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
-    '<div class="task-meta"><div>👤 ' + escapeHtml(t.assignee || 'не назначен') + '</div></div>' +
+    '<div class="task-meta"><div>👤 ' + escapeHtml(formatShortName(t.assignee || 'не назначен')) + '</div></div>' +
     '<div class="task-dates">' +
       '<span style="font-size:11px;color:#666;">📅 ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
       '<span class="task-days-count ' + badge.cls + '">' + daysText + '</span>' +
@@ -3142,7 +3286,24 @@ function getEmployeeLoad(empName) {
   return { total: t, active: a };
 }
 
-loadAllUsers();
+// Загружаем пользователей, затем мигрируем старые имена
+(async () => {
+  await loadAllUsers();
+  setTimeout(() => {
+    migrateAuthorNames().then(count => {
+      if (count > 0) {
+        console.log(`Обновлено ${count} записей с именами авторов`);
+        render();
+        renderRequests();
+        renderBase();
+        renderEmployees();
+        if (currentNavView === 'timesheet') renderTimesheet();
+        if (currentNavView === 'dashboard') renderDashboard();
+        if (currentNavView === 'calendar') renderCalendar();
+      }
+    });
+  }, 2000);
+})();
 
 window.handleLogin = handleLogin;
 window.handleCreateAdmin = handleCreateAdmin;
