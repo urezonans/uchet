@@ -1174,9 +1174,12 @@ function _isShortButShouldBeLonger(author) {
 }
 
 async function migrateAuthorNames() {
+  if (state.allUsers.length === 0 && state.employees.length === 0) {
+    console.log('⏸️ Миграция пропущена: нет данных о пользователях');
+    return 0;
+  }
   console.log('🔄 Начинаем миграцию имён авторов...');
   let migratedCount = 0;
-
   // Заметки клиентов
   for (const clientName in state.clients) {
     const c = state.clients[clientName];
@@ -1509,23 +1512,40 @@ async function loadAllUsers() {
   } catch (e) { console.error(e); }
 }
 
-(async () => {
-  await loadAllUsers();
-  setTimeout(() => {
-    migrateAuthorNames().then(count => {
-      if (count > 0) {
-        console.log(`Обновлено ${count} записей с именами авторов`);
-        render();
-        renderRequests();
-        renderBase();
-        renderEmployees();
-        if (state.currentNavView === 'timesheet') renderTimesheet();
-        if (state.currentNavView === 'dashboard') renderDashboard();
-        if (state.currentNavView === 'calendar') renderCalendar();
-      }
-    });
-  }, 2000);
-})();
+// Запускаем миграцию один раз — ПОСЛЕ того, как все подписки принесли первые данные.
+// Используем флаг, чтобы не запускать миграцию повторно при каждом логине.
+let __migrationDone = false;
+
+async function runMigrationOnce() {
+  if (__migrationDone) return;
+  // Ждём, пока не загрузятся пользователи И хотя бы одна из "рабочих" коллекций.
+  // Проверяем раз в 500 мс, максимум 15 секунд.
+  const start = Date.now();
+  while (Date.now() - start < 15000) {
+    if (state.allUsers.length > 0 && (state.rows.length > 0 || state.leads.length > 0 || Object.keys(state.tasks).length > 0)) {
+      break;
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+  __migrationDone = true;
+  const count = await migrateAuthorNames();
+  if (count > 0) {
+    console.log(`Обновлено ${count} записей с именами авторов`);
+    render();
+    renderRequests();
+    renderBase();
+    renderEmployees();
+    if (state.currentNavView === 'timesheet') renderTimesheet();
+    if (state.currentNavView === 'dashboard') renderDashboard();
+    if (state.currentNavView === 'calendar') renderCalendar();
+  }
+}
+
+// Небольшой хак: как только пользователь залогинился и подписки принесли данные — стартуем.
+// Слушаем изменения через onSnapshot? Нет — проще проверить раз в 2 секунды, залогинен ли юзер.
+setInterval(() => {
+  if (state.currentUser && !__migrationDone) runMigrationOnce();
+}, 2000);
 // ============================================================
 // 17. ХЕЛПЕРЫ СПИСКОВ
 // ============================================================
@@ -4428,5 +4448,3 @@ setTimeout(() => { const lo = $('loadingOverlay'); if (lo) lo.style.display = 'n
 </script>
 </body>
 </html>
-
-
