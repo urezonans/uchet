@@ -1250,8 +1250,30 @@ async function migrateAuthorNames() {
     }
     if (tsChanged) await saveTimesheetToFirebase(key, ts);
   }
-
   console.log(`✅ Миграция завершена. Обновлено записей: ${migratedCount}`);
+  // Принудительно перечитываем все коллекции из Firestore,
+  // потому что onSnapshot не всегда пушит изменения во вложенных массивах.
+  console.log('🔄 Перечитываем данные после миграции...');
+  const [reqSnap, leadSnap, clientSnap, taskSnap, tsSnap] = await Promise.all([
+    getDocs(collection(db, 'requests')),
+    getDocs(collection(db, 'leads')),
+    getDocs(collection(db, 'clients')),
+    getDocs(collection(db, 'tasks')),
+    getDocs(collection(db, 'timesheets'))
+  ]);
+  state.rows = [];
+  reqSnap.forEach(d => state.rows.push({ id: d.id, ...d.data() }));
+  state.leads = [];
+  leadSnap.forEach(d => state.leads.push({ id: d.id, ...d.data() }));
+  state.clients = {};
+  clientSnap.forEach(d => { state.clients[d.id] = d.data(); });
+  state.tasks = {};
+  taskSnap.forEach(d => { state.tasks[d.id] = d.data().tasks || []; });
+  state.timesheets = {};
+  tsSnap.forEach(d => { state.timesheets[d.id] = d.data(); });
+  console.log('✅ Данные перечитаны');
+  // Если открыта модалка — перерисовать её
+  if (state.currentViewRequest && state.currentViewType) refreshViewModal();
   return migratedCount;
 }
 
@@ -2232,9 +2254,9 @@ function refreshViewModal() {
     renderProjectExecutors(u.id);
   }
   applyProjectFieldPermissions(u.id);
+  // ВАЖНО: принудительно перерисовываем комментарии с актуальными данными
   renderComments();
 }
-
 async function updateViewField(field, value) {
   if (!state.currentViewRequest || !state.currentViewType) return;
   if (isExecutor() && !canEditProject(state.currentViewRequest.id)) {
@@ -2287,8 +2309,23 @@ async function deleteComment(cid) {
 
 function renderComments() {
   const list = $('commentsList');
-  const comments = (state.currentViewRequest && state.currentViewRequest.comments) || [];
-  if (!comments.length) { list.innerHTML = '<div class="muted">Комментариев пока нет.</div>'; return; }
+  if (!state.currentViewRequest || !state.currentViewType) {
+    list.innerHTML = '<div class="muted">Комментариев пока нет.</div>';
+    return;
+  }
+  // ВСЕГДА берём актуальную версию из state.rows / state.leads
+  const list_ = state.currentViewType === 'project' ? state.rows : state.leads;
+  const fresh = list_.find(r => r.id === state.currentViewRequest.id);
+  if (!fresh) {
+    list.innerHTML = '<div class="muted">Запись не найдена.</div>';
+    return;
+  }
+  state.currentViewRequest = fresh;
+  const comments = fresh.comments || [];
+  if (!comments.length) {
+    list.innerHTML = '<div class="muted">Комментариев пока нет.</div>';
+    return;
+  }
   list.innerHTML = [...comments].reverse().map(c => {
     const authorDisplay = c.author ? '<span class="author-badge">' + escapeHtml(formatShortName(c.author)) + '</span>' : '';
     const editedInfo = c.editedAt ? '<span class="edited-info">✏️ Изменено: ' + escapeHtml(c.editedAt) + ' в ' + escapeHtml(c.editedTime) + (c.editedBy ? ' • ' + escapeHtml(formatShortName(c.editedBy)) : '') + '</span>' : '';
@@ -2296,7 +2333,6 @@ function renderComments() {
     return '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + ' ' + authorDisplay + ' ' + editedInfo + '</span>' + deleteBtn + '</div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>';
   }).join('');
 }
-
 function renderViewActions() {
   const div = $('viewActions');
   div.innerHTML = '';
