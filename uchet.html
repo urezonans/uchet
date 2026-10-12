@@ -973,15 +973,16 @@ function getDeadlineBadge(end, start) {
 function formatShortName(fullName) {
   if (!fullName) return 'Неизвестно';
   if (fullName.includes('@')) return fullName.split('@')[0];
-  const parts = fullName.trim().split(/\s+/);
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return 'Неизвестно';
   const surname = parts[0];
   if (parts.length === 1) return surname;
   if (parts.length === 2) return surname + ' ' + parts[1].charAt(0).toUpperCase() + '.';
+  // Берём ровно ДВА последних слова (имя и отчество) как инициалы.
+  // Если слов больше 3 (напр., «Иванов Иван Иванович Младший») — берём слова 2 и 3.
   const initials = parts.slice(1, 3).map(p => p.charAt(0).toUpperCase() + '.').join('');
   return surname + ' ' + initials;
 }
-
 function getCurrentUserDisplayName() {
   if (!state.currentUser) return 'Неизвестно';
   if (state.currentUser.name && state.currentUser.name.trim()) return formatShortName(state.currentUser.name);
@@ -1124,14 +1125,14 @@ function closeAllModals() {
 // ============================================================
 function findFullNameByShortName(shortName) {
   if (!shortName) return null;
-  const parts = shortName.trim().split(/\s+/);
+  const parts = shortName.trim().split(/\s+/).filter(Boolean);
   if (parts.length < 2) return null;
   const surname = parts[0];
   const firstInitial = parts[1].charAt(0).toUpperCase();
 
   for (const user of state.allUsers) {
     if (user.name) {
-      const p = user.name.trim().split(/\s+/);
+      const p = user.name.trim().split(/\s+/).filter(Boolean);
       if (p.length >= 2 && p[0] === surname && p[1].charAt(0).toUpperCase() === firstInitial) {
         return user.name;
       }
@@ -1139,7 +1140,7 @@ function findFullNameByShortName(shortName) {
   }
   for (const emp of state.employees) {
     if (emp.name) {
-      const p = emp.name.trim().split(/\s+/);
+      const p = emp.name.trim().split(/\s+/).filter(Boolean);
       if (p.length >= 2 && p[0] === surname && p[1].charAt(0).toUpperCase() === firstInitial) {
         return emp.name;
       }
@@ -1148,10 +1149,28 @@ function findFullNameByShortName(shortName) {
   return null;
 }
 
+// Проверка 1: у автора одна инициала («Иванов И.»), но полное имя не найдено.
+// Такие записи нужно попытаться исправить по базе.
 function _needsMigration(author) {
   if (!author || typeof author !== 'string') return false;
   const hasTwoInitials = /\.\s*\w\.$/.test(author) || /\.\w\.$/.test(author);
   return !hasTwoInitials && author.includes('.');
+}
+
+// Проверка 2 (НОВАЯ): имя короткое («Иванов И.»), НО в базе есть полное ФИО
+// («Иванов Иван Иванович»), которое даст «Иванов И.И.». Значит — надо обновить.
+function _isShortButShouldBeLonger(author) {
+  if (!author || typeof author !== 'string') return false;
+  const parts = author.trim().split(/\s+/).filter(Boolean);
+  // Должно быть «Фамилия И.» — ровно два токена, второй из одной буквы с точкой
+  if (parts.length !== 2) return false;
+  if (!/^\w\.$/.test(parts[1])) return false;
+  // Ищем полное ФИО в базе
+  const fullName = findFullNameByShortName(author);
+  if (!fullName) return false;
+  // Полное имя должно состоять из 3+ слов, чтобы дать две инициалы
+  const fullParts = fullName.trim().split(/\s+/).filter(Boolean);
+  return fullParts.length >= 3;
 }
 
 async function migrateAuthorNames() {
@@ -1164,7 +1183,7 @@ async function migrateAuthorNames() {
     if (!Array.isArray(c.notes)) continue;
     let changed = false;
     for (const note of c.notes) {
-      if (_needsMigration(note.author)) {
+      if (_needsMigration(note.author) || _isShortButShouldBeLonger(note.author)) {
         const fullName = findFullNameByShortName(note.author);
         if (fullName) { note.author = formatShortName(fullName); changed = true; migratedCount++; }
       }
@@ -1177,7 +1196,7 @@ async function migrateAuthorNames() {
     if (!Array.isArray(r.comments)) continue;
     let changed = false;
     for (const cm of r.comments) {
-      if (_needsMigration(cm.author)) {
+      if (_needsMigration(cm.author) || _isShortButShouldBeLonger(cm.author)) {
         const fullName = findFullNameByShortName(cm.author);
         if (fullName) { cm.author = formatShortName(fullName); changed = true; migratedCount++; }
       }
@@ -1190,7 +1209,7 @@ async function migrateAuthorNames() {
     if (!Array.isArray(l.comments)) continue;
     let changed = false;
     for (const cm of l.comments) {
-      if (_needsMigration(cm.author)) {
+      if (_needsMigration(cm.author) || _isShortButShouldBeLonger(cm.author)) {
         const fullName = findFullNameByShortName(cm.author);
         if (fullName) { cm.author = formatShortName(fullName); changed = true; migratedCount++; }
       }
@@ -1206,7 +1225,7 @@ async function migrateAuthorNames() {
     for (const task of rt) {
       if (!Array.isArray(task.comments)) continue;
       for (const cm of task.comments) {
-        if (_needsMigration(cm.author)) {
+        if (_needsMigration(cm.author) || _isShortButShouldBeLonger(cm.author)) {
           const fullName = findFullNameByShortName(cm.author);
           if (fullName) { cm.author = formatShortName(fullName); projectChanged = true; migratedCount++; }
         }
@@ -1221,7 +1240,7 @@ async function migrateAuthorNames() {
     if (!Array.isArray(ts.entries)) continue;
     let tsChanged = false;
     for (const entry of ts.entries) {
-      if (entry.comment && _needsMigration(entry.comment.author)) {
+      if (entry.comment && (_needsMigration(entry.comment.author) || _isShortButShouldBeLonger(entry.comment.author))) {
         const fullName = findFullNameByShortName(entry.comment.author);
         if (fullName) { entry.comment.author = formatShortName(fullName); tsChanged = true; migratedCount++; }
       }
@@ -4409,3 +4428,5 @@ setTimeout(() => { const lo = $('loadingOverlay'); if (lo) lo.style.display = 'n
 </script>
 </body>
 </html>
+
+
