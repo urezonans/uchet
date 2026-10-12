@@ -1874,28 +1874,11 @@ function renderBase() {
       : '';
 
     let html = '<div class="client-base-header"><span class="client-base-name">' + escapeHtml(c.name) + '</span><div class="client-base-actions">' + deleteBtn + '</div></div>';
-
-    if (c.contactPersons && c.contactPersons.length) {
-      c.contactPersons.forEach(cp => {
-        if (cp.name) {
-          let cpLine = '👤 ' + escapeHtml(cp.name);
-          if (cp.position) cpLine += ' — ' + escapeHtml(cp.position);
-          html += '<div class="client-base-info">' + cpLine + '</div>';
-          if (cp.phone1) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone1) + '</div>';
-          if (cp.phone2) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone2) + '</div>';
-          if (cp.phone3) html += '<div class="client-base-info" style="padding-left:20px;">📞 ' + escapeHtml(cp.phone3) + '</div>';
-          if (cp.email) html += '<div class="client-base-info" style="padding-left:20px;">✉️ ' + escapeHtml(cp.email) + '</div>';
-          if (cp.website) html += '<div class="client-base-info" style="padding-left:20px;">🌐 ' + escapeHtml(cp.website) + '</div>';
-          if (cp.address) html += '<div class="client-base-info" style="padding-left:20px;">📍 ' + escapeHtml(cp.address) + '</div>';
-        }
-      });
-    }
     html += '<div class="client-base-stats"><span>📁 Проектов: ' + c.projectCount + '</span><span>📝 Заявок: ' + c.requestCount + '</span><span>📅 Добавлен: ' + c.createdAt + '</span></div>';
     div.innerHTML = html;
     bl.appendChild(div);
   });
 }
-
 // ============================================================
 // 21. КАРТОЧКА КЛИЕНТА
 // ============================================================
