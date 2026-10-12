@@ -1937,14 +1937,17 @@ function addContactPerson() {
   state.clients[state.currentClientOldName] = s;
   renderContactPersons(s.contactPersons);
 }
-function removeContactPerson(idx) {
+async function removeContactPerson(idx) {
   const s = state.clients[state.currentClientOldName] || {};
   if (!s.contactPersons) return;
+  const cp = s.contactPersons[idx];
+  if (!cp) return;
+  const cpName = (cp.name || '').trim() || ('Контактное лицо №' + (idx + 1));
+  if (!await confirmDialog('Удалить «' + cpName + '»?', 'Удаление контактного лица')) return;
   s.contactPersons.splice(idx, 1);
   state.clients[state.currentClientOldName] = s;
   renderContactPersons(s.contactPersons);
 }
-
 function renderNotes() {
   const container = $('notesList');
   if (!container) return;
@@ -4358,8 +4361,7 @@ document.addEventListener('click', async (e) => {
   if (action === 'delete-note') { e.stopPropagation(); await deleteNote(el.dataset.id); return; }
 
   // --- Контактные лица ---
-  if (action === 'remove-cp') { e.stopPropagation(); removeContactPerson(Number(el.dataset.idx)); return; }
-
+if (action === 'remove-cp') { e.stopPropagation(); await removeContactPerson(Number(el.dataset.idx)); return; }
   // --- Задачи (канбан) ---
   if (action === 'open-task-comments') { e.stopPropagation(); openTaskComments(el.dataset.id, el.dataset.project); return; }
   if (action === 'toggle-task-done') { e.stopPropagation(); await toggleTaskDone(el.dataset.id); return; }
