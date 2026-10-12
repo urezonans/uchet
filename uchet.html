@@ -157,6 +157,19 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .task-card .task-comments-btn .comment-count { background: #5bc0de; color: white; border-radius: 10px; padding: 1px 6px; font-size: 10px; font-weight: bold; }
 .task-card .task-actions { display: flex; gap: 4px; flex-wrap: wrap; }
 .task-card .task-actions button { font-size: 11px; padding: 2px 6px; }
+.task-card.task-done { background: #f0fff4; border-color: #b7e4c7; }
+.task-card.task-done .task-title { color: #2e7d32; }
+.task-days-done { font-size: 12px; font-weight: bold; color: #2e7d32; background: #e8f5e9; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.task-done-btn { background: #5cb85c; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
+.task-done-btn:hover { background: #449d44; }
+.task-done-btn.undo { background: #f0ad4e; }
+.task-done-btn.undo:hover { background: #ec971f; }
+.badge-completed { display: inline-block; background: #5cb85c; color: white; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+.request-tile.project-completed { background: #f0fff4; border-color: #b7e4c7; }
+.recent-item.project-completed { background: #f0fff4; border-left-color: #5cb85c; }
+.calendar-list-event.project-completed { border-left-color: #5cb85c; background: #f0fff4; }
+.cal-event.project-completed { background: #5cb85c; color: white; }
+.day-event-item.project-completed { border-left-color: #5cb85c; background: #f0fff4; }
 .add-task-form { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 10px; margin-bottom: 12px; }
 .add-task-form h4 { margin: 0 0 8px 0; font-size: 14px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
@@ -444,7 +457,8 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .ts-comment-form { margin-top: 8px; }
 .ts-comment-textarea { width: 100%; min-height: 50px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; resize: vertical; background: #fff; }
 .ts-comment-textarea:focus { border-color: #004a99; outline: none; }
-.ts-comment-textarea:disabled { background: #f5f5f5; color: #666; cursor: not-allowed; }.ts-comment-form-actions { display: flex; gap: 4px; margin-top: 6px; }
+.ts-comment-textarea:disabled { background: #f5f5f5; color: #666; cursor: not-allowed; }
+.ts-comment-form-actions { display: flex; gap: 4px; margin-top: 6px; }
 .ts-comment-form-actions button { font-size: 11px; padding: 4px 10px; border-radius: 4px; border: none; cursor: pointer; }
 .ts-comment-form-actions .btn-save-comment { background: #5cb85c; color: white; }
 .ts-comment-form-actions .btn-cancel-comment { background: #95a5a6; color: white; }
@@ -460,7 +474,6 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .project-executors-title { font-weight: bold; color: #666; margin-bottom: 4px; }
 .project-executors-list { display: flex; flex-direction: column; gap: 2px; }
 .project-executor-item { color: #555; padding-left: 8px; }
-/* ===== ДОБАВЛЕНО: тосты и лоадер ===== */
 .toast-container { position: fixed; top: 16px; right: 16px; z-index: 10000; display: flex; flex-direction: column; gap: 8px; max-width: 360px; }
 .toast { background: #fff; border-left: 4px solid #5bc0de; border-radius: 6px; padding: 12px 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 14px; color: #222; animation: slideIn 0.2s ease-out; }
 .toast.success { border-left-color: #5cb85c; }
@@ -740,7 +753,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
       <button data-action="open-employees-modal">👷 Сотрудники</button>
       <button data-action="open-stats-modal">📊 Статистика</button>
     </div>
-    <div class="add-task-form">
+    <div class="add-task-form" id="addTaskFormBlock">
       <h4>➕ Новое задание</h4>
       <div class="form-row">
         <div><label>Название</label><input id="newTaskTitle" placeholder="Название задания"></div>
@@ -914,7 +927,7 @@ function escapeHtml(s) {
 }
 
 // ============================================================
-// 4. УТИЛИТЫ: ДАТЫ (ИСПРАВЛЕНО — локальные, без toISOString)
+// 4. УТИЛИТЫ: ДАТЫ (локальные, без toISOString)
 // ============================================================
 function today() {
   const d = new Date();
@@ -923,7 +936,6 @@ function today() {
 function todayDate() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
 
 function dateToLocalString(d) {
-  // ИСПРАВЛЕНО: раньше был d.toISOString().slice(0,10), что давало сдвиг на день в UTC+3
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
@@ -997,6 +1009,30 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 // ============================================================
 function getClientName(r) { return String(r.client || '').trim(); }
 function getRequestTitle(r) { return String(r.title || r.request || '').trim(); }
+
+// Возвращает true, если проект/заявка считаются выполненными:
+// - у проекта вручную статус "Выполнена", ИЛИ
+// - все задачи проекта помечены done: true (и есть хотя бы одна задача)
+function isProjectCompleted(project) {
+  if (!project) return false;
+  if (project.status === 'Выполнена') return true;
+  if (project.status === 'Отменена') return false;
+  const tasks = state.tasks[project.id] || [];
+  if (tasks.length === 0) return false;
+  return tasks.every(t => t.done === true);
+}
+
+// Возвращает HTML для бейджа дней проекта:
+// - если выполнен — зелёный бейдж «✓ ВЫПОЛНЕН»
+// - иначе — обычный бейдж дней из getDeadlineBadge
+function getProjectBadgeHtml(project, size) {
+  const sizeClass = size === 'big' ? 'days-badge' : 'req-days';
+  if (isProjectCompleted(project)) {
+    return '<span class="badge-completed">✓ ВЫПОЛНЕН</span>';
+  }
+  const b = getDeadlineBadge(project.endDate, project.date);
+  return '<span class="' + sizeClass + ' ' + b.cls + '">' + b.text + '</span>';
+}
 
 function generateNewClientName() {
   let base = 'Новый клиент', name = base, n = 1;
@@ -1089,7 +1125,7 @@ function setSyncStatus(status, message) {
 }
 
 // ============================================================
-// 9. ОБЁРТКИ FIRESTORE (ИСПРАВЛЕНО — уведомляют об ошибках)
+// 9. ОБЁРТКИ FIRESTORE
 // ============================================================
 async function fbSet(col, id, data) {
   try { await setDoc(doc(db, col, id), data); return true; }
@@ -1100,7 +1136,6 @@ async function fbDelete(col, id) {
   catch (e) { console.error('[Firestore delete]', col, id, e); toast('Ошибка удаления: ' + e.message, 'error'); return false; }
 }
 
-// Обёртки с прежними именами — чтобы дальше по коду не менять вызовы
 async function saveClientToFirebase(name, data)   { const ok = await fbSet('clients', name, data); if (ok) setSyncStatus('synced','Синхронизировано'); }
 async function saveRequestToFirebase(id, data, col = 'requests') { await fbSet(col, id, data); }
 async function deleteRequestFromFirebase(id, col = 'requests') {
@@ -1113,7 +1148,7 @@ async function saveTasksToFirebase(id, list)      { await fbSet('tasks', id, { t
 async function saveTimesheetToFirebase(id, data)  { await fbSet('timesheets', id, data); }
 
 // ============================================================
-// 10. МОДАЛКИ: ОТКРЫТИЕ / ЗАКРЫТИЕ (универсальные хелперы)
+// 10. МОДАЛКИ: ОТКРЫТИЕ / ЗАКРЫТИЕ
 // ============================================================
 function openModal(id)  { const el = $(id); if (el) el.style.display = 'block'; }
 function closeModal(id) { const el = $(id); if (el) el.style.display = 'none'; }
@@ -1150,25 +1185,21 @@ function findFullNameByShortName(shortName) {
 }
 
 // Проверка 1: у автора одна инициала («Иванов И.»), но полное имя не найдено.
-// Такие записи нужно попытаться исправить по базе.
 function _needsMigration(author) {
   if (!author || typeof author !== 'string') return false;
   const hasTwoInitials = /\.\s*\w\.$/.test(author) || /\.\w\.$/.test(author);
   return !hasTwoInitials && author.includes('.');
 }
 
-// Проверка 2 (НОВАЯ): имя короткое («Иванов И.»), НО в базе есть полное ФИО
-// («Иванов Иван Иванович»), которое даст «Иванов И.И.». Значит — надо обновить.
+// Проверка 2: имя короткое («Иванов И.»), НО в базе есть полное ФИО,
+// которое даст «Иванов И.И.». Значит — надо обновить.
 function _isShortButShouldBeLonger(author) {
   if (!author || typeof author !== 'string') return false;
   const parts = author.trim().split(/\s+/).filter(Boolean);
-  // Должно быть «Фамилия И.» — ровно два токена, второй из одной буквы с точкой
   if (parts.length !== 2) return false;
   if (!/^\w\.$/.test(parts[1])) return false;
-  // Ищем полное ФИО в базе
   const fullName = findFullNameByShortName(author);
   if (!fullName) return false;
-  // Полное имя должно состоять из 3+ слов, чтобы дать две инициалы
   const fullParts = fullName.trim().split(/\s+/).filter(Boolean);
   return fullParts.length >= 3;
 }
@@ -1180,6 +1211,7 @@ async function migrateAuthorNames() {
   }
   console.log('🔄 Начинаем миграцию имён авторов...');
   let migratedCount = 0;
+
   // Заметки клиентов
   for (const clientName in state.clients) {
     const c = state.clients[clientName];
@@ -1250,7 +1282,9 @@ async function migrateAuthorNames() {
     }
     if (tsChanged) await saveTimesheetToFirebase(key, ts);
   }
+
   console.log(`✅ Миграция завершена. Обновлено записей: ${migratedCount}`);
+
   // Принудительно перечитываем все коллекции из Firestore,
   // потому что onSnapshot не всегда пушит изменения во вложенных массивах.
   console.log('🔄 Перечитываем данные после миграции...');
@@ -1271,19 +1305,17 @@ async function migrateAuthorNames() {
   taskSnap.forEach(d => { state.tasks[d.id] = d.data().tasks || []; });
   state.timesheets = {};
   tsSnap.forEach(d => { state.timesheets[d.id] = d.data(); });
-    console.log('✅ Данные перечитаны');
+  console.log('✅ Данные перечитаны');
 
   // Если открыта модалка — перерисовать её
   if (state.currentViewRequest && state.currentViewType) refreshViewModal();
 
-  // Пересоздаём подписки — Firestore не пушит обновления вложенных массивов,
-  // поэтому списки и дашборд могут показывать старые данные.
+  // Пересоздаём подписки — Firestore не пушит обновления вложенных массивов
   if (migratedCount > 0) {
     console.log('🔄 Пересоздаём подписки после миграции...');
     state.unsubscribers.forEach(u => { if (typeof u === 'function') u(); });
     state.unsubscribers = [];
     setupRealtimeListeners();
-    // Принудительно перерисовываем всё, что может быть открыто
     render();
     renderRequests();
     renderBase();
@@ -1297,6 +1329,7 @@ async function migrateAuthorNames() {
 
   return migratedCount;
 }
+
 // ============================================================
 // 12. ЭКРАН АВТОРИЗАЦИИ
 // ============================================================
@@ -1512,6 +1545,7 @@ function setupRealtimeListeners() {
     state.tasks = {};
     snap.forEach(d => { state.tasks[d.id] = d.data().tasks || []; });
     if (state.currentProductionRequest) renderProduction();
+    render();
     if (state.currentClientOldName) renderClientRequests(state.currentClientOldName);
     if (state.currentEmployeeId) renderEmployeeProjects(state.currentEmployeeId);
     if (state.currentNavView === 'calendar') renderCalendar();
@@ -1555,13 +1589,10 @@ async function loadAllUsers() {
 }
 
 // Запускаем миграцию один раз — ПОСЛЕ того, как все подписки принесли первые данные.
-// Используем флаг, чтобы не запускать миграцию повторно при каждом логине.
 let __migrationDone = false;
 
 async function runMigrationOnce() {
   if (__migrationDone) return;
-  // Ждём, пока не загрузятся пользователи И хотя бы одна из "рабочих" коллекций.
-  // Проверяем раз в 500 мс, максимум 15 секунд.
   const start = Date.now();
   while (Date.now() - start < 15000) {
     if (state.allUsers.length > 0 && (state.rows.length > 0 || state.leads.length > 0 || Object.keys(state.tasks).length > 0)) {
@@ -1583,8 +1614,6 @@ async function runMigrationOnce() {
   }
 }
 
-// Небольшой хак: как только пользователь залогинился и подписки принесли данные — стартуем.
-// Слушаем изменения через onSnapshot? Нет — проще проверить раз в 2 секунды, залогинен ли юзер.
 setInterval(() => {
   if (state.currentUser && !__migrationDone) runMigrationOnce();
 }, 2000);
@@ -1707,9 +1736,10 @@ function render() {
             (isAdmin() ? '<button class="req-action-btn delete" data-action="delete-project-final" data-id="' + r.id + '" title="Удалить">🗑️</button>' : '') +
             '</div>';
         }
-        const b = getDeadlineBadge(r.endDate, r.date);
+        const project = state.rows.find(x => x.id === r.id);
+        const badgeHtml = project ? getProjectBadgeHtml(project) : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="req-days ' + b.cls + '">' + escapeHtml(b.text) + '</span>'; })();
         return '<div class="req-line" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
-          '<span class="req-days ' + b.cls + '">' + escapeHtml(b.text) + '</span>' +
+          badgeHtml +
           '<span class="req-date">' + escapeHtml(r.date) + '</span>' +
           '<span class="req-title">' + escapeHtml(r.title) + '</span>' +
           (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') +
@@ -1982,10 +2012,13 @@ function renderClientRequests(clientName) {
     pc.innerHTML = '<div class="tile-empty" style="grid-column:1/-1;text-align:center;color:#999;padding:20px;">Нет проектов</div>';
   } else {
     pc.innerHTML = ap.map(r => {
-      const badge = getDeadlineBadge(r.endDate, r.date);
-      return '<div class="request-tile project-tile" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
+      const isDone = isProjectCompleted(r);
+      const daysHtml = isDone
+        ? '<span class="badge-completed">✓ ВЫПОЛНЕН</span>'
+        : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
+      return '<div class="request-tile project-tile' + (isDone ? ' project-completed' : '') + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
         '<div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div>' +
-        '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + badge.days + '</span></div>' +
+        '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span>' + daysHtml + '</div>' +
         (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') +
         '</div>';
     }).join('');
@@ -2162,7 +2195,8 @@ async function convertProjectToRequest(id) {
 // 23. МОДАЛКА ПРОСМОТРА ПРОЕКТА / ЗАЯВКИ
 // ============================================================
 function applyProjectFieldPermissions(projectId) {
-  const canEdit = !isExecutor() || canEditProject(projectId);
+  // Только администратор может редактировать поля карточки проекта/заявки.
+  const canEdit = isAdmin();
   $('viewTitleInput').readOnly = !canEdit;
   $('viewDate').disabled = !canEdit;
   $('viewEndDate').disabled = !canEdit;
@@ -2220,10 +2254,15 @@ async function openRequestView(id, type) {
   $('viewDaysBlock').style.display = type === 'project' ? 'block' : 'none';
 
   if (type === 'project') {
-    const b = getDeadlineBadge(item.endDate, item.date);
     const dbadge = $('viewDaysBadge');
-    dbadge.textContent = b.text;
-    dbadge.className = 'days-badge ' + b.cls;
+    if (isProjectCompleted(item)) {
+      dbadge.textContent = '✓ ВЫПОЛНЕН';
+      dbadge.className = 'days-badge ok';
+    } else {
+      const b = getDeadlineBadge(item.endDate, item.date);
+      dbadge.textContent = b.text;
+      dbadge.className = 'days-badge ' + b.cls;
+    }
     renderProjectExecutors(id);
   } else {
     $('projectExecutorsBlock').style.display = 'none';
@@ -2287,20 +2326,25 @@ function refreshViewModal() {
   $('viewResponsible').value = u.responsible || '';
   $('viewComment').value = u.comment || '';
   if (state.currentViewType === 'project') {
-    const b = getDeadlineBadge(u.endDate, u.date);
     const dbadge = $('viewDaysBadge');
-    dbadge.textContent = b.text;
-    dbadge.className = 'days-badge ' + b.cls;
+    if (isProjectCompleted(u)) {
+      dbadge.textContent = '✓ ВЫПОЛНЕН';
+      dbadge.className = 'days-badge ok';
+    } else {
+      const b = getDeadlineBadge(u.endDate, u.date);
+      dbadge.textContent = b.text;
+      dbadge.className = 'days-badge ' + b.cls;
+    }
     renderProjectExecutors(u.id);
   }
   applyProjectFieldPermissions(u.id);
-  // ВАЖНО: принудительно перерисовываем комментарии с актуальными данными
   renderComments();
 }
+
 async function updateViewField(field, value) {
   if (!state.currentViewRequest || !state.currentViewType) return;
-  if (isExecutor() && !canEditProject(state.currentViewRequest.id)) {
-    toast('У вас нет прав на редактирование этого проекта', 'error');
+  if (!isAdmin()) {
+    toast('Только администратор может редактировать этот проект', 'error');
     return;
   }
   const col = state.currentViewType === 'project' ? 'requests' : 'leads';
@@ -2353,7 +2397,6 @@ function renderComments() {
     list.innerHTML = '<div class="muted">Комментариев пока нет.</div>';
     return;
   }
-  // ВСЕГДА берём актуальную версию из state.rows / state.leads
   const list_ = state.currentViewType === 'project' ? state.rows : state.leads;
   const fresh = list_.find(r => r.id === state.currentViewRequest.id);
   if (!fresh) {
@@ -2373,6 +2416,7 @@ function renderComments() {
     return '<div class="comment-item"><div class="comment-meta"><span>📅 ' + escapeHtml(c.date) + ' в ' + escapeHtml(c.time) + ' ' + authorDisplay + ' ' + editedInfo + '</span>' + deleteBtn + '</div><div class="comment-text">' + escapeHtml(c.text) + '</div></div>';
   }).join('');
 }
+
 function renderViewActions() {
   const div = $('viewActions');
   div.innerHTML = '';
@@ -2521,13 +2565,16 @@ function renderEmployeeProjects(empId) {
     return;
   }
   container.innerHTML = empProjects.map(r => {
-    const badge = getDeadlineBadge(r.endDate, r.date);
+    const isDone = isProjectCompleted(r);
     const isResponsible = r.responsible === emp.name;
     const hasTasks = (state.tasks[r.id] || []).some(t => t.assignee === emp.name);
     const roleLabel = isResponsible ? ' (ответственный)' : (hasTasks ? ' (исполнитель)' : '');
-    return '<div class="request-tile project-tile" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
+    const daysHtml = isDone
+      ? '<span class="badge-completed">✓ ВЫПОЛНЕН</span>'
+      : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
+    return '<div class="request-tile project-tile' + (isDone ? ' project-completed' : '') + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
       '<div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + roleLabel + '</div>' +
-      '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + badge.days + '</span></div>' +
+      '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span>' + daysHtml + '</div>' +
       (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') +
       '</div>';
   }).join('');
@@ -2773,6 +2820,9 @@ async function openProduction(id) {
   await ensureProjectHasStages(id);
   $('productionRequestTitle').textContent = getRequestTitle(r) || '(без названия)';
   $('productionClientName').textContent = getClientName(r);
+  // Форма нового задания — только для администратора
+  const addForm = $('addTaskFormBlock');
+  if (addForm) addForm.style.display = isAdmin() ? '' : 'none';
   openModal('productionModal');
   renderProduction();
 }
@@ -2839,16 +2889,33 @@ function renderTaskCard(t, projectId) {
   const badge = getDeadlineBadge(endDate, startDate);
   const stageIndex = getProjectStageIndex(projectId, t.stage);
   const totalStages = getProjectStages(projectId).length;
-  return '<div class="task-card">' +
+  const isDone = !!t.done;
+
+  // Кнопка «Готово» — только админ или исполнитель-владелец задачи
+  const canToggleDone = isAdmin() || (isExecutor() && t.assignee === state.currentUser.name);
+
+  // Если задача выполнена — показываем бейдж вместо счётчика дней
+  const daysHtml = isDone
+    ? '<span class="task-days-done">✓ ГОТОВО</span>'
+    : '<span class="task-days-count ' + badge.cls + '">' + badge.days + '</span>';
+
+  const doneBtnHtml = canToggleDone
+    ? (isDone
+        ? '<button class="task-done-btn undo" data-action="toggle-task-done" data-id="' + t.id + '">↺ Отменить</button>'
+        : '<button class="task-done-btn" data-action="toggle-task-done" data-id="' + t.id + '">✓ Готово</button>')
+    : '';
+
+  return '<div class="task-card' + (isDone ? ' task-done' : '') + '">' +
     '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
     '<div class="task-meta"><div>👤 ' + escapeHtml(formatShortName(t.assignee || 'не назначен')) + '</div></div>' +
     '<div class="task-dates">' +
       '<span style="font-size:11px;color:#666;">📅 ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
-      '<span class="task-days-count ' + badge.cls + '">' + badge.days + '</span>' +
+      daysHtml +
     '</div>' +
     '<div class="task-footer">' +
       '<button class="task-comments-btn" data-action="open-task-comments" data-id="' + t.id + '" data-project="' + projectId + '">💬 <span class="comment-count">' + comments.length + '</span></button>' +
       '<div class="task-actions">' +
+        doneBtnHtml +
         (stageIndex > 0 ? '<button data-action="move-task" data-id="' + t.id + '" data-dir="-1">← Назад</button>' : '') +
         (stageIndex < totalStages - 1 ? '<button data-action="move-task" data-id="' + t.id + '" data-dir="1">Далее →</button>' : '') +
         '<button data-action="edit-task" data-id="' + t.id + '">✏️</button>' +
@@ -2859,6 +2926,7 @@ function renderTaskCard(t, projectId) {
 }
 
 async function addTask() {
+  if (!isAdmin()) { toast('Только администратор может добавлять задания', 'error'); return; }
   const id = state.currentProductionRequest;
   if (!id) return;
   const ti = $('newTaskTitle').value.trim();
@@ -2876,7 +2944,7 @@ async function addTask() {
   const firstStageId = getProjectFirstStageId(id);
   rt.push({
     id: uid(), title: ti, assignee: as, startDate: sd, endDate: ed,
-    comments: [], stage: firstStageId, createdAt: today(), createdBy: getCurrentUserDisplayName()
+    comments: [], stage: firstStageId, done: false, createdAt: today(), createdBy: getCurrentUserDisplayName()
   });
   await saveTasksToFirebase(id, rt);
   state.tasks[id] = rt;
@@ -2886,7 +2954,36 @@ async function addTask() {
   renderProduction();
 }
 
+async function toggleTaskDone(tid) {
+  const id = state.currentProductionRequest;
+  if (!id) return;
+  const rt = getRequestTasks(id);
+  const t = rt.find(x => x.id === tid);
+  if (!t) return;
+  // Исполнитель может отмечать только СВОИ задачи, админ — любые
+  if (!isAdmin()) {
+    if (isExecutor() && t.assignee !== state.currentUser.name) {
+      toast('Можно отметить только свои задачи', 'warn');
+      return;
+    }
+    if (!isExecutor()) {
+      toast('У вас нет прав на это действие', 'warn');
+      return;
+    }
+  }
+  t.done = !t.done;
+  if (t.done) {
+    t.doneAt = today();
+  } else {
+    delete t.doneAt;
+  }
+  await saveTasksToFirebase(id, rt);
+  state.tasks[id] = rt;
+  renderProduction();
+}
+
 async function moveTask(tid, dir) {
+  if (!isAdmin()) { toast('Только администратор может перемещать задания', 'error'); return; }
   const id = state.currentProductionRequest;
   if (!id) return;
   const rt = getRequestTasks(id);
@@ -2902,6 +2999,7 @@ async function moveTask(tid, dir) {
 }
 
 async function editTask(tid) {
+  if (!isAdmin()) { toast('Только администратор может редактировать задания', 'error'); return; }
   const id = state.currentProductionRequest;
   if (!id) return;
   const rt = getRequestTasks(id);
@@ -3109,10 +3207,6 @@ function timesheetPrev() { state.timesheetDate.setMonth(state.timesheetDate.getM
 function timesheetNext() { state.timesheetDate.setMonth(state.timesheetDate.getMonth() + 1); renderTimesheet(); }
 function timesheetToday() { state.timesheetDate = new Date(); renderTimesheet(); }
 
-// ============================================================
-// ИСПРАВЛЕНО: openTimesheetEntry — теперь комментарий всегда виден в textarea,
-// сохраняется вместе с часами одной кнопкой «Сохранить».
-// ============================================================
 function openTimesheetEntry(empId, dateStr) {
   if (!canEditTimesheet(empId)) { toast('У вас нет прав на редактирование этого табеля', 'error'); return; }
   const emp = state.employees.find(e => e.id === empId);
@@ -3189,7 +3283,6 @@ function openTimesheetEntry(empId, dateStr) {
 }
 
 function showTimesheetCommentForm(projectId, isEdit) {
-  // Оставлено для совместимости. Больше не используется — комментарий всегда виден в textarea.
   const form = $('ts-comment-form-' + projectId);
   if (form) form.style.display = 'block';
 }
@@ -3198,7 +3291,6 @@ function hideTimesheetCommentForm(projectId) {
   if (form) form.style.display = 'none';
 }
 async function saveTimesheetComment(projectId) {
-  // Оставлено для совместимости. Актуальная логика — в saveTimesheetEntry.
   await saveTimesheetEntry();
 }
 
@@ -3209,9 +3301,6 @@ function updateTimesheetTotal() {
   $('tsEntryTotal').textContent = total.toFixed(1);
 }
 
-// ============================================================
-// ИСПРАВЛЕНО: saveTimesheetEntry — сохраняет часы И комментарии одной кнопкой.
-// ============================================================
 async function saveTimesheetEntry() {
   if (!state.currentTsEntry) return;
   const { empId, date } = state.currentTsEntry;
@@ -3492,12 +3581,17 @@ function showDayEventsModal(dateStr) {
     listEl.innerHTML = '<div class="day-empty">В этот день нет проектов</div>';
   } else {
     listEl.innerHTML = dayEvents.map(e => {
+      const project = state.rows.find(r => r.id === e.id);
+      const isDone = project ? isProjectCompleted(project) : false;
       const left = daysUntilEnd(e.endDate);
-      const isOverdue = left !== null && left < 0;
+      const isOverdue = !isDone && left !== null && left < 0;
       const daysText = left !== null ? left : daysFromStart(e.startDate);
       const badge = getDeadlineBadge(e.endDate, e.startDate);
       const deadlineText = e.endDate ? (isOverdue ? 'Просрочен на ' + Math.abs(left) + ' дн.' : 'До конца ' + daysLabel(left)) : 'Без срока окончания';
-      return '<div class="day-event-item' + (isOverdue ? ' overdue' : '') + '" data-action="open-request" data-id="' + e.id + '" data-type="project">' +
+      const daysHtml = isDone
+        ? '<div class="badge-completed">✓ ВЫПОЛНЕН</div>'
+        : '<div class="evt-days ' + badge.cls + '">' + daysText + '</div>';
+      return '<div class="day-event-item' + (isOverdue ? ' overdue' : '') + (isDone ? ' project-completed' : '') + '" data-action="open-request" data-id="' + e.id + '" data-type="project">' +
         '<div class="evt-main">' +
           '<div class="evt-client-name">' + escapeHtml(e.client) + '</div>' +
           '<div class="evt-title">→ ' + escapeHtml(e.title) + '</div>' +
@@ -3505,7 +3599,7 @@ function showDayEventsModal(dateStr) {
         '</div>' +
         '<div class="evt-right">' +
           '<span class="evt-status">' + escapeHtml(e.status || '—') + '</span>' +
-          '<div class="evt-days ' + badge.cls + '">' + daysText + '</div>' +
+          daysHtml +
         '</div>' +
         '</div>';
     }).join('');
@@ -3543,7 +3637,10 @@ function renderCalendarMonth(year, month, events) {
     html += '<div class="calendar-day-cell' + (isToday ? ' today' : '') + '"><div class="day-number">' + day + '</div><div class="day-events">';
     const maxEvents = 3;
     dayEvents.slice(0, maxEvents).forEach(e => {
-      html += '<div class="cal-event project-' + e.cls + '" data-action="open-request" data-id="' + e.id + '" data-type="project" title="' + escapeHtml(e.client) + ' — ' + escapeHtml(e.title) + '">' +
+      const project = state.rows.find(r => r.id === e.id);
+      const isDone = project ? isProjectCompleted(project) : false;
+      const cls = isDone ? 'project-completed' : ('project-' + e.cls);
+      html += '<div class="cal-event ' + cls + '" data-action="open-request" data-id="' + e.id + '" data-type="project" title="' + escapeHtml(e.client) + ' — ' + escapeHtml(e.title) + '">' +
         escapeHtml(e.client.substring(0, 10)) + ': ' + escapeHtml(e.title.substring(0, 15)) + '</div>';
     });
     if (dayEvents.length > maxEvents) {
@@ -3594,14 +3691,22 @@ function renderCalendarList(year, month, events) {
       '<span>' + dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1) + '</span>' +
       '<span>' + dateMap[ds].length + ' проектов</span></div>';
     dateMap[ds].forEach(e => {
+      const project = state.rows.find(r => r.id === e.id);
+      const isDone = project ? isProjectCompleted(project) : false;
       const badge = getDeadlineBadge(e.endDate, e.startDate);
       const left = daysUntilEnd(e.endDate);
-      const isOverdue = left !== null && left < 0;
-      html += '<div class="calendar-list-event' + (isOverdue ? ' overdue' : '') + '" data-action="open-request" data-id="' + e.id + '" data-type="project">' +
+      const isOverdue = !isDone && left !== null && left < 0;
+      const daysHtml = isDone
+        ? '<span class="badge-completed">✓ ВЫПОЛНЕН</span>'
+        : '<span class="evt-days ' + badge.cls + '">' + badge.days + '</span>';
+      let cls = '';
+      if (isDone) cls = ' project-completed';
+      else if (isOverdue) cls = ' overdue';
+      html += '<div class="calendar-list-event' + cls + '" data-action="open-request" data-id="' + e.id + '" data-type="project">' +
         '<span class="evt-client-name">' + escapeHtml(e.client) + '</span>' +
         '<span class="evt-title">→ ' + escapeHtml(e.title) + '</span>' +
         (e.responsible ? '<span class="evt-responsible">👷 ' + escapeHtml(e.responsible) + '</span>' : '') +
-        '<span class="evt-days ' + badge.cls + '">' + badge.days + '</span></div>';
+        daysHtml + '</div>';
     });
     html += '</div>';
   });
@@ -3722,12 +3827,18 @@ function renderDashboard() {
   } else {
     html += '<div class="dashboard-recent-list">';
     recentProjects.forEach(r => {
+      const isDone = isProjectCompleted(r);
       const badge = getDeadlineBadge(r.endDate, r.date);
       const left = daysUntilEnd(r.endDate);
-      const isOverdue = left !== null && left < 0;
-      const isWarning = left !== null && left >= 0 && left <= 30;
+      const isOverdue = !isDone && left !== null && left < 0;
+      const isWarning = !isDone && left !== null && left >= 0 && left <= 30;
       let itemClass = '';
-      if (isOverdue) itemClass = 'overdue'; else if (isWarning) itemClass = 'warning';
+      if (isDone) itemClass = 'project-completed';
+      else if (isOverdue) itemClass = 'overdue';
+      else if (isWarning) itemClass = 'warning';
+      const badgeHtml = isDone
+        ? '<span class="badge-completed">✓ ВЫПОЛНЕН</span>'
+        : '<span class="days-badge ' + badge.cls + '" style="font-size:12px;padding:2px 8px;">' + escapeHtml(badge.text) + '</span>';
       html += '<div class="recent-item ' + itemClass + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
         '<div style="flex:1;">' +
           '<div class="recent-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div>' +
@@ -3735,7 +3846,7 @@ function renderDashboard() {
         '</div>' +
         '<div style="text-align:right;">' +
           '<div class="recent-date">📅 ' + escapeHtml(r.date || '—') + '</div>' +
-          '<span class="days-badge ' + badge.cls + '" style="font-size:12px;padding:2px 8px;">' + escapeHtml(badge.text) + '</span>' +
+          badgeHtml +
         '</div>' +
       '</div>';
     });
@@ -3753,11 +3864,14 @@ function showAllProjects() {
     grid.innerHTML = '<div class="dashboard-empty" style="grid-column:1/-1;">Активных проектов пока нет</div>';
   } else {
     grid.innerHTML = activeProjects.map(r => {
-      const badge = getDeadlineBadge(r.endDate, r.date);
-      return '<div class="request-tile project-tile" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
+      const isDone = isProjectCompleted(r);
+      const daysHtml = isDone
+        ? '<span class="badge-completed">✓ ВЫПОЛНЕН</span>'
+        : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
+      return '<div class="request-tile project-tile' + (isDone ? ' project-completed' : '') + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
         '<div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div>' +
         '<div style="font-size:12px;color:#666;margin-bottom:4px;">👤 ' + escapeHtml(getClientName(r)) + '</div>' +
-        '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span><span class="tile-days ' + badge.cls + '">' + badge.days + '</span></div>' +
+        '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span>' + daysHtml + '</div>' +
         (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') +
         '</div>';
     }).join('');
@@ -4146,6 +4260,7 @@ async function importCSV(event) {
 }
 // ВРЕМЕННО: для отладки из консоли. Удалить после диагностики.
 window.state = state;
+
 // ============================================================
 // 36. ЕДИНЫЙ ОБРАБОТЧИК КЛИКОВ (делегирование событий)
 // ============================================================
@@ -4209,7 +4324,6 @@ document.addEventListener('click', async (e) => {
   // --- Открытие проекта/заявки ---
   if (action === 'open-request') {
     e.stopPropagation();
-    // Закрываем все модалки, чтобы не было наложения
     closeAllModals();
     openRequestView(el.dataset.id, el.dataset.type);
     return;
@@ -4265,6 +4379,7 @@ document.addEventListener('click', async (e) => {
 
   // --- Задачи (канбан) ---
   if (action === 'open-task-comments') { e.stopPropagation(); openTaskComments(el.dataset.id, el.dataset.project); return; }
+  if (action === 'toggle-task-done') { e.stopPropagation(); await toggleTaskDone(el.dataset.id); return; }
   if (action === 'move-task') { e.stopPropagation(); await moveTask(el.dataset.id, Number(el.dataset.dir)); return; }
   if (action === 'edit-task') { e.stopPropagation(); await editTask(el.dataset.id); return; }
   if (action === 'delete-task') { e.stopPropagation(); await deleteTask(el.dataset.id); return; }
@@ -4336,7 +4451,6 @@ document.addEventListener('input', (e) => {
   if (e.target.matches('#tsEntryList input[type="number"]')) {
     updateTimesheetTotal();
   }
-  // Флаг "пользователь начал вводить" для формы нового задания
   if (e.target.id === 'newTaskTitle') {
     e.target.dataset.dirty = '1';
   }
@@ -4351,7 +4465,6 @@ function bindUI() {
   $('btnCreateAdmin').addEventListener('click', handleCreateAdmin);
   $('createAdminLink').addEventListener('click', showCreateAdminForm);
   $('backToLoginLink').addEventListener('click', showLoginForm);
-  // Enter в полях входа
   $('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
   $('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleCreateAdmin(); });
 
@@ -4461,9 +4574,7 @@ function bindUI() {
   // --- Escape закрывает верхнюю модалку ---
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    // Если confirm открыт — закрываем его
     if ($('confirmModal').style.display === 'block') { _closeConfirm(false); return; }
-    // Ищем первую видимую модалку
     const opened = Array.from(document.querySelectorAll('.modal-overlay')).find(m => m.style.display === 'block');
     if (opened) {
       const id = opened.id;
@@ -4499,8 +4610,7 @@ function debounce(fn, ms) {
 // ============================================================
 bindUI();
 
-// Экспорт функций, которые могут понадобиться из inline-обработчиков, оставшихся в HTML
-// (на всякий случай, если что-то забыли перевести на data-action)
+// Экспорт функций для отладки из консоли (на случай, если понадобится)
 window.__crm = {
   openClientModalByName, openRequestView, openProduction, openEmployeePage,
   openTaskComments, openTimesheetEntry, openTimesheetMonthSummary, showDayEventsModal,
