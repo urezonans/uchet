@@ -839,7 +839,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
-  getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, query, limit
+  getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, getDoc, query, limit
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
@@ -1271,12 +1271,32 @@ async function migrateAuthorNames() {
   taskSnap.forEach(d => { state.tasks[d.id] = d.data().tasks || []; });
   state.timesheets = {};
   tsSnap.forEach(d => { state.timesheets[d.id] = d.data(); });
-  console.log('✅ Данные перечитаны');
+    console.log('✅ Данные перечитаны');
+
   // Если открыта модалка — перерисовать её
   if (state.currentViewRequest && state.currentViewType) refreshViewModal();
+
+  // Пересоздаём подписки — Firestore не пушит обновления вложенных массивов,
+  // поэтому списки и дашборд могут показывать старые данные.
+  if (migratedCount > 0) {
+    console.log('🔄 Пересоздаём подписки после миграции...');
+    state.unsubscribers.forEach(u => { if (typeof u === 'function') u(); });
+    state.unsubscribers = [];
+    setupRealtimeListeners();
+    // Принудительно перерисовываем всё, что может быть открыто
+    render();
+    renderRequests();
+    renderBase();
+    renderEmployees();
+    if (state.currentNavView === 'timesheet') renderTimesheet();
+    if (state.currentNavView === 'dashboard') renderDashboard();
+    if (state.currentNavView === 'calendar') renderCalendar();
+    if (state.currentViewRequest && state.currentViewType) refreshViewModal();
+    console.log('✅ Подписки пересозданы');
+  }
+
   return migratedCount;
 }
-
 // ============================================================
 // 12. ЭКРАН АВТОРИЗАЦИИ
 // ============================================================
@@ -2151,10 +2171,30 @@ function applyProjectFieldPermissions(projectId) {
   $('viewComment').readOnly = !canEdit;
 }
 
-function openRequestView(id, type) {
+async function openRequestView(id, type) {
   const list = type === 'project' ? state.rows : state.leads;
-  const item = list.find(r => r.id === id);
+  let item = list.find(r => r.id === id);
   if (!item) { toast('Запись не найдена', 'error'); return; }
+
+  // Принудительно перечитываем документ из Firestore, чтобы не показывать старое
+  // из кэша onSnapshot (Firestore не всегда пушит изменения во вложенных массивах).
+  try {
+    const col = type === 'project' ? 'requests' : 'leads';
+    const snap = await getDoc(doc(db, col, id));
+    if (snap.exists()) {
+      item = { id: snap.id, ...snap.data() };
+      // Обновляем кэш в state, чтобы все рендеры использовали свежую версию
+      if (type === 'project') {
+        const idx = state.rows.findIndex(r => r.id === id);
+        if (idx >= 0) state.rows[idx] = item; else state.rows.push(item);
+      } else {
+        const idx = state.leads.findIndex(l => l.id === id);
+        if (idx >= 0) state.leads[idx] = item; else state.leads.push(item);
+      }
+    }
+  } catch (e) {
+    console.warn('Не удалось перечитать документ из Firestore:', e);
+  }
 
   closeAllModals();
   state.currentEmployeeId = null;
