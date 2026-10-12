@@ -49,7 +49,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .requests-column.projects-col h4 { border-bottom-color: #5bc0de; }
 .requests-column.requests-col h4 { border-bottom-color: #9b59b6; }
 .tiles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.request-tile { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; min-height: 80px; display: flex; flex-direction: column; justify-content: space-between; }
+.request-tile { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; cursor: pointer; transition: all 0.2s; min-height: 80px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
 .request-tile:hover { background: #f4f9ff; border-color: #004a99; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 .request-tile.project-tile { border-left: 4px solid #5bc0de; }
 .request-tile.request-tile-type { border-left: 4px solid #9b59b6; background: #faf0ff; }
@@ -143,6 +143,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .kanban-column > div { flex: 1; overflow-y: auto; }
 .task-card { background: white; border: 1px solid #ddd; border-radius: 6px; padding: 8px; margin-bottom: 8px; position: relative; }
 .task-card:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.task-card.task-new { border-left: 4px solid #d9534f; background: #fff8f8; }
 .task-card .task-title { font-weight: bold; margin-bottom: 4px; word-break: break-word; font-size: 13px; }
 .task-card .task-meta { font-size: 11px; color: #666; display: flex; flex-direction: column; gap: 2px; }
 .task-card .task-dates { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; }
@@ -165,6 +166,11 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .task-done-btn.undo { background: #f0ad4e; }
 .task-done-btn.undo:hover { background: #ec971f; }
 .badge-completed { display: inline-block; background: #5cb85c; color: white; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+/* ===== Счётчик уведомлений ===== */
+.notif-badge { display: inline-flex; align-items: center; justify-content: center; background: #d9534f; color: white; border-radius: 12px; padding: 1px 8px; font-size: 11px; font-weight: bold; margin-left: 6px; min-width: 20px; line-height: 18px; }
+.notif-badge-large { display: inline-flex; align-items: center; justify-content: center; background: #d9534f; color: white; border-radius: 14px; padding: 3px 12px; font-size: 14px; font-weight: bold; margin-left: 10px; min-width: 26px; }
+.task-new-badge { display: inline-block; background: #d9534f; color: white; padding: 1px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; margin-left: 6px; }
+.request-tile.has-notif { box-shadow: 0 0 0 2px #d9534f inset; }
 .request-tile.project-completed { background: #f0fff4; border-color: #b7e4c7; }
 .recent-item.project-completed { background: #f0fff4; border-left-color: #5cb85c; }
 .calendar-list-event.project-completed { border-left-color: #5cb85c; background: #f0fff4; }
@@ -215,6 +221,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .employee-page-header .emp-edit-fields input { font-size: 16px; font-weight: bold; color: #004a99; border: 2px solid #ddd; border-radius: 6px; padding: 8px 12px; width: 100%; box-sizing: border-box; }
 .employee-page-header .emp-edit-fields input:focus { border-color: #004a99; outline: none; }
 .employee-page-header .emp-edit-fields input.position-input { font-size: 14px; font-weight: normal; color: #666; }
+.employee-page-header .emp-edit-fields input:read-only { background: #f5f5f5; color: #666; cursor: not-allowed; }
 .add-employee-form { display: flex; gap: 8px; margin-bottom: 16px; padding: 12px; background: #f0f8ff; border-radius: 6px; flex-wrap: wrap; }
 .add-employee-form input { flex: 1; min-width: 150px; }
 .calendar-toolbar, .timesheet-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; padding: 12px; background: white; border-radius: 8px; border: 1px solid #ddd; }
@@ -589,7 +596,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
     </div>
     <div class="toolbar">
       <input id="search" placeholder="Поиск..." style="width: 280px">
-<select id="statusFilter"><option value="">Все статусы</option><option>Ждем аванс</option><option>Производство</option><option>Гарантия</option><option>Доплата</option><option>Отгрузка</option><option>ПНР</option><option>Документы</option></select>
+      <select id="statusFilter"><option value="">Все статусы</option><option>Ждем аванс</option><option>Производство</option><option>Гарантия</option><option>Доплата</option><option>Отгрузка</option><option>ПНР</option><option>Документы</option></select>
       <button id="btnAddProject">+ Добавить проект</button>
       <button class="export-btn" id="btnExportProjects">📤 Экспорт</button>
       <button class="import-btn" id="btnImportProjects">📥 Импорт</button>
@@ -690,9 +697,10 @@ td input:focus { border-color: #888; background: white; outline: none; }
     <div class="view-modal-header">
       <div style="width: 100%;">
         <input type="text" id="viewTitleInput" class="view-title-input" placeholder="Введите название проекта/заявки">
-        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap;">
           <span id="viewTypeBadge" class="view-type-badge">ТИП</span>
           <span style="font-size:13px;color:#666;">Клиент: <strong id="viewClientName"></strong></span>
+          <span id="viewNotifBadge"></span>
         </div>
       </div>
       <button class="close-btn" data-close="viewModal" style="flex-shrink:0;">×</button>
@@ -700,7 +708,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
     <div class="view-info-grid">
       <div class="view-info-item"><label>Дата начала</label><div class="value"><input type="date" id="viewDate"></div></div>
       <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
-      <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"><option>Ждем аванс</option><option>Производство</option><option>Гарантия</option><option>Доплата</option><option>Отгрузка</option><option>ПНР</option><option>Документы</option></select></div></div>
+      <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"></select></div></div>
       <div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
       <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
     </div>
@@ -915,11 +923,24 @@ const DEFAULT_STAGES = [
   { id: 'check', name: 'Проверка', order: 2 },
   { id: 'done', name: 'Готово', order: 3 }
 ];
-// Полный список статусов проекта
+
+// ===== СТАТУСЫ ПРОЕКТОВ =====
 const PROJECT_STATUSES = ['Ждем аванс', 'Производство', 'Гарантия', 'Доплата', 'Отгрузка', 'ПНР', 'Документы'];
 const DEFAULT_PROJECT_STATUS = 'Ждем аванс';
 // Статусы, при которых счётчик дней не считается (заменяется на бейдж)
 const FINAL_PROJECT_STATUSES = ['Отгрузка', 'ПНР', 'Документы'];
+
+// ===== СТАТУСЫ ЗАЯВОК (не влияют на счётчик дней) =====
+const REQUEST_STATUSES = ['Новая', 'Торги', 'Договор'];
+const DEFAULT_REQUEST_STATUS = 'Новая';
+
+// ===== СТАТУСЫ ДЛЯ ВЫПАДАЮЩИХ СПИСКОВ (в карточке) =====
+function getStatusesForType(type) {
+  return type === 'request' ? REQUEST_STATUSES : PROJECT_STATUSES;
+}
+function getDefaultStatusForType(type) {
+  return type === 'request' ? DEFAULT_REQUEST_STATUS : DEFAULT_PROJECT_STATUS;
+}
 
 // ============================================================
 // 3. УТИЛИТЫ: DOM
@@ -990,7 +1011,6 @@ function getDeadlineBadge(end, start) {
 function formatShortName(fullName) {
   if (!fullName) return 'Неизвестно';
   if (fullName.includes('@')) return fullName.split('@')[0];
-  // Если имя уже в формате «Фамилия И.И.» — возвращаем как есть
   if (/^\S+\s+\S\.\S?\.?$/.test(fullName.trim())) return fullName.trim();
   const parts = fullName.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return 'Неизвестно';
@@ -1015,22 +1035,23 @@ function uid() { return Date.now().toString(36) + Math.random().toString(36).sli
 function getClientName(r) { return String(r.client || '').trim(); }
 function getRequestTitle(r) { return String(r.title || r.request || '').trim(); }
 
-// Возвращает true, если проект/заявка считаются выполненными:
-// - у проекта вручную статус "Выполнена", ИЛИ
-// - все задачи проекта помечены done: true (и есть хотя бы одна задача)
+// ===== ЛОГИКА ЗАВЕРШЁННОСТИ ПРОЕКТА =====
 // Проект считается завершённым (счётчик дней не показываем), если:
 // - статус в FINAL_PROJECT_STATUSES (Отгрузка, ПНР, Документы), ИЛИ
 // - все задачи помечены done: true (и есть хотя бы одна задача)
+// ВАЖНО: для заявок (leads) эта функция всегда возвращает false — там своя логика.
 function isProjectCompleted(project) {
   if (!project) return false;
-  if (FINAL_PROJECT_STATUSES.includes(project.status)) return true;
-  const tasks = state.tasks[project.id] || [];
-  if (tasks.length === 0) return false;
-  return tasks.every(t => t.done === true);
+  // Заявки не имеют статусов из FINAL_PROJECT_STATUSES и не имеют tasks — вернём false
+  if (!FINAL_PROJECT_STATUSES.includes(project.status)) {
+    const tasks = state.tasks[project.id] || [];
+    if (tasks.length === 0) return false;
+    return tasks.every(t => t.done === true);
+  }
+  return true;
 }
 
-// Возвращает подпись для финального бейджа в зависимости от статуса проекта.
-// Если статус не финальный, но все задачи done — вернёт «✓ ГОТОВО».
+// Текст бейджа завершённого проекта
 function getCompletedBadgeText(project) {
   if (!project) return '';
   switch (project.status) {
@@ -1041,9 +1062,8 @@ function getCompletedBadgeText(project) {
   // Сюда попадаем, если статус ещё не финальный, но все задачи выполнены
   return '✓ ГОТОВО';
 }
-// Возвращает HTML для бейджа дней проекта:
-// - если выполнен — зелёный бейдж «✓ ВЫПОЛНЕН»
-// - иначе — обычный бейдж дней из getDeadlineBadge
+
+// Возвращает HTML для бейджа дней проекта
 function getProjectBadgeHtml(project, size) {
   const sizeClass = size === 'big' ? 'days-badge' : 'req-days';
   if (isProjectCompleted(project)) {
@@ -1052,6 +1072,7 @@ function getProjectBadgeHtml(project, size) {
   const b = getDeadlineBadge(project.endDate, project.date);
   return '<span class="' + sizeClass + ' ' + b.cls + '">' + b.text + '</span>';
 }
+
 function generateNewClientName() {
   let base = 'Новый клиент', name = base, n = 1;
   while (
@@ -1105,7 +1126,39 @@ function canEditTimesheet(empId) {
 function canEditStages() { return isAdmin() || isManager(); }
 
 // ============================================================
-// 8. UI-ХЕЛПЕРЫ: ТОСТЫ, CONFIRM, СИНХРО-ИНДИКАТОР
+// 8. УВЕДОМЛЕНИЯ: ДВУСТОРОННИЕ СЧЁТЧИКИ
+// ============================================================
+// Логика:
+// - Задача имеет два флага: viewedByAssignee (исполнитель открыл),
+//   viewedByAdmin (админ открыл уже открытую исполнителем задачу).
+// - Исполнитель видит счётчик задач, где assignee = его имя и viewedByAssignee !== true.
+// - Админ видит счётчик задач, где viewedByAssignee === true и viewedByAdmin !== true
+//   (то есть исполнитель открыл — админ должен узнать).
+
+function isTaskUnreadByAssignee(t) {
+  return t && t.viewedByAssignee !== true;
+}
+function isTaskUnreadByAdmin(t) {
+  return t && t.viewedByAssignee === true && t.viewedByAdmin !== true;
+}
+
+// Считает непрочитанные задачи в проекте для текущего пользователя.
+// Админ → unreadByAdmin, исполнитель → unreadByAssignee.
+function countUnreadTasksForProject(projectId) {
+  if (!state.currentUser) return 0;
+  const rt = state.tasks[projectId] || [];
+  if (isAdmin() || isManager()) {
+    return rt.filter(isTaskUnreadByAdmin).length;
+  }
+  if (isExecutor()) {
+    const me = state.currentUser.name;
+    return rt.filter(t => t.assignee === me && isTaskUnreadByAssignee(t)).length;
+  }
+  return 0;
+}
+
+// ============================================================
+// 9. UI-ХЕЛПЕРЫ: ТОСТЫ, CONFIRM, СИНХРО-ИНДИКАТОР
 // ============================================================
 function toast(message, type = 'info', timeout = 3500) {
   const c = $('toastContainer');
@@ -1143,7 +1196,7 @@ function setSyncStatus(status, message) {
 }
 
 // ============================================================
-// 9. ОБЁРТКИ FIRESTORE
+// 10. ОБЁРТКИ FIRESTORE
 // ============================================================
 async function fbSet(col, id, data) {
   try { await setDoc(doc(db, col, id), data); return true; }
@@ -1166,7 +1219,7 @@ async function saveTasksToFirebase(id, list)      { await fbSet('tasks', id, { t
 async function saveTimesheetToFirebase(id, data)  { await fbSet('timesheets', id, data); }
 
 // ============================================================
-// 10. МОДАЛКИ: ОТКРЫТИЕ / ЗАКРЫТИЕ
+// 11. МОДАЛКИ: ОТКРЫТИЕ / ЗАКРЫТИЕ
 // ============================================================
 function openModal(id)  { const el = $(id); if (el) el.style.display = 'block'; }
 function closeModal(id) { const el = $(id); if (el) el.style.display = 'none'; }
@@ -1174,7 +1227,7 @@ function closeAllModals() {
   $$('.modal-overlay').forEach(m => { if (m.id !== 'confirmModal') m.style.display = 'none'; });
 }
 // ============================================================
-// 11. МИГРАЦИЯ СТАРЫХ ИМЁН АВТОРОВ
+// 12. МИГРАЦИЯ СТАРЫХ ИМЁН АВТОРОВ
 // ============================================================
 function findFullNameByShortName(shortName) {
   if (!shortName) return null;
@@ -1202,15 +1255,12 @@ function findFullNameByShortName(shortName) {
   return null;
 }
 
-// Проверка 1: у автора одна инициала («Иванов И.»), но полное имя не найдено.
 function _needsMigration(author) {
   if (!author || typeof author !== 'string') return false;
   const hasTwoInitials = /\.\s*\w\.$/.test(author) || /\.\w\.$/.test(author);
   return !hasTwoInitials && author.includes('.');
 }
 
-// Проверка 2: имя короткое («Иванов И.»), НО в базе есть полное ФИО,
-// которое даст «Иванов И.И.». Значит — надо обновить.
 function _isShortButShouldBeLonger(author) {
   if (!author || typeof author !== 'string') return false;
   const parts = author.trim().split(/\s+/).filter(Boolean);
@@ -1230,7 +1280,6 @@ async function migrateAuthorNames() {
   console.log('🔄 Начинаем миграцию имён авторов...');
   let migratedCount = 0;
 
-  // Заметки клиентов
   for (const clientName in state.clients) {
     const c = state.clients[clientName];
     if (!Array.isArray(c.notes)) continue;
@@ -1244,7 +1293,6 @@ async function migrateAuthorNames() {
     if (changed) await saveClientToFirebase(clientName, c);
   }
 
-  // Комментарии проектов
   for (const r of state.rows) {
     if (!Array.isArray(r.comments)) continue;
     let changed = false;
@@ -1257,7 +1305,6 @@ async function migrateAuthorNames() {
     if (changed) await saveRequestToFirebase(r.id, r, 'requests');
   }
 
-  // Комментарии заявок
   for (const l of state.leads) {
     if (!Array.isArray(l.comments)) continue;
     let changed = false;
@@ -1270,7 +1317,6 @@ async function migrateAuthorNames() {
     if (changed) await saveRequestToFirebase(l.id, l, 'leads');
   }
 
-  // Комментарии задач
   for (const projectId in state.tasks) {
     const rt = state.tasks[projectId];
     if (!Array.isArray(rt)) continue;
@@ -1287,7 +1333,6 @@ async function migrateAuthorNames() {
     if (projectChanged) await saveTasksToFirebase(projectId, rt);
   }
 
-  // Комментарии табеля
   for (const key in state.timesheets) {
     const ts = state.timesheets[key];
     if (!Array.isArray(ts.entries)) continue;
@@ -1303,8 +1348,7 @@ async function migrateAuthorNames() {
 
   console.log(`✅ Миграция завершена. Обновлено записей: ${migratedCount}`);
 
-  // Принудительно перечитываем все коллекции из Firestore,
-  // потому что onSnapshot не всегда пушит изменения во вложенных массивах.
+  // Перечитываем данные после миграции
   console.log('🔄 Перечитываем данные после миграции...');
   const [reqSnap, leadSnap, clientSnap, taskSnap, tsSnap] = await Promise.all([
     getDocs(collection(db, 'requests')),
@@ -1325,10 +1369,8 @@ async function migrateAuthorNames() {
   tsSnap.forEach(d => { state.timesheets[d.id] = d.data(); });
   console.log('✅ Данные перечитаны');
 
-  // Если открыта модалка — перерисовать её
   if (state.currentViewRequest && state.currentViewType) refreshViewModal();
 
-  // Пересоздаём подписки — Firestore не пушит обновления вложенных массивов
   if (migratedCount > 0) {
     console.log('🔄 Пересоздаём подписки после миграции...');
     state.unsubscribers.forEach(u => { if (typeof u === 'function') u(); });
@@ -1347,9 +1389,10 @@ async function migrateAuthorNames() {
 
   return migratedCount;
 }
-// Миграция старых статусов проектов на новую модель.
-// Старые: Новая / В работе / Выполнена / Отменена
-// Новые: Ждем аванс / Производство / Гарантия / Доплата / Отгрузка / ПНР / Документы
+
+// ============================================================
+// 13. МИГРАЦИЯ СТАТУСОВ ПРОЕКТОВ
+// ============================================================
 async function migrateProjectStatuses() {
   const mapping = {
     'Новая':     'Ждем аванс',
@@ -1359,7 +1402,6 @@ async function migrateProjectStatuses() {
   };
   let migratedCount = 0;
 
-  // Обходим все проекты, где статус — старый
   for (const r of state.rows) {
     if (mapping[r.status]) {
       r.status = mapping[r.status];
@@ -1367,8 +1409,6 @@ async function migrateProjectStatuses() {
       migratedCount++;
     }
   }
-
-  // То же для заявок (на всякий случай — на будущее)
   for (const l of state.leads) {
     if (mapping[l.status]) {
       l.status = mapping[l.status];
@@ -1379,7 +1419,6 @@ async function migrateProjectStatuses() {
 
   if (migratedCount > 0) {
     console.log('🔄 Миграция статусов: обновлено ' + migratedCount);
-    // Пересоздаём подписки, чтобы UI увидел новые статусы
     state.unsubscribers.forEach(u => { if (typeof u === 'function') u(); });
     state.unsubscribers = [];
     setupRealtimeListeners();
@@ -1390,8 +1429,9 @@ async function migrateProjectStatuses() {
   }
   return migratedCount;
 }
+
 // ============================================================
-// 12. ЭКРАН АВТОРИЗАЦИИ
+// 14. ЭКРАН АВТОРИЗАЦИИ
 // ============================================================
 function showAuthError(msg) {
   const el = $('authError');
@@ -1460,7 +1500,7 @@ async function handleLogout() {
 }
 
 // ============================================================
-// 13. ХЕДЕР ПОЛЬЗОВАТЕЛЯ
+// 15. ХЕДЕР ПОЛЬЗОВАТЕЛЯ
 // ============================================================
 function updateUserHeader(user) {
   if (!user) return;
@@ -1498,7 +1538,7 @@ function updateUIPermissions() {
 }
 
 // ============================================================
-// 14. ПОКАЗ / СКРЫТИЕ ПРИЛОЖЕНИЯ
+// 16. ПОКАЗ / СКРЫТИЕ ПРИЛОЖЕНИЯ
 // ============================================================
 function showApp() {
   $('authScreen').style.display = 'none';
@@ -1547,7 +1587,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 // ============================================================
-// 15. ПОДПИСКИ FIRESTORE
+// 17. ПОДПИСКИ FIRESTORE
 // ============================================================
 function setupRealtimeListeners() {
   setSyncStatus('syncing', 'Подключение...');
@@ -1638,7 +1678,7 @@ function setupRealtimeListeners() {
 }
 
 // ============================================================
-// 16. ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ + СТАРТ МИГРАЦИИ
+// 18. ЗАГРУЗКА ПОЛЬЗОВАТЕЛЕЙ + СТАРТ МИГРАЦИЙ
 // ============================================================
 async function loadAllUsers() {
   try {
@@ -1648,8 +1688,8 @@ async function loadAllUsers() {
   } catch (e) { console.error(e); }
 }
 
-// Запускаем миграцию один раз — ПОСЛЕ того, как все подписки принесли первые данные.
 let __migrationDone = false;
+let __statusMigrationDone = false;
 
 async function runMigrationOnce() {
   if (__migrationDone) return;
@@ -1674,19 +1714,22 @@ async function runMigrationOnce() {
   }
 }
 
-let __statusMigrationDone = false;
-
 setInterval(() => {
   if (state.currentUser && !__migrationDone) runMigrationOnce();
   if (state.currentUser && __migrationDone && !__statusMigrationDone) {
     __statusMigrationDone = true;
-    migrateProjectStatuses().then(count => {
-      if (count > 0) console.log('Обновлено статусов проектов: ' + count);
-    });
+    migrateProjectStatuses()
+      .then(count => {
+        if (count > 0) console.log('Обновлено статусов проектов: ' + count);
+      })
+      .catch(e => {
+        console.error('Ошибка миграции статусов:', e);
+        __statusMigrationDone = false;
+      });
   }
 }, 2000);
 // ============================================================
-// 17. ХЕЛПЕРЫ СПИСКОВ
+// 19. ХЕЛПЕРЫ СПИСКОВ
 // ============================================================
 function getClientList() {
   const names = new Set();
@@ -1740,7 +1783,7 @@ function getBaseList() {
 }
 
 // ============================================================
-// 18. РЕНДЕР: ТАБЛИЦА ПРОЕКТОВ
+// 20. РЕНДЕР: ТАБЛИЦА ПРОЕКТОВ
 // ============================================================
 function render() {
   const q = $('search').value.trim().toLowerCase();
@@ -1806,10 +1849,12 @@ function render() {
         }
         const project = state.rows.find(x => x.id === r.id);
         const badgeHtml = project ? getProjectBadgeHtml(project) : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="req-days ' + b.cls + '">' + escapeHtml(b.text) + '</span>'; })();
+        const unread = countUnreadTasksForProject(r.id);
+        const notifHtml = unread > 0 ? '<span class="notif-badge" title="Новых задач: ' + unread + '">🔔 ' + unread + '</span>' : '';
         return '<div class="req-line" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
           badgeHtml +
           '<span class="req-date">' + escapeHtml(r.date) + '</span>' +
-          '<span class="req-title">' + escapeHtml(r.title) + '</span>' +
+          '<span class="req-title">' + escapeHtml(r.title) + notifHtml + '</span>' +
           (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') +
           actionsHtml +
           '</div>';
@@ -1824,7 +1869,7 @@ function render() {
 }
 
 // ============================================================
-// 19. РЕНДЕР: ТАБЛИЦА ЗАЯВОК
+// 21. РЕНДЕР: ТАБЛИЦА ЗАЯВОК
 // ============================================================
 function renderRequests() {
   const q = $('requestSearch').value.trim().toLowerCase();
@@ -1917,7 +1962,7 @@ function renderRequests() {
 }
 
 // ============================================================
-// 20. РЕНДЕР: БАЗА КЛИЕНТОВ
+// 22. РЕНДЕР: БАЗА КЛИЕНТОВ
 // ============================================================
 function renderBase() {
   const q = $('baseSearch').value.trim().toLowerCase();
@@ -1947,8 +1992,9 @@ function renderBase() {
     bl.appendChild(div);
   });
 }
+
 // ============================================================
-// 21. КАРТОЧКА КЛИЕНТА
+// 23. КАРТОЧКА КЛИЕНТА
 // ============================================================
 async function ensureClientExists(name) {
   if (!state.clients[name]) {
@@ -2067,11 +2113,14 @@ function renderClientRequests(clientName) {
   } else {
     pc.innerHTML = ap.map(r => {
       const isDone = isProjectCompleted(r);
-const daysHtml = isDone
-  ? '<span class="badge-completed">' + getCompletedBadgeText(r) + '</span>'
-  : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
-      return '<div class="request-tile project-tile' + (isDone ? ' project-completed' : '') + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
-        '<div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div>' +
+      const daysHtml = isDone
+        ? '<span class="badge-completed">' + getCompletedBadgeText(r) + '</span>'
+        : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
+      const unread = countUnreadTasksForProject(r.id);
+      const notifHtml = unread > 0 ? '<span class="notif-badge" title="Новых задач: ' + unread + '">🔔 ' + unread + '</span>' : '';
+      const hasNotifCls = unread > 0 ? ' has-notif' : '';
+      return '<div class="request-tile project-tile' + (isDone ? ' project-completed' : '') + hasNotifCls + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
+        '<div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + notifHtml + '</div>' +
         '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span>' + daysHtml + '</div>' +
         (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') +
         '</div>';
@@ -2154,7 +2203,7 @@ async function addRequestToClient(type) {
     comment: '',
     comments: [],
     priority: 'Средний',
-    status: DEFAULT_PROJECT_STATUS,
+    status: getDefaultStatusForType(isReq ? 'request' : 'project'),
     responsible: '',
     archived: false,
     createdBy: getCurrentUserDisplayName()
@@ -2168,7 +2217,7 @@ async function addRequestToClient(type) {
 }
 
 // ============================================================
-// 22. ДЕЙСТВИЯ С ПРОЕКТАМИ / ЗАЯВКАМИ
+// 24. ДЕЙСТВИЯ С ПРОЕКТАМИ / ЗАЯВКАМИ
 // ============================================================
 async function archiveProject(id) {
   if (!await confirmDialog('Отправить проект в архив?')) return;
@@ -2231,6 +2280,8 @@ async function convertRequestToProject(id) {
   newProj.stages = state.globalStagesTemplate.length
     ? state.globalStagesTemplate.map(s => ({ ...s, id: uid() }))
     : createDefaultStages();
+  // При конвертации заявки в проект — сбрасываем статус на дефолтный проектный
+  newProj.status = DEFAULT_PROJECT_STATUS;
   await saveRequestToFirebase(newProj.id, newProj, 'requests');
   await deleteRequestFromFirebase(id, 'leads');
   toast('✅ Заявка конвертирована в проект', 'success');
@@ -2240,16 +2291,17 @@ async function convertProjectToRequest(id) {
   const proj = state.rows.find(r => r.id === id); if (!proj) return;
   const newReq = { ...proj, id: uid(), archived: false };
   delete newReq.stages;
+  // При конвертации проекта в заявку — сбрасываем статус на дефолтный статус заявки
+  newReq.status = DEFAULT_REQUEST_STATUS;
   await saveRequestToFirebase(newReq.id, newReq, 'leads');
   await deleteRequestFromFirebase(id, 'requests');
   toast('✅ Проект конвертирован в заявку', 'success');
 }
 
 // ============================================================
-// 23. МОДАЛКА ПРОСМОТРА ПРОЕКТА / ЗАЯВКИ
+// 25. МОДАЛКА ПРОСМОТРА ПРОЕКТА / ЗАЯВКИ
 // ============================================================
 function applyProjectFieldPermissions(projectId) {
-  // Только администратор может редактировать поля карточки проекта/заявки.
   const canEdit = isAdmin();
   $('viewTitleInput').readOnly = !canEdit;
   $('viewDate').disabled = !canEdit;
@@ -2259,19 +2311,37 @@ function applyProjectFieldPermissions(projectId) {
   $('viewComment').readOnly = !canEdit;
 }
 
+function fillStatusSelect(type, currentStatus) {
+  const sel = $('viewStatus');
+  sel.innerHTML = '';
+  const statuses = getStatusesForType(type);
+  statuses.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    if (s === currentStatus) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  // Если текущего статуса нет в списке — добавим его первым, чтобы не потерять
+  if (currentStatus && !statuses.includes(currentStatus)) {
+    const opt = document.createElement('option');
+    opt.value = currentStatus;
+    opt.textContent = currentStatus + ' (старый)';
+    opt.selected = true;
+    sel.insertBefore(opt, sel.firstChild);
+  }
+}
+
 async function openRequestView(id, type) {
   const list = type === 'project' ? state.rows : state.leads;
   let item = list.find(r => r.id === id);
   if (!item) { toast('Запись не найдена', 'error'); return; }
 
-  // Принудительно перечитываем документ из Firestore, чтобы не показывать старое
-  // из кэша onSnapshot (Firestore не всегда пушит изменения во вложенных массивах).
   try {
     const col = type === 'project' ? 'requests' : 'leads';
     const snap = await getDoc(doc(db, col, id));
     if (snap.exists()) {
       item = { id: snap.id, ...snap.data() };
-      // Обновляем кэш в state, чтобы все рендеры использовали свежую версию
       if (type === 'project') {
         const idx = state.rows.findIndex(r => r.id === id);
         if (idx >= 0) state.rows[idx] = item; else state.rows.push(item);
@@ -2302,26 +2372,37 @@ async function openRequestView(id, type) {
   badge.textContent = type === 'project' ? 'ПРОЕКТ' : 'ЗАЯВКА';
   badge.className = 'view-type-badge ' + type;
 
+  // Счётчик уведомлений в шапке
+  const nb = $('viewNotifBadge');
+  nb.innerHTML = '';
+  if (type === 'project') {
+    const unread = countUnreadTasksForProject(id);
+    if (unread > 0) {
+      nb.innerHTML = '<span class="notif-badge-large" title="Новых задач: ' + unread + '">🔔 ' + unread + '</span>';
+    }
+  }
+
   $('viewDate').value = item.date || '';
   $('viewEndDate').value = item.endDate || '';
   $('viewEndDateBlock').style.display = type === 'project' ? 'block' : 'none';
   $('viewDaysBlock').style.display = type === 'project' ? 'block' : 'none';
 
-if (type === 'project') {
-  const dbadge = $('viewDaysBadge');
-  if (isProjectCompleted(item)) {
-    dbadge.textContent = getCompletedBadgeText(item);
-    dbadge.className = 'days-badge ok';
+  if (type === 'project') {
+    const dbadge = $('viewDaysBadge');
+    if (isProjectCompleted(item)) {
+      dbadge.textContent = getCompletedBadgeText(item);
+      dbadge.className = 'days-badge ok';
+    } else {
+      const b = getDeadlineBadge(item.endDate, item.date);
+      dbadge.textContent = b.text;
+      dbadge.className = 'days-badge ' + b.cls;
+    }
+    renderProjectExecutors(id);
   } else {
-    const b = getDeadlineBadge(item.endDate, item.date);
-    dbadge.textContent = b.text;
-    dbadge.className = 'days-badge ' + b.cls;
-  }
-  renderProjectExecutors(id);
-}else {
     $('projectExecutorsBlock').style.display = 'none';
   }
 
+  fillStatusSelect(type, item.status || getDefaultStatusForType(type));
   fillResponsibleSelect();
   $('viewResponsible').value = item.responsible || '';
   $('viewComment').value = item.comment || '';
@@ -2329,6 +2410,12 @@ if (type === 'project') {
   renderViewActions();
   renderComments();
   openModal('viewModal');
+
+  // Помечаем задачи просмотренными для текущего пользователя
+  if (type === 'project') {
+    if (isExecutor()) markExecutorTasksViewed(id);
+    if (isAdmin() || isManager()) markAdminTasksViewed(id);
+  }
 }
 
 function renderProjectExecutors(projectId) {
@@ -2374,23 +2461,35 @@ function refreshViewModal() {
   if (!u) return;
   state.currentViewRequest = u;
   $('viewTitleInput').value = getRequestTitle(u) || '';
+
+  // Обновление счётчика уведомлений в шапке
+  const nb = $('viewNotifBadge');
+  nb.innerHTML = '';
+  if (state.currentViewType === 'project') {
+    const unread = countUnreadTasksForProject(u.id);
+    if (unread > 0) {
+      nb.innerHTML = '<span class="notif-badge-large" title="Новых задач: ' + unread + '">🔔 ' + unread + '</span>';
+    }
+  }
+
   $('viewDate').value = u.date || '';
   $('viewEndDate').value = u.endDate || '';
+  fillStatusSelect(state.currentViewType, u.status || getDefaultStatusForType(state.currentViewType));
   fillResponsibleSelect();
   $('viewResponsible').value = u.responsible || '';
   $('viewComment').value = u.comment || '';
-if (state.currentViewType === 'project') {
-  const dbadge = $('viewDaysBadge');
-  if (isProjectCompleted(u)) {
-    dbadge.textContent = getCompletedBadgeText(u);
-    dbadge.className = 'days-badge ok';
-  } else {
-    const b = getDeadlineBadge(u.endDate, u.date);
-    dbadge.textContent = b.text;
-    dbadge.className = 'days-badge ' + b.cls;
+  if (state.currentViewType === 'project') {
+    const dbadge = $('viewDaysBadge');
+    if (isProjectCompleted(u)) {
+      dbadge.textContent = getCompletedBadgeText(u);
+      dbadge.className = 'days-badge ok';
+    } else {
+      const b = getDeadlineBadge(u.endDate, u.date);
+      dbadge.textContent = b.text;
+      dbadge.className = 'days-badge ' + b.cls;
+    }
+    renderProjectExecutors(u.id);
   }
-  renderProjectExecutors(u.id);
-}
   applyProjectFieldPermissions(u.id);
   renderComments();
 }
@@ -2529,7 +2628,7 @@ function renderViewActions() {
   }
 }
 // ============================================================
-// 24. ПЕРСОНАЛ
+// 26. ПЕРСОНАЛ
 // ============================================================
 function getEmployeeProjects(empName) {
   return state.rows.filter(r => {
@@ -2605,6 +2704,14 @@ function openEmployeePage(empId) {
   state.currentEmployeeId = empId;
   $('employeePageNameInput').value = emp.name || '';
   $('employeePagePositionInput').value = emp.position || '';
+
+  // Скрытие кнопок редактирования/удаления для не-админа
+  const canManage = isAdmin();
+  $('employeePageNameInput').readOnly = !canManage;
+  $('employeePagePositionInput').readOnly = !canManage;
+  $('btnSaveEmployeeChanges').style.display = canManage ? '' : 'none';
+  $('btnDeleteEmployee').style.display = canManage ? '' : 'none';
+
   renderEmployeeProjects(empId);
   openModal('employeePageModal');
 }
@@ -2623,9 +2730,9 @@ function renderEmployeeProjects(empId) {
     const isResponsible = r.responsible === emp.name;
     const hasTasks = (state.tasks[r.id] || []).some(t => t.assignee === emp.name);
     const roleLabel = isResponsible ? ' (ответственный)' : (hasTasks ? ' (исполнитель)' : '');
-const daysHtml = isDone
-  ? '<span class="badge-completed">' + getCompletedBadgeText(r) + '</span>'
-  : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
+    const daysHtml = isDone
+      ? '<span class="badge-completed">' + getCompletedBadgeText(r) + '</span>'
+      : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
     return '<div class="request-tile project-tile' + (isDone ? ' project-completed' : '') + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
       '<div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + roleLabel + '</div>' +
       '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span>' + daysHtml + '</div>' +
@@ -2704,7 +2811,7 @@ function renderEmployeesModal() {
 }
 
 // ============================================================
-// 25. ЭТАПЫ ПРОЕКТА
+// 27. ЭТАПЫ ПРОЕКТА
 // ============================================================
 function createDefaultStages() {
   return DEFAULT_STAGES.map(s => ({ ...s, id: uid() }));
@@ -2864,7 +2971,7 @@ async function removeKanbanStage(stageId) {
 }
 
 // ============================================================
-// 26. ПРОИЗВОДСТВО (КАНБАН)
+// 28. ПРОИЗВОДСТВО (КАНБАН)
 // ============================================================
 async function openProduction(id) {
   const r = state.rows.find(r => r.id === id);
@@ -2874,7 +2981,6 @@ async function openProduction(id) {
   await ensureProjectHasStages(id);
   $('productionRequestTitle').textContent = getRequestTitle(r) || '(без названия)';
   $('productionClientName').textContent = getClientName(r);
-  // Форма нового задания — только для администратора
   const addForm = $('addTaskFormBlock');
   if (addForm) addForm.style.display = isAdmin() ? '' : 'none';
   openModal('productionModal');
@@ -2945,10 +3051,8 @@ function renderTaskCard(t, projectId) {
   const totalStages = getProjectStages(projectId).length;
   const isDone = !!t.done;
 
-  // Кнопка «Готово» — только админ или исполнитель-владелец задачи
   const canToggleDone = isAdmin() || (isExecutor() && t.assignee === state.currentUser.name);
 
-  // Если задача выполнена — показываем бейдж вместо счётчика дней
   const daysHtml = isDone
     ? '<span class="task-days-done">✓ ГОТОВО</span>'
     : '<span class="task-days-count ' + badge.cls + '">' + badge.days + '</span>';
@@ -2959,8 +3063,20 @@ function renderTaskCard(t, projectId) {
         : '<button class="task-done-btn" data-action="toggle-task-done" data-id="' + t.id + '">✓ Готово</button>')
     : '';
 
-  return '<div class="task-card' + (isDone ? ' task-done' : '') + '">' +
-    '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + '</div>' +
+  // Индикатор новой задачи (только для текущего пользователя)
+  let newBadgeHtml = '';
+  let extraCardClass = '';
+  if (isExecutor() && t.assignee === state.currentUser.name && isTaskUnreadByAssignee(t)) {
+    newBadgeHtml = '<span class="task-new-badge">🔔 NEW</span>';
+    extraCardClass = ' task-new';
+  }
+  if ((isAdmin() || isManager()) && isTaskUnreadByAdmin(t)) {
+    newBadgeHtml = '<span class="task-new-badge">🔔 ИСПОЛНИТЕЛЬ ОТКРЫЛ</span>';
+    extraCardClass = ' task-new';
+  }
+
+  return '<div class="task-card' + (isDone ? ' task-done' : '') + extraCardClass + '">' +
+    '<div class="task-title">' + escapeHtml(t.title || '(без названия)') + newBadgeHtml + '</div>' +
     '<div class="task-meta"><div>👤 ' + escapeHtml(formatShortName(t.assignee || 'не назначен')) + '</div></div>' +
     '<div class="task-dates">' +
       '<span style="font-size:11px;color:#666;">📅 ' + escapeHtml(startDate || '—') + ' — ' + escapeHtml(endDate || '—') + '</span>' +
@@ -2998,7 +3114,10 @@ async function addTask() {
   const firstStageId = getProjectFirstStageId(id);
   rt.push({
     id: uid(), title: ti, assignee: as, startDate: sd, endDate: ed,
-    comments: [], stage: firstStageId, done: false, createdAt: today(), createdBy: getCurrentUserDisplayName()
+    comments: [], stage: firstStageId, done: false,
+    viewedByAssignee: false,  // исполнитель ещё не открыл
+    viewedByAdmin: true,      // админ сам создал — считаем просмотренным
+    createdAt: today(), createdBy: getCurrentUserDisplayName()
   });
   await saveTasksToFirebase(id, rt);
   state.tasks[id] = rt;
@@ -3008,13 +3127,75 @@ async function addTask() {
   renderProduction();
 }
 
+// ============================================================
+// УВЕДОМЛЕНИЯ: ПОМЕТКИ ПРОСМОТРА
+// ============================================================
+async function markTaskViewedByAssignee(taskId, projectId) {
+  const rt = getRequestTasks(projectId);
+  const t = rt.find(x => x.id === taskId);
+  if (!t) return;
+  // Помечаем только если это задача текущего пользователя-исполнителя
+  if (!isExecutor() || t.assignee !== state.currentUser.name) return;
+  if (t.viewedByAssignee === true) return; // уже отмечено — не сохраняем лишний раз
+  t.viewedByAssignee = true;
+  t.viewedByAdmin = false; // админ теперь должен узнать об открытии
+  await saveTasksToFirebase(projectId, rt);
+  state.tasks[projectId] = rt;
+}
+
+async function markTaskViewedByAdmin(taskId, projectId) {
+  const rt = getRequestTasks(projectId);
+  const t = rt.find(x => x.id === taskId);
+  if (!t) return;
+  if (!isAdmin() && !isManager()) return;
+  if (t.viewedByAdmin === true) return;
+  t.viewedByAdmin = true;
+  await saveTasksToFirebase(projectId, rt);
+  state.tasks[projectId] = rt;
+}
+
+// Помечаем все СВОИ задачи в проекте как просмотренные исполнителем
+async function markExecutorTasksViewed(projectId) {
+  if (!isExecutor()) return;
+  const rt = getRequestTasks(projectId);
+  const me = state.currentUser.name;
+  let changed = false;
+  rt.forEach(t => {
+    if (t.assignee === me && t.viewedByAssignee !== true) {
+      t.viewedByAssignee = true;
+      t.viewedByAdmin = false;
+      changed = true;
+    }
+  });
+  if (changed) {
+    await saveTasksToFirebase(projectId, rt);
+    state.tasks[projectId] = rt;
+  }
+}
+
+// Помечаем все задачи, где исполнитель уже открывал, как просмотренные админом
+async function markAdminTasksViewed(projectId) {
+  if (!isAdmin() && !isManager()) return;
+  const rt = getRequestTasks(projectId);
+  let changed = false;
+  rt.forEach(t => {
+    if (isTaskUnreadByAdmin(t)) {
+      t.viewedByAdmin = true;
+      changed = true;
+    }
+  });
+  if (changed) {
+    await saveTasksToFirebase(projectId, rt);
+    state.tasks[projectId] = rt;
+  }
+}
+
 async function toggleTaskDone(tid) {
   const id = state.currentProductionRequest;
   if (!id) return;
   const rt = getRequestTasks(id);
   const t = rt.find(x => x.id === tid);
   if (!t) return;
-  // Исполнитель может отмечать только СВОИ задачи, админ — любые
   if (!isAdmin()) {
     if (isExecutor() && t.assignee !== state.currentUser.name) {
       toast('Можно отметить только свои задачи', 'warn');
@@ -3030,6 +3211,11 @@ async function toggleTaskDone(tid) {
     t.doneAt = today();
   } else {
     delete t.doneAt;
+  }
+  // Исполнитель открыл задачу — помечаем
+  if (isExecutor() && t.assignee === state.currentUser.name) {
+    t.viewedByAssignee = true;
+    t.viewedByAdmin = false;
   }
   await saveTasksToFirebase(id, rt);
   state.tasks[id] = rt;
@@ -3083,7 +3269,7 @@ async function deleteTask(tid) {
 }
 
 // ============================================================
-// 27. КОММЕНТАРИИ ЗАДАЧ
+// 29. КОММЕНТАРИИ ЗАДАЧ
 // ============================================================
 function openTaskComments(taskId, projectId) {
   state.currentTaskCommentsTaskId = taskId;
@@ -3094,6 +3280,15 @@ function openTaskComments(taskId, projectId) {
   $('taskCommentsTitle').textContent = task.title || '(без названия)';
   renderTaskComments();
   openModal('taskCommentsModal');
+  // Помечаем задачу просмотренной
+  if (isExecutor() && task.assignee === state.currentUser.name) {
+    markTaskViewedByAssignee(taskId, projectId);
+    renderProduction();
+  }
+  if (isAdmin() || isManager()) {
+    markTaskViewedByAdmin(taskId, projectId);
+    renderProduction();
+  }
 }
 function closeTaskCommentsModal() {
   closeModal('taskCommentsModal');
@@ -3152,7 +3347,7 @@ async function deleteTaskComment(commentId) {
 }
 
 // ============================================================
-// 28. СТАТИСТИКА ПРОИЗВОДСТВА
+// 30. СТАТИСТИКА ПРОИЗВОДСТВА
 // ============================================================
 function openStatsModal() { openModal('statsModal'); renderStats(); }
 function closeStatsModal() { closeModal('statsModal'); }
@@ -3220,7 +3415,7 @@ function renderStats() {
 }
 
 // ============================================================
-// 29. ТАБЕЛЬ
+// 31. ТАБЕЛЬ
 // ============================================================
 function getEmployeeProjectsForTimesheet(empName) {
   return state.rows.filter(r => {
@@ -3541,7 +3736,7 @@ function renderTimesheet() {
 }
 
 // ============================================================
-// 30. КАЛЕНДАРЬ
+// 32. КАЛЕНДАРЬ
 // ============================================================
 function fillCalendarEmployeeFilter() {
   const sel = $('calEmployeeFilter');
@@ -3590,11 +3785,11 @@ function getCalendarEvents() {
 function renderCalendarStats(events) {
   const todayStr = today();
   const overdue = events.filter(e => {
-  const project = state.rows.find(r => r.id === e.id);
-  if (project && isProjectCompleted(project)) return false;
-  const left = daysUntilEnd(e.endDate);
-  return left !== null && left < 0;
-}).length;
+    const project = state.rows.find(r => r.id === e.id);
+    if (project && isProjectCompleted(project)) return false;
+    const left = daysUntilEnd(e.endDate);
+    return left !== null && left < 0;
+  }).length;
   const today_events = events.filter(e => e.startDate === todayStr || e.endDate === todayStr).length;
   const week_events = events.filter(e => {
     const d = e.startDate; if (!d) return false;
@@ -3648,8 +3843,8 @@ function showDayEventsModal(dateStr) {
       const badge = getDeadlineBadge(e.endDate, e.startDate);
       const deadlineText = e.endDate ? (isOverdue ? 'Просрочен на ' + Math.abs(left) + ' дн.' : 'До конца ' + daysLabel(left)) : 'Без срока окончания';
       const daysHtml = isDone
-  ? '<div class="badge-completed">' + getCompletedBadgeText(project) + '</div>'
-  : '<div class="evt-days ' + badge.cls + '">' + daysText + '</div>';
+        ? '<div class="badge-completed">' + getCompletedBadgeText(project) + '</div>'
+        : '<div class="evt-days ' + badge.cls + '">' + daysText + '</div>';
       return '<div class="day-event-item' + (isOverdue ? ' overdue' : '') + (isDone ? ' project-completed' : '') + '" data-action="open-request" data-id="' + e.id + '" data-type="project">' +
         '<div class="evt-main">' +
           '<div class="evt-client-name">' + escapeHtml(e.client) + '</div>' +
@@ -3755,9 +3950,9 @@ function renderCalendarList(year, month, events) {
       const badge = getDeadlineBadge(e.endDate, e.startDate);
       const left = daysUntilEnd(e.endDate);
       const isOverdue = !isDone && left !== null && left < 0;
-const daysHtml = isDone
-  ? '<span class="badge-completed">' + getCompletedBadgeText(project) + '</span>'
-  : '<span class="evt-days ' + badge.cls + '">' + badge.days + '</span>';
+      const daysHtml = isDone
+        ? '<span class="badge-completed">' + getCompletedBadgeText(project) + '</span>'
+        : '<span class="evt-days ' + badge.cls + '">' + badge.days + '</span>';
       let cls = '';
       if (isDone) cls = ' project-completed';
       else if (isOverdue) cls = ' overdue';
@@ -3774,15 +3969,16 @@ const daysHtml = isDone
 }
 
 // ============================================================
-// 31. ДАШБОРД
+// 33. ДАШБОРД
 // ============================================================
 function renderDashboard() {
   const container = $('dashboardContent');
   const activeProjects = state.rows.filter(r => !r.archived);
   const activeLeads = state.leads.filter(l => !l.archived);
   const overdueProjects = activeProjects.filter(r => !isProjectCompleted(r) && (() => { const left = daysUntilEnd(r.endDate); return left !== null && left < 0; })());
-const todayDeadlineProjects = activeProjects.filter(r => !isProjectCompleted(r) && (() => { const left = daysUntilEnd(r.endDate); return left === 0; })());
-const warningProjects = activeProjects.filter(r => !isProjectCompleted(r) && (() => { const left = daysUntilEnd(r.endDate); return left !== null && left > 0 && left <= 30; })());
+  const todayDeadlineProjects = activeProjects.filter(r => !isProjectCompleted(r) && (() => { const left = daysUntilEnd(r.endDate); return left === 0; })());
+  const warningProjects = activeProjects.filter(r => !isProjectCompleted(r) && (() => { const left = daysUntilEnd(r.endDate); return left !== null && left > 0 && left <= 30; })());
+
   const statusCounts = { 'Ждем аванс':0, 'Производство':0, 'Гарантия':0, 'Доплата':0, 'Отгрузка':0, 'ПНР':0, 'Документы':0, 'Без статуса':0 };
   activeProjects.forEach(r => {
     const status = r.status || 'Без статуса';
@@ -3832,13 +4028,13 @@ const warningProjects = activeProjects.filter(r => !isProjectCompleted(r) && (()
 
   html += '<div class="dashboard-two-col">';
   html += '<div class="dashboard-section"><h3>📋 Статусы проектов</h3><div class="dashboard-status-grid">';
-html += '<div class="status-card new"><div class="status-value">' + statusCounts['Ждем аванс'] + '</div><div class="status-label">Ждем аванс</div></div>';
-html += '<div class="status-card work"><div class="status-value">' + statusCounts['Производство'] + '</div><div class="status-label">Производство</div></div>';
-html += '<div class="status-card done"><div class="status-value">' + statusCounts['Гарантия'] + '</div><div class="status-label">Гарантия</div></div>';
-html += '<div class="status-card new"><div class="status-value">' + statusCounts['Доплата'] + '</div><div class="status-label">Доплата</div></div>';
-html += '<div class="status-card work"><div class="status-value">' + statusCounts['Отгрузка'] + '</div><div class="status-label">Отгрузка</div></div>';
-html += '<div class="status-card new"><div class="status-value">' + statusCounts['ПНР'] + '</div><div class="status-label">ПНР</div></div>';
-html += '<div class="status-card done"><div class="status-value">' + statusCounts['Документы'] + '</div><div class="status-label">Документы</div></div>';
+  html += '<div class="status-card new"><div class="status-value">' + statusCounts['Ждем аванс'] + '</div><div class="status-label">Ждем аванс</div></div>';
+  html += '<div class="status-card work"><div class="status-value">' + statusCounts['Производство'] + '</div><div class="status-label">Производство</div></div>';
+  html += '<div class="status-card done"><div class="status-value">' + statusCounts['Гарантия'] + '</div><div class="status-label">Гарантия</div></div>';
+  html += '<div class="status-card new"><div class="status-value">' + statusCounts['Доплата'] + '</div><div class="status-label">Доплата</div></div>';
+  html += '<div class="status-card work"><div class="status-value">' + statusCounts['Отгрузка'] + '</div><div class="status-label">Отгрузка</div></div>';
+  html += '<div class="status-card new"><div class="status-value">' + statusCounts['ПНР'] + '</div><div class="status-label">ПНР</div></div>';
+  html += '<div class="status-card done"><div class="status-value">' + statusCounts['Документы'] + '</div><div class="status-label">Документы</div></div>';
   html += '</div>';
   const totalWithStatus = activeProjects.length || 1;
   html += '<div style="margin-top:16px;">';
@@ -3897,9 +4093,9 @@ html += '<div class="status-card done"><div class="status-value">' + statusCount
       if (isDone) itemClass = 'project-completed';
       else if (isOverdue) itemClass = 'overdue';
       else if (isWarning) itemClass = 'warning';
-const badgeHtml = isDone
-  ? '<span class="badge-completed">' + getCompletedBadgeText(r) + '</span>'
-  : '<span class="days-badge ' + badge.cls + '" style="font-size:12px;padding:2px 8px;">' + escapeHtml(badge.text) + '</span>';
+      const badgeHtml = isDone
+        ? '<span class="badge-completed">' + getCompletedBadgeText(r) + '</span>'
+        : '<span class="days-badge ' + badge.cls + '" style="font-size:12px;padding:2px 8px;">' + escapeHtml(badge.text) + '</span>';
       html += '<div class="recent-item ' + itemClass + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
         '<div style="flex:1;">' +
           '<div class="recent-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div>' +
@@ -3927,10 +4123,13 @@ function showAllProjects() {
     grid.innerHTML = activeProjects.map(r => {
       const isDone = isProjectCompleted(r);
       const daysHtml = isDone
-  ? '<span class="badge-completed">' + getCompletedBadgeText(r) + '</span>'
-  : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
-      return '<div class="request-tile project-tile' + (isDone ? ' project-completed' : '') + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
-        '<div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + '</div>' +
+        ? '<span class="badge-completed">' + getCompletedBadgeText(r) + '</span>'
+        : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="tile-days ' + b.cls + '">' + b.days + '</span>'; })();
+      const unread = countUnreadTasksForProject(r.id);
+      const notifHtml = unread > 0 ? '<span class="notif-badge" title="Новых задач: ' + unread + '">🔔 ' + unread + '</span>' : '';
+      const hasNotifCls = unread > 0 ? ' has-notif' : '';
+      return '<div class="request-tile project-tile' + (isDone ? ' project-completed' : '') + hasNotifCls + '" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
+        '<div class="tile-title">' + escapeHtml(getRequestTitle(r) || '(без названия)') + notifHtml + '</div>' +
         '<div style="font-size:12px;color:#666;margin-bottom:4px;">👤 ' + escapeHtml(getClientName(r)) + '</div>' +
         '<div class="tile-date"><span>📅 ' + escapeHtml(r.date || '—') + '</span>' + daysHtml + '</div>' +
         (r.status ? '<span class="tile-status">' + escapeHtml(r.status) + '</span>' : '') +
@@ -3948,7 +4147,7 @@ function showAllProjects() {
 }
 
 // ============================================================
-// 32. НАВИГАЦИЯ МЕЖДУ ВКЛАДКАМИ
+// 34. НАВИГАЦИЯ МЕЖДУ ВКЛАДКАМИ
 // ============================================================
 function switchNavView(view) {
   if (!canViewTab(view)) { toast('У вас нет доступа к этой вкладке', 'warn'); view = 'dashboard'; }
@@ -3978,7 +4177,7 @@ function switchRequestView(view) {
 }
 
 // ============================================================
-// 33. АДМИН-ПАНЕЛЬ
+// 35. АДМИН-ПАНЕЛЬ
 // ============================================================
 function openAdminPanel() {
   if (!isAdmin()) { toast('Только администратор', 'error'); return; }
@@ -4101,7 +4300,7 @@ async function deleteAdminUser(userId, userName) {
 }
 
 // ============================================================
-// 34. ОЧИСТКА ТАБЕЛЯ ПРИ УДАЛЕНИИ
+// 36. ОЧИСТКА ТАБЕЛЯ ПРИ УДАЛЕНИИ
 // ============================================================
 async function cleanupTimesheetsForProject(projectId) {
   try {
@@ -4144,7 +4343,7 @@ async function cleanupTimesheetsForEmployee(empId) {
 }
 
 // ============================================================
-// 35. ЭКСПОРТ / ИМПОРТ
+// 37. ЭКСПОРТ / ИМПОРТ
 // ============================================================
 function formatContactPersonsForCSV(cps) {
   if (!cps || !cps.length) return '';
@@ -4298,7 +4497,7 @@ async function importCSV(event) {
           const np = {
             id: uid(), date: dt || today(), endDate: ed || '',
             client: cn, contact: '', title: ti, request: '', comment: '',
-            comments: [], priority: 'Средний', status: st || 'Новая',
+            comments: [], priority: 'Средний', status: st || DEFAULT_PROJECT_STATUS,
             responsible: '', archived: ar
           };
           np.stages = state.globalStagesTemplate.length
@@ -4323,10 +4522,9 @@ async function importCSV(event) {
 window.state = state;
 
 // ============================================================
-// 36. ЕДИНЫЙ ОБРАБОТЧИК КЛИКОВ (делегирование событий)
+// 38. ЕДИНЫЙ ОБРАБОТЧИК КЛИКОВ
 // ============================================================
 document.addEventListener('click', async (e) => {
-  // 1. Кнопки закрытия модалок
   const closeBtn = e.target.closest('[data-close]');
   if (closeBtn) {
     const id = closeBtn.dataset.close;
@@ -4345,7 +4543,6 @@ document.addEventListener('click', async (e) => {
     return;
   }
 
-  // 2. Клик по оверлею (фон модалки) — закрыть
   if (e.target.classList.contains('modal-overlay') && e.target.style.display !== 'none') {
     const id = e.target.id;
     if (id === 'viewModal') closeViewModal();
@@ -4363,34 +4560,14 @@ document.addEventListener('click', async (e) => {
     return;
   }
 
-  // 3. Делегированные data-action
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const action = el.dataset.action;
 
-  // --- Открытие карточки клиента ---
-  if (action === 'open-client') {
-    e.stopPropagation();
-    openClientModalByName(el.dataset.client);
-    return;
-  }
+  if (action === 'open-client') { e.stopPropagation(); openClientModalByName(el.dataset.client); return; }
+  if (action === 'delete-client') { e.stopPropagation(); deleteClientFromBase(el.dataset.client); return; }
+  if (action === 'open-request') { e.stopPropagation(); closeAllModals(); openRequestView(el.dataset.id, el.dataset.type); return; }
 
-  // --- Удаление клиента ---
-  if (action === 'delete-client') {
-    e.stopPropagation();
-    deleteClientFromBase(el.dataset.client);
-    return;
-  }
-
-  // --- Открытие проекта/заявки ---
-  if (action === 'open-request') {
-    e.stopPropagation();
-    closeAllModals();
-    openRequestView(el.dataset.id, el.dataset.type);
-    return;
-  }
-
-  // --- Архивация / восстановление ---
   if (action === 'archive-project') { e.stopPropagation(); await archiveProject(el.dataset.id); closeViewModal(); return; }
   if (action === 'archive-request') { e.stopPropagation(); await archiveRequest(el.dataset.id); closeViewModal(); return; }
   if (action === 'restore-project') { e.stopPropagation(); await restoreProject(el.dataset.id); return; }
@@ -4402,7 +4579,6 @@ document.addEventListener('click', async (e) => {
     return;
   }
 
-  // --- Удаление навсегда ---
   if (action === 'delete-project-final') { e.stopPropagation(); await deleteProjectFinal(el.dataset.id); return; }
   if (action === 'delete-request-final') { e.stopPropagation(); await deleteRequestFinal(el.dataset.id); closeViewModal(); return; }
   if (action === 'delete-all-requests-of-client') {
@@ -4417,11 +4593,9 @@ document.addEventListener('click', async (e) => {
     return;
   }
 
-  // --- Конвертация ---
   if (action === 'convert-project-to-request') { e.stopPropagation(); await convertProjectToRequest(el.dataset.id); closeViewModal(); return; }
   if (action === 'convert-request-to-project') { e.stopPropagation(); await convertRequestToProject(el.dataset.id); closeViewModal(); return; }
 
-  // --- Производство ---
   if (action === 'open-production') {
     e.stopPropagation();
     const savedId = el.dataset.id;
@@ -4430,33 +4604,27 @@ document.addEventListener('click', async (e) => {
     return;
   }
 
-  // --- Комментарии ---
   if (action === 'delete-comment') { e.stopPropagation(); await deleteComment(el.dataset.id); return; }
   if (action === 'delete-task-comment') { e.stopPropagation(); await deleteTaskComment(el.dataset.id); return; }
   if (action === 'delete-note') { e.stopPropagation(); await deleteNote(el.dataset.id); return; }
 
-  // --- Контактные лица ---
-if (action === 'remove-cp') { e.stopPropagation(); await removeContactPerson(Number(el.dataset.idx)); return; }
-  // --- Задачи (канбан) ---
+  if (action === 'remove-cp') { e.stopPropagation(); await removeContactPerson(Number(el.dataset.idx)); return; }
+
   if (action === 'open-task-comments') { e.stopPropagation(); openTaskComments(el.dataset.id, el.dataset.project); return; }
   if (action === 'toggle-task-done') { e.stopPropagation(); await toggleTaskDone(el.dataset.id); return; }
   if (action === 'move-task') { e.stopPropagation(); await moveTask(el.dataset.id, Number(el.dataset.dir)); return; }
   if (action === 'edit-task') { e.stopPropagation(); await editTask(el.dataset.id); return; }
   if (action === 'delete-task') { e.stopPropagation(); await deleteTask(el.dataset.id); return; }
 
-  // --- Этапы ---
   if (action === 'move-stage') { e.stopPropagation(); await moveStage(el.dataset.id, Number(el.dataset.dir)); return; }
   if (action === 'remove-stage') { e.stopPropagation(); await removeKanbanStage(el.dataset.id); return; }
 
-  // --- Модальные под-кнопки производства ---
   if (action === 'open-employees-modal') { e.stopPropagation(); openEmployeesModal(); return; }
   if (action === 'open-stats-modal') { e.stopPropagation(); openStatsModal(); return; }
 
-  // --- Персонал ---
   if (action === 'open-employee') { e.stopPropagation(); openEmployeePage(el.dataset.id); return; }
   if (action === 'quick-delete-employee') { e.stopPropagation(); await quickDeleteEmployee(el.dataset.id, el.dataset.name); return; }
 
-  // --- Табель ---
   if (action === 'open-timesheet-entry') { e.stopPropagation(); openTimesheetEntry(el.dataset.emp, el.dataset.date); return; }
   if (action === 'open-ts-month-summary') {
     e.stopPropagation();
@@ -4471,33 +4639,28 @@ if (action === 'remove-cp') { e.stopPropagation(); await removeContactPerson(Num
   if (action === 'hide-ts-comment-form') { e.stopPropagation(); hideTimesheetCommentForm(el.dataset.project); return; }
   if (action === 'save-ts-comment') { e.stopPropagation(); await saveTimesheetComment(el.dataset.project); return; }
 
-  // --- Календарь ---
   if (action === 'show-day-events') { e.stopPropagation(); showDayEventsModal(el.dataset.date); return; }
 
-  // --- Дашборд ---
   if (action === 'show-all-projects') { e.stopPropagation(); showAllProjects(); return; }
   if (action === 'back-to-dashboard') { e.stopPropagation(); switchNavView('dashboard'); return; }
 
-  // --- Админ-панель ---
   if (action === 'edit-admin-user') { e.stopPropagation(); editAdminUser(el.dataset.id); return; }
   if (action === 'toggle-admin-user') { e.stopPropagation(); await toggleAdminUser(el.dataset.id); return; }
   if (action === 'delete-admin-user') { e.stopPropagation(); await deleteAdminUser(el.dataset.id, el.dataset.name); return; }
 });
 
 // ============================================================
-// 37. ОБРАБОТЧИК ИЗМЕНЕНИЙ (change) — для input/select/textarea
+// 39. ОБРАБОТЧИК CHANGE
 // ============================================================
 document.addEventListener('change', async (e) => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const action = el.dataset.action;
 
-  // Обновление контактного лица
   if (action === 'update-cp') {
     updateContactPerson(Number(el.dataset.idx), el.dataset.field, el.value);
     return;
   }
-  // Переименование этапа
   if (action === 'update-stage-name') {
     await updateStageName(el.dataset.id, el.value);
     return;
@@ -4505,7 +4668,7 @@ document.addEventListener('change', async (e) => {
 });
 
 // ============================================================
-// 38. ЖИВОЙ ПЕРЕСЧЁТ ИТОГА В ТАБЕЛЕ
+// 40. ЖИВОЙ ПЕРЕСЧЁТ ИТОГА В ТАБЕЛЕ
 // ============================================================
 document.addEventListener('input', (e) => {
   if (e.target.matches('#tsEntryList input[type="number"]')) {
@@ -4517,10 +4680,9 @@ document.addEventListener('input', (e) => {
 });
 
 // ============================================================
-// 39. ПОДКЛЮЧЕНИЕ ЭЛЕМЕНТОВ UI
+// 41. ПОДКЛЮЧЕНИЕ ЭЛЕМЕНТОВ UI
 // ============================================================
 function bindUI() {
-  // --- Экран входа ---
   $('btnLogin').addEventListener('click', handleLogin);
   $('btnCreateAdmin').addEventListener('click', handleCreateAdmin);
   $('createAdminLink').addEventListener('click', showCreateAdminForm);
@@ -4528,17 +4690,14 @@ function bindUI() {
   $('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
   $('adminPassword').addEventListener('keydown', e => { if (e.key === 'Enter') handleCreateAdmin(); });
 
-  // --- Хедер ---
   $('btnLogout').addEventListener('click', handleLogout);
   $('adminPanelBtn').addEventListener('click', openAdminPanel);
 
-  // --- Админ-панель ---
   $('btnShowAddUser').addEventListener('click', showAddUserForm);
   $('btnCancelAdminUser').addEventListener('click', hideAddUserForm);
   $('btnSaveAdminUser').addEventListener('click', saveAdminUser);
   $('btnCloseAdmin').addEventListener('click', closeAdminPanel);
 
-  // --- Навигация ---
   document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.addEventListener('click', () => switchNavView(tab.dataset.nav));
   });
@@ -4549,7 +4708,6 @@ function bindUI() {
     tab.addEventListener('click', () => switchRequestView(tab.dataset.rtab));
   });
 
-  // --- Проекты ---
   $('btnAddProject').addEventListener('click', addClient);
   $('btnExportProjects').addEventListener('click', exportCSV);
   $('btnImportProjects').addEventListener('click', () => $('importFile').click());
@@ -4557,28 +4715,23 @@ function bindUI() {
   $('search').addEventListener('input', debounce(render, 250));
   $('statusFilter').addEventListener('change', render);
 
-  // --- Заявки ---
   $('btnAddRequest').addEventListener('click', addRequest);
   $('btnExportRequests').addEventListener('click', exportRequestsCSV);
   $('requestSearch').addEventListener('input', debounce(renderRequests, 250));
 
-  // --- База ---
   $('baseSearch').addEventListener('input', debounce(renderBase, 250));
 
-  // --- Персонал ---
   $('btnShowAddEmployee').addEventListener('click', showAddEmployeeForm);
   $('btnCancelAddEmployee').addEventListener('click', hideAddEmployeeForm);
   $('btnAddEmployee').addEventListener('click', addEmployee);
   $('employeeSearch').addEventListener('input', debounce(renderEmployees, 250));
 
-  // --- Карточка клиента ---
   $('btnSaveClient').addEventListener('click', saveClientModal);
   $('btnAddContactPerson').addEventListener('click', addContactPerson);
   $('btnAddNote').addEventListener('click', addNote);
   $('btnAddProjectToClient').addEventListener('click', () => addRequestToClient('project'));
   $('btnAddRequestToClient').addEventListener('click', () => addRequestToClient('request'));
 
-  // --- Модалка просмотра ---
   $('viewTitleInput').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('title', this.value); });
   $('viewDate').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('date', this.value); });
   $('viewEndDate').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('endDate', this.value); });
@@ -4587,20 +4740,16 @@ function bindUI() {
   $('viewComment').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('comment', this.value); });
   $('btnAddComment').addEventListener('click', addComment);
 
-  // --- Модалка сотрудника ---
   $('btnSaveEmployeeChanges').addEventListener('click', saveEmployeeChanges);
   $('btnDeleteEmployee').addEventListener('click', deleteEmployee);
 
-  // --- Производство ---
   $('btnStagesModal').addEventListener('click', openStagesModal);
   $('btnAddTask').addEventListener('click', addTask);
   $('btnAddStage').addEventListener('click', addKanbanStage);
   $('newTaskTitle').addEventListener('input', function() { this.dataset.dirty = '1'; });
 
-  // --- Комментарии задачи ---
   $('btnAddTaskComment').addEventListener('click', addTaskComment);
 
-  // --- Табель ---
   $('btnSaveTimesheetEntry').addEventListener('click', saveTimesheetEntry);
   $('tsEmployeeFilter').addEventListener('change', renderTimesheet);
   document.querySelectorAll('[data-ts]').forEach(btn => {
@@ -4612,7 +4761,6 @@ function bindUI() {
     });
   });
 
-  // --- Календарь ---
   $('calEmployeeFilter').addEventListener('change', renderCalendar);
   $('calClientFilter').addEventListener('input', debounce(renderCalendar, 250));
   document.querySelectorAll('[data-cal]').forEach(btn => {
@@ -4627,11 +4775,9 @@ function bindUI() {
     btn.addEventListener('click', () => setCalendarView(btn.dataset.calview));
   });
 
-  // --- Confirm ---
   $('confirmOk').addEventListener('click', () => _closeConfirm(true));
   $('confirmCancel').addEventListener('click', () => _closeConfirm(false));
 
-  // --- Escape закрывает верхнюю модалку ---
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
     if ($('confirmModal').style.display === 'block') { _closeConfirm(false); return; }
@@ -4655,7 +4801,7 @@ function bindUI() {
 }
 
 // ============================================================
-// 40. DEBOUNCE
+// 42. DEBOUNCE
 // ============================================================
 function debounce(fn, ms) {
   let t = null;
@@ -4666,9 +4812,11 @@ function debounce(fn, ms) {
 }
 
 // ============================================================
-// 41. СТАРТ
+// 43. СТАРТ
 // ============================================================
 bindUI();
+
+setTimeout(() => { const lo = $('loadingOverlay'); if (lo) lo.style.display = 'none'; }, 5000);
 
 // Экспорт функций для отладки из консоли (на случай, если понадобится)
 window.__crm = {
@@ -4688,11 +4836,11 @@ window.__crm = {
   closeViewModal, closeClientModal: () => { closeModal('clientModal'); state.currentClientOldName = ''; },
   closeEmployeePage, closeProduction, closeStagesModal, closeEmployeesModal,
   closeStatsModal, closeDayEventsModal, closeTaskCommentsModal,
-  closeTimesheetEntryModal, closeTimesheetMonthSummary
+  closeTimesheetEntryModal, closeTimesheetMonthSummary,
+  // Уведомления
+  markTaskViewedByAssignee, markTaskViewedByAdmin,
+  countUnreadTasksForProject
 };
-
-// Скрываем лоадер, если он завис дольше 5 секунд (страховка)
-setTimeout(() => { const lo = $('loadingOverlay'); if (lo) lo.style.display = 'none'; }, 5000);
 </script>
 </body>
 </html>
