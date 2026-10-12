@@ -442,8 +442,9 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .ts-comment-actions button { font-size: 11px; padding: 3px 8px; border-radius: 3px; border: none; cursor: pointer; }
 .ts-comment-actions .btn-edit-comment { background: #5bc0de; color: white; }
 .ts-comment-form { margin-top: 8px; }
-.ts-comment-textarea { width: 100%; min-height: 60px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; resize: vertical; }
-.ts-comment-form-actions { display: flex; gap: 4px; margin-top: 6px; }
+.ts-comment-textarea { width: 100%; min-height: 50px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; font-family: Arial, sans-serif; box-sizing: border-box; resize: vertical; background: #fff; }
+.ts-comment-textarea:focus { border-color: #004a99; outline: none; }
+.ts-comment-textarea:disabled { background: #f5f5f5; color: #666; cursor: not-allowed; }.ts-comment-form-actions { display: flex; gap: 4px; margin-top: 6px; }
 .ts-comment-form-actions button { font-size: 11px; padding: 4px 10px; border-radius: 4px; border: none; cursor: pointer; }
 .ts-comment-form-actions .btn-save-comment { background: #5cb85c; color: white; }
 .ts-comment-form-actions .btn-cancel-comment { background: #95a5a6; color: white; }
@@ -2689,7 +2690,6 @@ function renderProduction() {
     });
   }
 
-  // ИСПРАВЛЕНО: НЕ сбрасываем форму, если пользователь что-то начал вводить
   const titleInput = $('newTaskTitle');
   if (!titleInput.dataset.dirty) titleInput.value = '';
   const startInput = $('newTaskStartDate');
@@ -2765,7 +2765,6 @@ async function addTask() {
   });
   await saveTasksToFirebase(id, rt);
   state.tasks[id] = rt;
-  // Сброс формы после успешного добавления
   const t = $('newTaskTitle');
   delete t.dataset.dirty;
   t.value = '';
@@ -2959,7 +2958,6 @@ function renderStats() {
 function getEmployeeProjectsForTimesheet(empName) {
   return state.rows.filter(r => {
     if (r.archived) return false;
-    // ИСПРАВЛЕНО: учитываем и ответственного без задач
     if (r.responsible === empName) return true;
     const pt = state.tasks[r.id] || [];
     return pt.some(t => t.assignee === empName);
@@ -2996,6 +2994,10 @@ function timesheetPrev() { state.timesheetDate.setMonth(state.timesheetDate.getM
 function timesheetNext() { state.timesheetDate.setMonth(state.timesheetDate.getMonth() + 1); renderTimesheet(); }
 function timesheetToday() { state.timesheetDate = new Date(); renderTimesheet(); }
 
+// ============================================================
+// ИСПРАВЛЕНО: openTimesheetEntry — теперь комментарий всегда виден в textarea,
+// сохраняется вместе с часами одной кнопкой «Сохранить».
+// ============================================================
 function openTimesheetEntry(empId, dateStr) {
   if (!canEditTimesheet(empId)) { toast('У вас нет прав на редактирование этого табеля', 'error'); return; }
   const emp = state.employees.find(e => e.id === empId);
@@ -3019,36 +3021,38 @@ function openTimesheetEntry(empId, dateStr) {
       const existingComment = existingForProject?.comment || null;
       const hoursEdited = existingForProject?.hoursEdited || false;
       const canEditHours = isAdmin() || isManager() || !hoursEdited;
+      const canEditComment = isAdmin() || isManager() || !existingComment?.edited;
 
-      let commentHtml = '';
+      let commentText = existingComment ? existingComment.text : '';
+      let commentMetaHtml = '';
+      let historyHtml = '';
       if (existingComment) {
-        const canEditComment = isAdmin() || isManager() || !existingComment.edited;
-        const historyHtml = existingComment.editHistory && existingComment.editHistory.length > 0
-          ? '<div class="ts-comment-history"><div class="history-title">📜 История изменений:</div>' +
-            existingComment.editHistory.map(h => '<div class="history-item"><strong>' + escapeHtml(h.action) + '</strong> ' +
-              escapeHtml(h.date) + ' в ' + escapeHtml(h.time) + '<br><em>' + escapeHtml(h.text) + '</em></div>').join('') +
-            '</div>'
-          : '';
-        commentHtml = '<div class="ts-comment-section"><div class="ts-comment-display">' +
-          '<div class="ts-comment-text">' + escapeHtml(existingComment.text) + '</div>' +
-          '<div class="ts-comment-meta"><span>📅 Создан: ' + escapeHtml(existingComment.createdAt) + ' в ' + escapeHtml(existingComment.createdTime) +
-          (existingComment.author ? ' • <span class="author-badge">' + escapeHtml(formatShortName(existingComment.author)) + '</span>' : '') + '</span></div>' +
-          (canEditComment
-            ? '<div class="ts-comment-actions"><button class="btn-edit-comment" data-action="show-ts-comment-form" data-project="' + p.id + '" data-edit="1">✏️ Редактировать</button></div>'
-            : '<div class="ts-comment-locked">🔒 Редактирование недоступно</div>') +
-          historyHtml + '</div></div>';
-      } else {
-        commentHtml = '<div class="ts-comment-section">' +
-          '<button class="ts-add-comment-btn" data-action="show-ts-comment-form" data-project="' + p.id + '" data-edit="0">💬 Добавить комментарий</button>' +
-          '<div id="ts-comment-form-' + p.id + '" style="display:none;" class="ts-comment-form">' +
-            '<textarea id="ts-comment-text-' + p.id + '" class="ts-comment-textarea" placeholder="Комментарий к работе..."></textarea>' +
-            '<div class="ts-comment-form-actions">' +
-              '<button class="btn-save-comment" data-action="save-ts-comment" data-project="' + p.id + '">💾 Сохранить</button>' +
-              '<button class="btn-cancel-comment" data-action="hide-ts-comment-form" data-project="' + p.id + '">Отмена</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
+        commentMetaHtml = '<div class="ts-comment-meta"><span>📅 Создан: ' +
+          escapeHtml(existingComment.createdAt) + ' в ' + escapeHtml(existingComment.createdTime) +
+          (existingComment.author ? ' • <span class="author-badge">' + escapeHtml(formatShortName(existingComment.author)) + '</span>' : '') +
+          (existingComment.edited ? ' • ✏️ ред.' : '') +
+          '</span></div>';
+        if (existingComment.editHistory && existingComment.editHistory.length > 0) {
+          historyHtml = '<div class="ts-comment-history"><div class="history-title">📜 История изменений:</div>' +
+            existingComment.editHistory.map(h =>
+              '<div class="history-item"><strong>' + escapeHtml(h.action) + '</strong> ' +
+              escapeHtml(h.date) + ' в ' + escapeHtml(h.time) +
+              '<br><em>' + escapeHtml(h.text) + '</em></div>'
+            ).join('') + '</div>';
+        }
       }
+
+      const commentLocked = !canEditComment;
+      const commentHtml =
+        '<div class="ts-comment-section">' +
+          '<div style="font-size:11px;color:#666;margin-bottom:4px;">💬 Комментарий к работе:</div>' +
+          '<textarea class="ts-comment-textarea" data-comment-project="' + p.id + '" ' +
+            (commentLocked ? 'readonly disabled' : '') +
+            ' placeholder="Комментарий к работе...">' + escapeHtml(commentText) + '</textarea>' +
+          commentMetaHtml +
+          (commentLocked ? '<div class="ts-comment-locked">🔒 Редактирование недоступно</div>' : '') +
+          historyHtml +
+        '</div>';
 
       const hoursLockedHtml = !canEditHours ? '<div class="ts-comment-locked">🔒 Часы зафиксированы</div>' : '';
 
@@ -3058,7 +3062,7 @@ function openTimesheetEntry(empId, dateStr) {
             '<div class="entry-project">' + escapeHtml(getRequestTitle(p)) + '</div>' +
             '<div class="entry-client">' + escapeHtml(getClientName(p)) + '</div>' +
           '</div>' +
-          '<input type="number" min="0" max="24" step="0.5" value="' + existingHours + '" data-action="ts-hours-change" data-project-id="' + p.id + '" style="width:70px;"' + (!canEditHours ? ' disabled' : '') + '>' +
+          '<input type="number" min="0" max="24" step="0.5" value="' + existingHours + '" data-project-id="' + p.id + '" style="width:70px;"' + (!canEditHours ? ' disabled' : '') + '>' +
         '</div>' +
         hoursLockedHtml +
         commentHtml +
@@ -3070,67 +3074,17 @@ function openTimesheetEntry(empId, dateStr) {
 }
 
 function showTimesheetCommentForm(projectId, isEdit) {
+  // Оставлено для совместимости. Больше не используется — комментарий всегда виден в textarea.
   const form = $('ts-comment-form-' + projectId);
-  if (form) {
-    if (isEdit) {
-      const key = getTimesheetKey(state.currentTsEntry.empId, state.currentTsEntry.date);
-      const existingEntry = state.timesheets[key] || { entries: [] };
-      const entry = existingEntry.entries.find(e => e.projectId === projectId);
-      if (entry && entry.comment) $('ts-comment-text-' + projectId).value = entry.comment.text;
-    } else {
-      $('ts-comment-text-' + projectId).value = '';
-    }
-    form.style.display = 'block';
-  }
+  if (form) form.style.display = 'block';
 }
 function hideTimesheetCommentForm(projectId) {
   const form = $('ts-comment-form-' + projectId);
   if (form) form.style.display = 'none';
 }
-
 async function saveTimesheetComment(projectId) {
-  if (!state.currentTsEntry) return;
-  const text = $('ts-comment-text-' + projectId).value.trim();
-  if (!text) { toast('Введите текст комментария', 'warn'); return; }
-  const { empId, date } = state.currentTsEntry;
-  const key = getTimesheetKey(empId, date);
-  const existingEntry = state.timesheets[key] || { entries: [] };
-  const dt = nowDateTime();
-  let entry = existingEntry.entries.find(e => e.projectId === projectId);
-  if (!entry) {
-    entry = { projectId, projectTitle: '', clientName: '', hours: 0, comment: null, hoursEdited: false };
-    existingEntry.entries.push(entry);
-    const project = state.rows.find(r => r.id === projectId);
-    if (project) {
-      entry.projectTitle = getRequestTitle(project);
-      entry.clientName = getClientName(project);
-    }
-  }
-  const editHistory = entry.comment?.editHistory || [];
-  if (entry.comment) {
-    editHistory.push({
-      action: 'Редактирование', text: entry.comment.text,
-      date: entry.comment.editedAt || entry.comment.createdAt,
-      time: entry.comment.editedTime || entry.comment.createdTime
-    });
-  }
-  const isAlreadyEdited = entry.comment?.edited || false;
-  const newEditedFlag = (isAdmin() || isManager()) ? isAlreadyEdited : true;
-  entry.comment = {
-    text,
-    createdAt: entry.comment?.createdAt || dt.date,
-    createdTime: entry.comment?.createdTime || dt.time,
-    author: entry.comment?.author || getCurrentUserDisplayName(),
-    edited: newEditedFlag,
-    editedAt: dt.date,
-    editedTime: dt.time,
-    editedBy: getCurrentUserDisplayName(),
-    editHistory
-  };
-  await saveTimesheetToFirebase(key, { empId, date, entries: existingEntry.entries, updatedAt: today() });
-  state.timesheets[key] = { empId, date, entries: existingEntry.entries, updatedAt: today() };
-  hideTimesheetCommentForm(projectId);
-  openTimesheetEntry(empId, date);
+  // Оставлено для совместимости. Актуальная логика — в saveTimesheetEntry.
+  await saveTimesheetEntry();
 }
 
 function updateTimesheetTotal() {
@@ -3140,32 +3094,77 @@ function updateTimesheetTotal() {
   $('tsEntryTotal').textContent = total.toFixed(1);
 }
 
+// ============================================================
+// ИСПРАВЛЕНО: saveTimesheetEntry — сохраняет часы И комментарии одной кнопкой.
+// ============================================================
 async function saveTimesheetEntry() {
   if (!state.currentTsEntry) return;
   const { empId, date } = state.currentTsEntry;
   const key = getTimesheetKey(empId, date);
-  const inputs = document.querySelectorAll('#tsEntryList input[type="number"]');
   const existingEntry = state.timesheets[key] || { entries: [] };
   const entries = [];
-  inputs.forEach(input => {
+
+  document.querySelectorAll('#tsEntryList input[type="number"]').forEach(input => {
     const projectId = input.dataset.projectId;
     const hours = parseFloat(input.value) || 0;
     const existingForProject = existingEntry.entries.find(e => e.projectId === projectId);
     const existingComment = existingForProject?.comment || null;
     const existingHoursEdited = existingForProject?.hoursEdited || false;
-    if (hours > 0 || existingComment) {
+
+    const textarea = document.querySelector('#tsEntryList textarea[data-comment-project="' + projectId + '"]');
+    const newCommentText = textarea ? textarea.value.trim() : '';
+    const hasComment = newCommentText.length > 0;
+
+    if (hours > 0 || hasComment) {
       const project = state.rows.find(r => r.id === projectId);
+      let finalComment = existingComment;
+      const dt = nowDateTime();
+
+      if (hasComment) {
+        const isAlreadyEdited = existingComment?.edited || false;
+        const textChanged = existingComment && existingComment.text !== newCommentText;
+        const newEditedFlag = (isAdmin() || isManager())
+          ? (isAlreadyEdited || textChanged)
+          : true;
+
+        const editHistory = existingComment?.editHistory || [];
+        if (textChanged) {
+          editHistory.push({
+            action: 'Редактирование',
+            text: existingComment.text,
+            date: existingComment.editedAt || existingComment.createdAt,
+            time: existingComment.editedTime || existingComment.createdTime
+          });
+        }
+
+        finalComment = {
+          text: newCommentText,
+          createdAt: existingComment?.createdAt || dt.date,
+          createdTime: existingComment?.createdTime || dt.time,
+          author: existingComment?.author || getCurrentUserDisplayName(),
+          edited: newEditedFlag,
+          editedAt: dt.date,
+          editedTime: dt.time,
+          editedBy: getCurrentUserDisplayName(),
+          editHistory
+        };
+      } else {
+        if (existingComment) finalComment = null;
+      }
+
       const newHoursEdited = existingHoursEdited || (!isAdmin() && !isManager() && hours > 0);
+
       entries.push({
         projectId,
         projectTitle: project ? getRequestTitle(project) : 'Неизвестно',
         clientName: project ? getClientName(project) : '',
         hours,
-        comment: existingComment,
+        comment: finalComment,
         hoursEdited: newHoursEdited
       });
     }
   });
+
   if (entries.length === 0) {
     await fbDelete('timesheets', key);
     delete state.timesheets[key];
@@ -3176,6 +3175,7 @@ async function saveTimesheetEntry() {
   }
   closeTimesheetEntryModal();
   renderTimesheet();
+  toast('✅ Сохранено', 'success');
 }
 
 function closeTimesheetEntryModal() {
@@ -3456,7 +3456,6 @@ function renderCalendarList(year, month, events) {
     const end = e.endDate ? parseDate(e.endDate) : start;
     const current = new Date(start);
     while (current <= end) {
-      // ИСПРАВЛЕНО: локальная дата вместо toISOString
       const ds = dateToLocalString(current);
       if (current.getFullYear() === year && current.getMonth() === month) {
         if (!dateMap[ds]) dateMap[ds] = [];
@@ -3774,13 +3773,10 @@ async function saveAdminUser() {
   } else {
     if (!password || password.length < 6) { toast('Пароль минимум 6 символов', 'warn'); return; }
     try {
-      // ВАЖНО: createUserWithEmailAndPassword перезаписывает текущую сессию.
-      // Мы не можем это обойти на клиенте. Поэтому предупреждаем админа.
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, 'users', cred.user.uid), {
         uid: cred.user.uid, email, name, role, active: true, createdAt: today()
       });
-      // После создания текущий пользователь разлогинен — придётся перезайти.
       toast('⚠️ Пользователь создан. Вы вышли из аккаунта — войдите снова.', 'warn', 8000);
     } catch (e) {
       let msg = 'Ошибка создания';
