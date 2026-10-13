@@ -4201,7 +4201,7 @@ function renderAdminUsers() {
       '<div class="user-actions">' +
         '<button class="btn-edit" data-action="edit-admin-user" data-id="' + user.id + '">✏️</button>' +
         (!isCurrentUser ? '<button class="btn-toggle" data-action="toggle-admin-user" data-id="' + user.id + '">' + (isInactive ? '✅' : '⏸️') + '</button>' : '') +
-        (!isCurrentUser ? '<button class="btn-delete" data-action="delete-admin-user" data-id="' + user.id + '" data-name="' + escapeHtml(user.name || user.email) + '">🗑️</button>' : '') +
+        (!isCurrentUser && user.role !== 'admin' ? '<button class="btn-delete" data-action="delete-admin-user" data-id="' + user.id + '" data-name="' + escapeHtml(user.name || user.email) + '">🗑️</button>' : '') +
       '</div>' +
     '</div>';
   }).join('');
@@ -4281,13 +4281,18 @@ async function toggleAdminUser(userId) {
 async function deleteAdminUser(userId, userName) {
   if (!isAdmin()) { toast('Только администратор', 'error'); return; }
   if (userId === state.currentUser.uid) { toast('Нельзя удалить себя', 'warn'); return; }
+  // Администраторов удалять нельзя — только смена роли через ✏️
+  const targetUser = state.allUsers.find(u => u.id === userId);
+  if (targetUser && targetUser.role === 'admin') {
+    toast('Администраторов удалять нельзя. Смените роль через ✏️ на «Менеджер» или «Исполнитель».', 'warn', 5000);
+    return;
+  }
   if (!await confirmDialog('Удалить пользователя "' + userName + '"?\n\n⚠️ Аккаунт в Firebase Auth останется — удалите его вручную в консоли Firebase.', 'Удаление пользователя')) return;
   await fbDelete('users', userId);
   toast('✅ Профиль удалён из базы', 'success');
   await loadAllUsers();
   renderAdminUsers();
 }
-
 // ============================================================
 // 36. ОЧИСТКА ТАБЕЛЯ ПРИ УДАЛЕНИИ
 // ============================================================
