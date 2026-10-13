@@ -611,11 +611,12 @@ td input:focus { border-color: #888; background: white; outline: none; }
       <button class="tab" id="tabRequestArchive" data-rtab="archive">📦 Архив <span class="count" id="requestArchiveCount">0</span></button>
     </div>
     <div class="toolbar">
-      <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
-      <button id="btnAddRequest">+ Добавить заявку</button>
-      <button class="export-btn" id="btnExportRequests">📤 Экспорт</button>
-      <span id="requestInfo" class="muted"></span>
-    </div>
+  <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
+  <select id="requestStatusFilter"><option value="">Все статусы</option><option>Новая</option><option>Торги</option><option>Договор</option></select>
+  <button id="btnAddRequest">+ Добавить заявку</button>
+  <button class="export-btn" id="btnExportRequests">📤 Экспорт</button>
+  <span id="requestInfo" class="muted"></span>
+</div>
     <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:110px;">Действия</th></tr></thead><tbody id="requestsTbody"></tbody></table>
   </div>
   <div id="baseView" style="display:none;">
@@ -1878,6 +1879,7 @@ function render() {
 // ============================================================
 function renderRequests() {
   const q = $('requestSearch').value.trim().toLowerCase();
+  const sf = $('requestStatusFilter').value;
   const tbody = $('requestsTbody');
   tbody.innerHTML = '';
 
@@ -1892,10 +1894,10 @@ function renderRequests() {
     requests: c.requests.filter(r => {
       if (state.currentRequestView === 'active' && r.archived) return false;
       if (state.currentRequestView === 'archive' && !r.archived) return false;
+      if (sf && r.status !== sf) return false;
       return true;
     })
   })).filter(c => c.requests.length > 0);
-
   const visible = list.filter(c => {
     if (!q) return true;
     const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase();
@@ -4721,9 +4723,10 @@ function bindUI() {
   $('search').addEventListener('input', debounce(render, 250));
   $('statusFilter').addEventListener('change', render);
 
-  $('btnAddRequest').addEventListener('click', addRequest);
+$('btnAddRequest').addEventListener('click', addRequest);
   $('btnExportRequests').addEventListener('click', exportRequestsCSV);
   $('requestSearch').addEventListener('input', debounce(renderRequests, 250));
+  $('requestStatusFilter').addEventListener('change', renderRequests);
 
   $('baseSearch').addEventListener('input', debounce(renderBase, 250));
 
