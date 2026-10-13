@@ -1535,8 +1535,13 @@ function updateUIPermissions() {
   if (btnAddRequest) btnAddRequest.style.display = isExec ? 'none' : 'inline-block';
   const btnStages = $('btnStagesModal');
   if (btnStages) btnStages.style.display = isExec ? 'none' : 'inline-block';
+  // Скрываем кнопку «+ Добавить сотрудника» для исполнителя
+  const btnShowAddEmployee = $('btnShowAddEmployee');
+  if (btnShowAddEmployee) btnShowAddEmployee.style.display = isExec ? 'none' : 'inline-block';
+  // На всякий случай скрываем и саму форму добавления
+  const addEmployeeForm = $('addEmployeeForm');
+  if (addEmployeeForm && isExec) addEmployeeForm.style.display = 'none';
 }
-
 // ============================================================
 // 16. ПОКАЗ / СКРЫТИЕ ПРИЛОЖЕНИЯ
 // ============================================================
@@ -2679,6 +2684,7 @@ function showAddEmployeeForm() {
 function hideAddEmployeeForm() { $('addEmployeeForm').style.display = 'none'; }
 
 async function addEmployee() {
+  if (isExecutor()) { toast('Только администратор или менеджер может добавлять сотрудников', 'error'); return; }
   const name = $('newEmployeeName').value.trim();
   const position = $('newEmployeePosition').value.trim();
   if (!name) { toast('Введите имя сотрудника', 'warn'); return; }
