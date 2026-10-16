@@ -30,6 +30,8 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .requests-cell .req-date { flex-shrink: 0; font-size: 12px; color: #666; min-width: 80px; }
 .requests-cell .req-title { flex: 1; word-break: break-word; }
 .requests-cell .req-status { flex-shrink: 0; font-size: 12px; color: #555; background: #f0f0f0; padding: 1px 6px; border-radius: 10px; white-space: nowrap; }
+.requests-cell .req-responsible { flex-shrink: 0; font-size: 12px; color: #004a99; background: #e3f0ff; padding: 1px 8px; border-radius: 10px; white-space: nowrap; font-weight: bold; }
+.requests-cell .req-responsible.empty { color: #999; background: #f0f0f0; font-weight: normal; font-style: italic; }
 .requests-cell .req-actions { flex-shrink: 0; display: flex; gap: 4px; }
 .requests-cell .req-action-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
 .requests-cell .req-action-btn:hover { background: #e3f2fd; }
@@ -1666,10 +1668,15 @@ function render() {
         const badgeHtml = project ? getProjectBadgeHtml(project) : (() => { const b = getDeadlineBadge(r.endDate, r.date); return '<span class="req-days ' + b.cls + '">' + escapeHtml(b.text) + '</span>'; })();
         const unread = countUnreadTasksForProject(r.id);
         const notifHtml = unread > 0 ? '<span class="notif-badge" title="Новых задач: ' + unread + '">🔔 ' + unread + '</span>' : '';
+        const responsible = (project && project.responsible) ? project.responsible : '';
+        const respHtml = responsible
+          ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
+          : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
         return '<div class="req-line" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
           badgeHtml +
           '<span class="req-date">' + escapeHtml(r.date) + '</span>' +
           '<span class="req-title">' + escapeHtml(r.title) + notifHtml + '</span>' +
+          respHtml +
           (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') +
           actionsHtml + '</div>';
       }).join('');
@@ -1737,10 +1744,16 @@ function renderRequests() {
             (isAdmin() ? '<button class="req-action-btn delete" data-action="delete-all-requests-of-client" data-client="' + escapeHtml(c.name) + '" title="Удалить">🗑️</button>' : '') +
             '</div>';
         }
+          const lead = state.leads.find(x => x.id === l.id);
+        const responsible = (lead && lead.responsible) ? lead.responsible : '';
+        const respHtml = responsible
+          ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
+          : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
         return '<div class="req-line" data-action="open-request" data-id="' + l.id + '" data-type="request">' +
           '<span class="req-days neutral">' + days + '</span>' +
           '<span class="req-date">' + escapeHtml(l.date) + '</span>' +
           '<span class="req-title">' + escapeHtml(l.title) + '</span>' +
+          respHtml +
           (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') +
           actionsHtml + '</div>';
       }).join('');
