@@ -598,6 +598,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
     <div class="toolbar">
       <input id="search" placeholder="Поиск..." style="width: 280px">
       <select id="statusFilter"><option value="">Все статусы</option><option>Ждем аванс</option><option>Производство</option><option>Гарантия</option><option>Доплата</option><option>Отгрузка</option><option>ПНР</option><option>Документы</option></select>
+<select id="managerFilter"><option value="">Все менеджеры</option><option value="__none__">— Не назначен —</option></select>
       <button id="btnAddProject">+ Добавить заказ</button>
       <button class="export-btn" id="btnExportProjects">📤 Экспорт</button>
       <button class="import-btn" id="btnImportProjects">📥 Импорт</button>
@@ -614,6 +615,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
     <div class="toolbar">
   <input id="requestSearch" placeholder="Поиск..." style="width: 280px">
   <select id="requestStatusFilter"><option value="">Все статусы</option><option>Новая</option><option>Торги</option><option>Договор</option></select>
+<select id="requestManagerFilter"><option value="">Все менеджеры</option><option value="__none__">— Не назначен —</option></select>
   <button id="btnAddRequest">+ Добавить заявку</button>
   <button class="export-btn" id="btnExportRequests">📤 Экспорт</button>
   <span id="requestInfo" class="muted"></span>
@@ -1401,6 +1403,8 @@ function showApp() {
   $('adminPanelView').style.display = 'none';
   $('loadingOverlay').style.display = 'flex';
   setupRealtimeListeners();
+fillManagerFilter();
+  fillRequestManagerFilter();
   if (isExecutor() && !canViewTab(state.currentNavView)) switchNavView('dashboard');
   else switchNavView(state.currentNavView);
   setTimeout(() => { $('loadingOverlay').style.display = 'none'; }, 800);
@@ -1483,6 +1487,8 @@ function setupRealtimeListeners() {
     if (state.currentEmployeeId) renderEmployeeProjects(state.currentEmployeeId);
     if (state.currentProductionRequest) renderProduction();
     if (state.currentViewRequest && state.currentViewType) refreshViewModalResponsibleSelect();
+fillManagerFilter();
+    fillRequestManagerFilter();
     if (state.currentNavView === 'calendar') { fillCalendarEmployeeFilter(); renderCalendar(); }
     if (state.currentNavView === 'timesheet') { fillTimesheetEmployeeFilter(); renderTimesheet(); }
     if (state.currentNavView === 'dashboard') renderDashboard();
@@ -1606,6 +1612,7 @@ function getBaseList() {
 function render() {
   const q = $('search').value.trim().toLowerCase();
   const sf = $('statusFilter').value;
+const mf = $('managerFilter').value;
   const tbody = $('tbody');
   tbody.innerHTML = '';
 
@@ -1621,10 +1628,15 @@ function render() {
       if (state.currentView === 'active' && r.archived) return false;
       if (state.currentView === 'archive' && !r.archived) return false;
       if (sf && r.status !== sf) return false;
+      if (mf) {
+        const project = state.rows.find(x => x.id === r.id);
+        const resp = (project && project.responsible) ? project.responsible : '';
+        if (mf === '__none__') { if (resp) return false; }
+        else { if (resp !== mf) return false; }
+      }
       return true;
     })
   })).filter(c => c.requests.length > 0);
-
   list.sort((a,b) => {
     const da = a.requests.length ? a.requests[0].date : '';
     const db_ = b.requests.length ? b.requests[0].date : '';
@@ -1692,6 +1704,7 @@ function render() {
 function renderRequests() {
   const q = $('requestSearch').value.trim().toLowerCase();
   const sf = $('requestStatusFilter').value;
+const mf = $('requestManagerFilter').value;
   const tbody = $('requestsTbody');
   tbody.innerHTML = '';
 
@@ -1701,16 +1714,21 @@ function renderRequests() {
   $('requestActiveCount').textContent = act;
   $('requestArchiveCount').textContent = arc;
 
-  list = list.map(c => ({
+list = list.map(c => ({
     ...c,
     requests: c.requests.filter(r => {
       if (state.currentRequestView === 'active' && r.archived) return false;
       if (state.currentRequestView === 'archive' && !r.archived) return false;
       if (sf && r.status !== sf) return false;
+      if (mf) {
+        const lead = state.leads.find(x => x.id === r.id);
+        const resp = (lead && lead.responsible) ? lead.responsible : '';
+        if (mf === '__none__') { if (resp) return false; }
+        else { if (resp !== mf) return false; }
+      }
       return true;
     })
   })).filter(c => c.requests.length > 0);
-
   const visible = list.filter(c => {
     if (!q) return true;
     const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase();
@@ -3380,7 +3398,33 @@ function renderTimesheet() {
   html += '</tbody></table>';
   container.innerHTML = html;
 }
+function fillManagerFilter() {
+  const sel = $('managerFilter');
+  if (!sel) return;
+  const currentValue = sel.value;
+  sel.innerHTML = '<option value="">Все менеджеры</option><option value="__none__">— Не назначен —</option>';
+  state.employees.forEach(emp => {
+    const opt = document.createElement('option');
+    opt.value = emp.name;
+    opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
+    sel.appendChild(opt);
+  });
+  sel.value = currentValue;
+}
 
+function fillRequestManagerFilter() {
+  const sel = $('requestManagerFilter');
+  if (!sel) return;
+  const currentValue = sel.value;
+  sel.innerHTML = '<option value="">Все менеджеры</option><option value="__none__">— Не назначен —</option>';
+  state.employees.forEach(emp => {
+    const opt = document.createElement('option');
+    opt.value = emp.name;
+    opt.textContent = emp.name + (emp.position ? ' (' + emp.position + ')' : '');
+    sel.appendChild(opt);
+  });
+  sel.value = currentValue;
+}
 function fillCalendarEmployeeFilter() {
   const sel = $('calEmployeeFilter');
   const currentValue = sel.value;
@@ -4319,11 +4363,13 @@ function bindUI() {
   $('importFile').addEventListener('change', importCSV);
   $('search').addEventListener('input', debounce(render, 250));
   $('statusFilter').addEventListener('change', render);
+$('managerFilter').addEventListener('change', render);
 
   $('btnAddRequest').addEventListener('click', addRequest);
   $('btnExportRequests').addEventListener('click', exportRequestsCSV);
   $('requestSearch').addEventListener('input', debounce(renderRequests, 250));
   $('requestStatusFilter').addEventListener('change', renderRequests);
+$('requestManagerFilter').addEventListener('change', renderRequests);
 
   $('baseSearch').addEventListener('input', debounce(renderBase, 250));
 
