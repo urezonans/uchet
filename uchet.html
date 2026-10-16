@@ -1277,9 +1277,6 @@ async function migrateProjectStatuses() {
   for (const r of state.rows) {
     if (mapping[r.status]) { r.status = mapping[r.status]; await saveRequestToFirebase(r.id, r, 'requests'); migratedCount++; }
   }
-  for (const l of state.leads) {
-    if (mapping[l.status]) { l.status = mapping[l.status]; await saveRequestToFirebase(l.id, l, 'leads'); migratedCount++; }
-  }
   if (migratedCount > 0) {
     state.unsubscribers.forEach(u => { if (typeof u === 'function') u(); });
     state.unsubscribers = [];
@@ -1290,7 +1287,6 @@ async function migrateProjectStatuses() {
   }
   return migratedCount;
 }
-
 function showAuthError(msg) {
   const el = $('authError');
   el.textContent = msg;
@@ -2113,15 +2109,7 @@ function fillStatusSelect(type, currentStatus) {
     if (s === currentStatus) opt.selected = true;
     sel.appendChild(opt);
   });
-  if (currentStatus && !statuses.includes(currentStatus)) {
-    const opt = document.createElement('option');
-    opt.value = currentStatus;
-    opt.textContent = currentStatus + ' (старый)';
-    opt.selected = true;
-    sel.insertBefore(opt, sel.firstChild);
-  }
 }
-
 async function openRequestView(id, type) {
   const list = type === 'project' ? state.rows : state.leads;
   let item = list.find(r => r.id === id);
@@ -4192,6 +4180,7 @@ async function importCSV(event) {
   reader.readAsText(file, 'UTF-8');
 }
 window.state = state;
+
 
 document.addEventListener('click', async (e) => {
   const closeBtn = e.target.closest('[data-close]');
