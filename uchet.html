@@ -4180,20 +4180,6 @@ async function importCSV(event) {
   reader.readAsText(file, 'UTF-8');
 }
 window.state = state;
-window.__fixLeadStatuses = async function() {
-  const valid = ['Новая', 'Торги', 'Договор'];
-  let fixed = 0;
-  for (const l of state.leads) {
-    if (!valid.includes(l.status)) {
-      l.status = 'Новая';
-      await saveRequestToFirebase(l.id, l, 'leads');
-      fixed++;
-    }
-  }
-  console.log('✅ Исправлено заявок:', fixed);
-  if (fixed > 0) { renderRequests(); renderDashboard(); }
-  return fixed;
-};
 
 document.addEventListener('click', async (e) => {
   const closeBtn = e.target.closest('[data-close]');
