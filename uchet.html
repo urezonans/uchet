@@ -28,7 +28,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .requests-cell .req-days.ok { background: #5cb85c; }
 .requests-cell .req-days.neutral { background: #888; }
 .requests-cell .req-date { flex-shrink: 0; font-size: 12px; color: #666; min-width: 80px; }
-.requests-cell .req-title { flex: 1; word-break: break-word; }
+.requests-cell .req-title { flex: 1; word-break: break-word; font-size: 13px; }
 .requests-cell .req-status { flex-shrink: 0; font-size: 12px; color: #555; background: #f0f0f0; padding: 1px 6px; border-radius: 10px; white-space: nowrap; }
 .requests-cell .req-responsible { flex-shrink: 0; font-size: 12px; color: #004a99; background: #e3f0ff; padding: 1px 8px; border-radius: 10px; white-space: nowrap; font-weight: bold; }
 .requests-cell .req-responsible.empty { color: #999; background: #f0f0f0; font-weight: normal; font-style: italic; }
@@ -36,6 +36,10 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .requests-cell .req-action-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
 .requests-cell .req-action-btn:hover { background: #e3f2fd; }
 .requests-cell .req-action-btn.delete:hover { background: #ffebee; }
+.req-money { flex-shrink: 0; font-size: 12px; color: #333; min-width: 100px; text-align: right; font-variant-numeric: tabular-nums; }
+.req-money.paid { color: #2e7d32; }
+.req-money.remain { color: #c9302c; font-weight: bold; }
+.req-money.empty { color: #bbb; }
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 999; overflow: auto; }
 .modal { background: #fff; max-width: 880px; margin: 30px auto; padding: 18px; border-radius: 10px; }
 .modal-large { max-width: 1100px; }
@@ -598,14 +602,14 @@ td input:focus { border-color: #888; background: white; outline: none; }
     <div class="toolbar">
       <input id="search" placeholder="Поиск..." style="width: 280px">
       <select id="statusFilter"><option value="">Все статусы</option><option>Ждем аванс</option><option>Производство</option><option>Гарантия</option><option>Доплата</option><option>Отгрузка</option><option>ПНР</option><option>Документы</option></select>
-<select id="managerFilter"><option value="">Все менеджеры</option><option value="__none__">— Не назначен —</option></select>
+      <select id="managerFilter"><option value="">Все менеджеры</option><option value="__none__">— Не назначен —</option></select>
       <button id="btnAddProject">+ Добавить заказ</button>
       <button class="export-btn" id="btnExportProjects">📤 Экспорт</button>
       <button class="import-btn" id="btnImportProjects">📥 Импорт</button>
       <input type="file" id="importFile" accept=".csv" style="display:none;">
       <span id="info" class="muted"></span>
     </div>
-    <table><thead><tr><th style="width:200px;">Клиент</th><th>Заказы</th></tr></thead><tbody id="tbody"></tbody></table>
+    <table><thead><tr><th style="width:200px;">Клиент</th><th>Заказы</th><th style="width:120px;text-align:right;">Стоимость<br><span id="sumCostProjects" style="font-weight:normal;font-size:12px;color:#666;">0 ₽</span></th><th style="width:120px;text-align:right;">Оплачено<br><span id="sumPaidProjects" style="font-weight:normal;font-size:12px;color:#666;">0 ₽</span></th><th style="width:120px;text-align:right;">Остаток<br><span id="sumRemainProjects" style="font-weight:normal;font-size:12px;color:#666;">0 ₽</span></th></tr></thead><tbody id="tbody"></tbody></table>
   </div>
   <div id="requestsView" style="display:none;">
     <div class="tabs">
@@ -620,7 +624,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
   <button class="export-btn" id="btnExportRequests">📤 Экспорт</button>
   <span id="requestInfo" class="muted"></span>
 </div>
-    <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th></tr></thead><tbody id="requestsTbody"></tbody></table>
+    <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:120px;text-align:right;">Стоимость<br><span id="sumCostRequests" style="font-weight:normal;font-size:12px;color:#666;">0 ₽</span></th></tr></thead><tbody id="requestsTbody"></tbody></table>
   </div>
   <div id="baseView" style="display:none;">
     <div class="toolbar"><input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px"><span id="baseInfo" class="muted"></span></div>
@@ -714,6 +718,10 @@ td input:focus { border-color: #888; background: white; outline: none; }
       <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
       <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"></select></div></div>
       <div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
+      <div class="view-info-item" id="viewCostBlock"><label>Стоимость, ₽</label><div class="value"><input type="number" id="viewCost" min="0" step="0.01" placeholder="0"></div></div>
+      <div class="view-info-item" id="viewPaidBlock" style="display:none;"><label>Оплачено, ₽</label><div class="value"><input type="number" id="viewPaid" min="0" step="0.01" placeholder="0"></div></div>
+      <div class="view-info-item" id="viewRemainBlock" style="display:none;"><label>Остаток, ₽</label><div class="value"><span id="viewRemain" style="font-weight:bold;color:#c9302c;">0</span></div></div>
+      <div class="view-info-item" id="viewPaidDateBlock" style="display:none;"><label>Дата оплаты</label><div class="value"><input type="date" id="viewPaidDate"></div></div>
       <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
     </div>
     <div id="projectExecutorsBlock" style="display:none;" class="project-executors">
@@ -1249,16 +1257,11 @@ async function migrateAuthorNames() {
       getDocs(collection(db, 'tasks')),
       getDocs(collection(db, 'timesheets'))
     ]);
-    state.rows = [];
-    reqSnap.forEach(d => state.rows.push({ id: d.id, ...d.data() }));
-    state.leads = [];
-    leadSnap.forEach(d => state.leads.push({ id: d.id, ...d.data() }));
-    state.clients = {};
-    clientSnap.forEach(d => { state.clients[d.id] = d.data(); });
-    state.tasks = {};
-    taskSnap.forEach(d => { state.tasks[d.id] = d.data().tasks || []; });
-    state.timesheets = {};
-    tsSnap.forEach(d => { state.timesheets[d.id] = d.data(); });
+    state.rows = []; reqSnap.forEach(d => state.rows.push({ id: d.id, ...d.data() }));
+    state.leads = []; leadSnap.forEach(d => state.leads.push({ id: d.id, ...d.data() }));
+    state.clients = {}; clientSnap.forEach(d => { state.clients[d.id] = d.data(); });
+    state.tasks = {}; taskSnap.forEach(d => { state.tasks[d.id] = d.data().tasks || []; });
+    state.timesheets = {}; tsSnap.forEach(d => { state.timesheets[d.id] = d.data(); });
     state.unsubscribers.forEach(u => { if (typeof u === 'function') u(); });
     state.unsubscribers = [];
     setupRealtimeListeners();
@@ -1399,7 +1402,7 @@ function showApp() {
   $('adminPanelView').style.display = 'none';
   $('loadingOverlay').style.display = 'flex';
   setupRealtimeListeners();
-fillManagerFilter();
+  fillManagerFilter();
   fillRequestManagerFilter();
   if (isExecutor() && !canViewTab(state.currentNavView)) switchNavView('dashboard');
   else switchNavView(state.currentNavView);
@@ -1483,7 +1486,7 @@ function setupRealtimeListeners() {
     if (state.currentEmployeeId) renderEmployeeProjects(state.currentEmployeeId);
     if (state.currentProductionRequest) renderProduction();
     if (state.currentViewRequest && state.currentViewType) refreshViewModalResponsibleSelect();
-fillManagerFilter();
+    fillManagerFilter();
     fillRequestManagerFilter();
     if (state.currentNavView === 'calendar') { fillCalendarEmployeeFilter(); renderCalendar(); }
     if (state.currentNavView === 'timesheet') { fillTimesheetEmployeeFilter(); renderTimesheet(); }
@@ -1608,9 +1611,11 @@ function getBaseList() {
 function render() {
   const q = $('search').value.trim().toLowerCase();
   const sf = $('statusFilter').value;
-const mf = $('managerFilter').value;
+  const mf = $('managerFilter').value;
   const tbody = $('tbody');
   tbody.innerHTML = '';
+
+  let sumCost = 0, sumPaid = 0, sumRemain = 0;
 
   let list = getClientList();
   let act = 0, arc = 0;
@@ -1633,6 +1638,7 @@ const mf = $('managerFilter').value;
       return true;
     })
   })).filter(c => c.requests.length > 0);
+  
   list.sort((a,b) => {
     const da = a.requests.length ? a.requests[0].date : '';
     const db_ = b.requests.length ? b.requests[0].date : '';
@@ -1680,13 +1686,26 @@ const mf = $('managerFilter').value;
         const respHtml = responsible
           ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
           : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
+        
+        const cost = project ? Number(project.cost || 0) : 0;
+        const paid = project ? Number(project.paid || 0) : 0;
+        const remain = Math.max(0, cost - paid);
+        sumCost += cost;
+        sumPaid += paid;
+        sumRemain += remain;
+        const fmt = v => v > 0 ? v.toLocaleString('ru-RU') + ' ₽' : '—';
+
         return '<div class="req-line" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
           badgeHtml +
           '<span class="req-date">' + escapeHtml(r.date) + '</span>' +
           '<span class="req-title">' + escapeHtml(r.title) + notifHtml + '</span>' +
           respHtml +
           (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') +
-          actionsHtml + '</div>';
+          actionsHtml +
+          '<span class="req-money">' + fmt(cost) + '</span>' +
+          '<span class="req-money paid">' + fmt(paid) + '</span>' +
+          '<span class="req-money remain">' + fmt(remain) + '</span>' +
+          '</div>';
       }).join('');
     } else {
       div.innerHTML = '<span class="muted">Нет заказов</span>';
@@ -1695,14 +1714,21 @@ const mf = $('managerFilter').value;
     tr.appendChild(td2);
     tbody.appendChild(tr);
   });
+
+  const fmtSum = v => v.toLocaleString('ru-RU') + ' ₽';
+  if ($('sumCostProjects')) $('sumCostProjects').textContent = fmtSum(sumCost);
+  if ($('sumPaidProjects')) $('sumPaidProjects').textContent = fmtSum(sumPaid);
+  if ($('sumRemainProjects')) $('sumRemainProjects').textContent = fmtSum(sumRemain);
 }
 
 function renderRequests() {
   const q = $('requestSearch').value.trim().toLowerCase();
   const sf = $('requestStatusFilter').value;
-const mf = $('requestManagerFilter').value;
+  const mf = $('requestManagerFilter').value;
   const tbody = $('requestsTbody');
   tbody.innerHTML = '';
+
+  let sumCost = 0;
 
   let list = getRequestList();
   let act = 0, arc = 0;
@@ -1710,7 +1736,7 @@ const mf = $('requestManagerFilter').value;
   $('requestActiveCount').textContent = act;
   $('requestArchiveCount').textContent = arc;
 
-list = list.map(c => ({
+  list = list.map(c => ({
     ...c,
     requests: c.requests.filter(r => {
       if (state.currentRequestView === 'active' && r.archived) return false;
@@ -1725,6 +1751,7 @@ list = list.map(c => ({
       return true;
     })
   })).filter(c => c.requests.length > 0);
+  
   const visible = list.filter(c => {
     if (!q) return true;
     const rt = c.requests.map(l => l.date + ' ' + l.title + ' ' + l.status).join(' ').toLowerCase();
@@ -1758,18 +1785,25 @@ list = list.map(c => ({
             (isAdmin() ? '<button class="req-action-btn delete" data-action="delete-all-requests-of-client" data-client="' + escapeHtml(c.name) + '" title="Удалить">🗑️</button>' : '') +
             '</div>';
         }
-          const lead = state.leads.find(x => x.id === l.id);
+        const lead = state.leads.find(x => x.id === l.id);
         const responsible = (lead && lead.responsible) ? lead.responsible : '';
         const respHtml = responsible
           ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
           : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
+        
+        const cost = lead ? Number(lead.cost || 0) : 0;
+        sumCost += cost;
+        const fmt = v => v > 0 ? v.toLocaleString('ru-RU') + ' ₽' : '—';
+
         return '<div class="req-line" data-action="open-request" data-id="' + l.id + '" data-type="request">' +
           '<span class="req-days neutral">' + days + '</span>' +
           '<span class="req-date">' + escapeHtml(l.date) + '</span>' +
           '<span class="req-title">' + escapeHtml(l.title) + '</span>' +
           respHtml +
           (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') +
-          actionsHtml + '</div>';
+          actionsHtml +
+          '<span class="req-money">' + fmt(cost) + '</span>' +
+          '</div>';
       }).join('');
     } else {
       div.innerHTML = '<span class="muted">Нет заявок</span>';
@@ -1778,6 +1812,9 @@ list = list.map(c => ({
     tr.appendChild(td2);
     tbody.appendChild(tr);
   });
+
+  const fmtSum = v => v.toLocaleString('ru-RU') + ' ₽';
+  if ($('sumCostRequests')) $('sumCostRequests').textContent = fmtSum(sumCost);
 }
 
 function renderBase() {
@@ -2001,7 +2038,8 @@ async function addRequestToClient(type) {
     id: uid(), date: today(), endDate: '', client: clientName, contact: '', title: '', request: '',
     comment: '', comments: [], priority: 'Средний',
     status: getDefaultStatusForType(isReq ? 'request' : 'project'),
-    responsible: '', archived: false, createdBy: getCurrentUserDisplayName()
+    responsible: '', archived: false, createdBy: getCurrentUserDisplayName(),
+    cost: 0, paid: 0, paidDate: ''
   };
   if (!isReq) {
     newItem.stages = state.globalStagesTemplate.length
@@ -2073,6 +2111,9 @@ async function convertRequestToProject(id) {
     ? state.globalStagesTemplate.map(s => ({ ...s, id: uid() }))
     : createDefaultStages();
   newProj.status = DEFAULT_PROJECT_STATUS;
+  newProj.cost = Number(req.cost || 0);
+  newProj.paid = Number(req.paid || 0);
+  newProj.paidDate = req.paidDate || '';
   await saveRequestToFirebase(newProj.id, newProj, 'requests');
   await deleteRequestFromFirebase(id, 'leads');
   toast('✅ Заявка конвертирована в заказ', 'success');
@@ -2110,6 +2151,7 @@ function fillStatusSelect(type, currentStatus) {
     sel.appendChild(opt);
   });
 }
+
 async function openRequestView(id, type) {
   const list = type === 'project' ? state.rows : state.leads;
   let item = list.find(r => r.id === id);
@@ -2179,7 +2221,33 @@ async function openRequestView(id, type) {
   fillResponsibleSelect();
   $('viewResponsible').value = item.responsible || '';
   $('viewComment').value = item.comment || '';
+
+  // Стоимость есть всегда
+  $('viewCost').value = item.cost ? String(item.cost) : '';
+  $('viewCostBlock').style.display = 'block';
+
+  // Оплата/Остаток/Дата — только для заказов
+  if (type === 'project') {
+    $('viewPaid').value = item.paid ? String(item.paid) : '';
+    $('viewPaidDate').value = item.paidDate || '';
+    const cost = Number(item.cost || 0);
+    const paid = Number(item.paid || 0);
+    const remain = Math.max(0, cost - paid);
+    $('viewRemain').textContent = remain.toLocaleString('ru-RU') + ' ₽';
+    $('viewPaidBlock').style.display = 'block';
+    $('viewRemainBlock').style.display = 'block';
+    $('viewPaidDateBlock').style.display = 'block';
+  } else {
+    $('viewPaidBlock').style.display = 'none';
+    $('viewRemainBlock').style.display = 'none';
+    $('viewPaidDateBlock').style.display = 'none';
+  }
+
   applyProjectFieldPermissions(id);
+  const canEditMoney = isAdmin();
+  $('viewCost').disabled = !canEditMoney;
+  $('viewPaid').disabled = !canEditMoney;
+  $('viewPaidDate').disabled = !canEditMoney;
   renderViewActions();
   renderComments();
   openModal('viewModal');
@@ -2243,6 +2311,17 @@ function refreshViewModal() {
   fillResponsibleSelect();
   $('viewResponsible').value = u.responsible || '';
   $('viewComment').value = u.comment || '';
+
+  $('viewCost').value = u.cost ? String(u.cost) : '';
+  if (state.currentViewType === 'project') {
+    $('viewPaid').value = u.paid ? String(u.paid) : '';
+    $('viewPaidDate').value = u.paidDate || '';
+    const cost = Number(u.cost || 0);
+    const paid = Number(u.paid || 0);
+    const remain = Math.max(0, cost - paid);
+    $('viewRemain').textContent = remain.toLocaleString('ru-RU') + ' ₽';
+  }
+
   if (state.currentViewType === 'project') {
     const dbadge = $('viewDaysBadge');
     if (isProjectCompleted(u)) {
@@ -3386,6 +3465,7 @@ function renderTimesheet() {
   html += '</tbody></table>';
   container.innerHTML = html;
 }
+
 function fillManagerFilter() {
   const sel = $('managerFilter');
   if (!sel) return;
@@ -3413,6 +3493,7 @@ function fillRequestManagerFilter() {
   });
   sel.value = currentValue;
 }
+
 function fillCalendarEmployeeFilter() {
   const sel = $('calEmployeeFilter');
   const currentValue = sel.value;
@@ -4021,7 +4102,7 @@ function formatContactPersonsForCSV(cps) {
 }
 
 function exportCSV() {
-  const headers = ['Клиент','Контактные лица','Статус срока','Дата поступления','Дата окончания','Наименование заказа','Статус заказа','Архив'];
+  const headers = ['Клиент','Контактные лица','Статус срока','Дата поступления','Дата окончания','Наименование заказа','Статус заказа','Архив','Стоимость','Оплачено','Остаток'];
   const list = getClientList();
   list.sort((a,b) => {
     const da = a.requests.length ? a.requests[0].date : '';
@@ -4033,13 +4114,18 @@ function exportCSV() {
     const card = state.clients[c.name] || {};
     const cpText = formatContactPersonsForCSV(card.contactPersons);
     if (!c.requests.length) {
-      lines.push([c.name, cpText, '', '', '', '', '', ''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
+      lines.push([c.name, cpText, '', '', '', '', '', '', '', '', ''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
     } else {
       c.requests.forEach((r, i) => {
         const b = getDeadlineBadge(r.endDate, r.date);
+        const proj = state.rows.find(x => x.id === r.id);
+        const cost = proj ? Number(proj.cost || 0) : 0;
+        const paid = proj ? Number(proj.paid || 0) : 0;
+        const remain = Math.max(0, cost - paid);
         lines.push([
           i===0 ? c.name : '', i===0 ? cpText : '', b.text,
-          r.date, r.endDate, r.title, r.status, r.archived ? 'Да' : ''
+          r.date, r.endDate, r.title, r.status, r.archived ? 'Да' : '',
+          cost, paid, remain
         ].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
       });
     }
@@ -4054,7 +4140,7 @@ function exportCSV() {
 }
 
 function exportRequestsCSV() {
-  const headers = ['Клиент','Контактные лица','Дата','Наименование заявки','Статус заявки','Архив'];
+  const headers = ['Клиент','Контактные лица','Дата','Наименование заявки','Статус заявки','Архив','Стоимость'];
   const list = getRequestList();
   list.sort((a,b) => {
     const da = a.requests.length ? a.requests[0].date : '';
@@ -4066,10 +4152,12 @@ function exportRequestsCSV() {
     const card = state.clients[c.name] || {};
     const cpText = formatContactPersonsForCSV(card.contactPersons);
     if (!c.requests.length) {
-      lines.push([c.name, cpText, '', '', '', ''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
+      lines.push([c.name, cpText, '', '', '', '', ''].map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
     } else {
       c.requests.forEach((l, i) => {
-        lines.push([i===0 ? c.name : '', i===0 ? cpText : '', l.date, l.title, l.status, l.archived ? 'Да' : '']
+        const lead = state.leads.find(x => x.id === l.id);
+        const cost = lead ? Number(lead.cost || 0) : 0;
+        lines.push([i===0 ? c.name : '', i===0 ? cpText : '', l.date, l.title, l.status, l.archived ? 'Да' : '', cost]
           .map(v => '"' + String(v ?? '').replaceAll('"','""') + '"').join(';'));
       });
     }
@@ -4125,6 +4213,8 @@ async function importCSV(event) {
         const ti = String(line[5]||'').trim();
         const st = String(line[6]||'').trim();
         const ar = String(line[7]||'').trim().toLowerCase() === 'да';
+        const cost = Number(line[8] || 0);
+        const paid = Number(line[9] || 0);
         const contactPersons = [];
         if (cpText) {
           cpText.split(';').forEach(part => {
@@ -4159,7 +4249,7 @@ async function importCSV(event) {
             id: uid(), date: dt || today(), endDate: ed || '',
             client: cn, contact: '', title: ti, request: '', comment: '',
             comments: [], priority: 'Средний', status: st || DEFAULT_PROJECT_STATUS,
-            responsible: '', archived: ar
+            responsible: '', archived: ar, cost: cost, paid: paid, paidDate: ''
           };
           np.stages = state.globalStagesTemplate.length
             ? state.globalStagesTemplate.map(s => ({ ...s, id: uid() }))
@@ -4351,13 +4441,13 @@ function bindUI() {
   $('importFile').addEventListener('change', importCSV);
   $('search').addEventListener('input', debounce(render, 250));
   $('statusFilter').addEventListener('change', render);
-$('managerFilter').addEventListener('change', render);
+  $('managerFilter').addEventListener('change', render);
 
   $('btnAddRequest').addEventListener('click', addRequest);
   $('btnExportRequests').addEventListener('click', exportRequestsCSV);
   $('requestSearch').addEventListener('input', debounce(renderRequests, 250));
   $('requestStatusFilter').addEventListener('change', renderRequests);
-$('requestManagerFilter').addEventListener('change', renderRequests);
+  $('requestManagerFilter').addEventListener('change', renderRequests);
 
   $('baseSearch').addEventListener('input', debounce(renderBase, 250));
 
@@ -4378,6 +4468,26 @@ $('requestManagerFilter').addEventListener('change', renderRequests);
   $('viewStatus').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('status', this.value); });
   $('viewResponsible').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('responsible', this.value); });
   $('viewComment').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('comment', this.value); });
+  
+  $('viewCost').addEventListener('input', function() {
+    if (!state.currentViewRequest || state.currentViewType !== 'project') return;
+    const cost = parseFloat(this.value) || 0;
+    const paid = parseFloat($('viewPaid').value) || 0;
+    const remain = Math.max(0, cost - paid);
+    $('viewRemain').textContent = remain.toLocaleString('ru-RU') + ' ₽';
+  });
+  $('viewCost').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('cost', parseFloat(this.value) || 0); });
+  
+  $('viewPaid').addEventListener('input', function() {
+    if (!state.currentViewRequest || state.currentViewType !== 'project') return;
+    const cost = parseFloat($('viewCost').value) || 0;
+    const paid = parseFloat(this.value) || 0;
+    const remain = Math.max(0, cost - paid);
+    $('viewRemain').textContent = remain.toLocaleString('ru-RU') + ' ₽';
+  });
+  $('viewPaid').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('paid', parseFloat(this.value) || 0); });
+  $('viewPaidDate').addEventListener('change', function() { if (state.currentViewRequest && state.currentViewType) updateViewField('paidDate', this.value); });
+  
   $('btnAddComment').addEventListener('click', addComment);
 
   $('btnSaveEmployeeChanges').addEventListener('click', saveEmployeeChanges);
@@ -4474,3 +4584,4 @@ window.__crm = {
 </script>
 </body>
 </html>
+
