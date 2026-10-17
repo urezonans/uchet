@@ -623,7 +623,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
   <button class="export-btn" id="btnExportRequests">📤 Экспорт</button>
   <span id="requestInfo" class="muted"></span>
 </div>
-  <table><thead><tr><th style="width:200px;">Клиент</th><th style="width:130px;text-align:right;">Стоимость<br><span id="sumCostRequests" style="font-weight:normal;font-size:12px;color:#666;">0 ₽</span></th><th>Заявки</th></tr></thead><tbody id="requestsTbody"></tbody></table>
+    <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:120px;text-align:right;">Стоимость<br><span id="sumCostRequests" style="font-weight:normal;font-size:12px;color:#666;">0 ₽</span></th></tr></thead><tbody id="requestsTbody"></tbody></table>
   </div>
   <div id="baseView" style="display:none;">
     <div class="toolbar"><input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px"><span id="baseInfo" class="muted"></span></div>
@@ -1762,7 +1762,7 @@ function renderRequests() {
   visible.forEach(c => {
     const tr = document.createElement('tr');
     
-    // 1. Ячейка с названием клиента
+    // 1. Клиент
     const td1 = document.createElement('td');
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -1773,21 +1773,7 @@ function renderRequests() {
     td1.appendChild(btn);
     tr.appendChild(td1);
 
-    // 2. Ячейка со стоимостью (теперь она вторая)
-    const tdMoney = document.createElement('td');
-    tdMoney.style.textAlign = 'right';
-    tdMoney.style.fontWeight = 'bold';
-    tdMoney.style.fontSize = '14px';
-    
-    // Сначала считаем общую сумму
-    c.requests.forEach(l => {
-      const lead = state.leads.find(x => x.id === l.id);
-      sumCost += lead ? Number(lead.cost || 0) : 0;
-    });
-    tdMoney.textContent = sumCost > 0 ? sumCost.toLocaleString('ru-RU') + ' ₽' : '—';
-    tr.appendChild(tdMoney);
-
-    // 3. Ячейка со списком заявок (теперь она третья)
+    // 2. Заявки
     const td2 = document.createElement('td');
     const div = document.createElement('div');
     div.className = 'requests-cell';
@@ -1821,6 +1807,23 @@ function renderRequests() {
     }
     td2.appendChild(div);
     tr.appendChild(td2);
+
+    // 3. Стоимость (в конце)
+    const tdMoney = document.createElement('td');
+    tdMoney.style.textAlign = 'right';
+    tdMoney.style.fontWeight = 'bold';
+    tdMoney.style.fontSize = '14px';
+    
+    let clientTotalCost = 0;
+    c.requests.forEach(l => {
+      const lead = state.leads.find(x => x.id === l.id);
+      clientTotalCost += lead ? Number(lead.cost || 0) : 0;
+    });
+    
+    sumCost += clientTotalCost; // Суммируем для итога в шапке
+    tdMoney.textContent = clientTotalCost > 0 ? clientTotalCost.toLocaleString('ru-RU') + ' ₽' : '—';
+    tr.appendChild(tdMoney);
+
     tbody.appendChild(tr);
   });
 
