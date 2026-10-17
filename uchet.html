@@ -19,7 +19,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .client-link { width: 100%; min-height: 28px; border: 1px dashed #b7d4ff; background: #f4f9ff; color: #004a99; cursor: pointer; text-align: left; padding: 6px 8px; border-radius: 4px; }
 .client-link:hover { background: #e3f0ff; }
 .requests-cell { max-height: 160px; overflow: auto; padding: 4px; }
-.requests-cell .req-line { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px dotted #eee; align-items: flex-start; cursor: pointer; transition: background 0.15s; border-radius: 4px; padding-left: 4px; padding-right: 4px; }
+.requests-cell .req-line { display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px dotted #eee; align-items: center; cursor: pointer; transition: background 0.15s; border-radius: 4px; padding-left: 4px; padding-right: 4px; min-width: 0; }
 .requests-cell .req-line:hover { background: #f0f7ff; }
 .requests-cell .req-line:last-child { border-bottom: none; }
 .requests-cell .req-days { flex-shrink: 0; font-size: 12px; color: #fff; background: #888; padding: 1px 6px; border-radius: 10px; white-space: nowrap; min-width: 40px; text-align: center; }
@@ -28,7 +28,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .requests-cell .req-days.ok { background: #5cb85c; }
 .requests-cell .req-days.neutral { background: #888; }
 .requests-cell .req-date { flex-shrink: 0; font-size: 12px; color: #666; min-width: 80px; }
-.requests-cell .req-title { flex: 1; word-break: break-word; font-size: 13px; }
+.requests-cell .req-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; }
 .requests-cell .req-status { flex-shrink: 0; font-size: 12px; color: #555; background: #f0f0f0; padding: 1px 6px; border-radius: 10px; white-space: nowrap; }
 .requests-cell .req-responsible { flex-shrink: 0; font-size: 12px; color: #004a99; background: #e3f0ff; padding: 1px 8px; border-radius: 10px; white-space: nowrap; font-weight: bold; }
 .requests-cell .req-responsible.empty { color: #999; background: #f0f0f0; font-weight: normal; font-style: italic; }
@@ -36,10 +36,9 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .requests-cell .req-action-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
 .requests-cell .req-action-btn:hover { background: #e3f2fd; }
 .requests-cell .req-action-btn.delete:hover { background: #ffebee; }
-.req-money { flex-shrink: 0; font-size: 12px; color: #333; min-width: 100px; text-align: right; font-variant-numeric: tabular-nums; }
+.req-money { flex-shrink: 0; font-size: 12px; color: #333; min-width: 90px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .req-money.paid { color: #2e7d32; }
 .req-money.remain { color: #c9302c; font-weight: bold; }
-.req-money.empty { color: #bbb; }
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 999; overflow: auto; }
 .modal { background: #fff; max-width: 880px; margin: 30px auto; padding: 18px; border-radius: 10px; }
 .modal-large { max-width: 1100px; }
@@ -718,10 +717,14 @@ td input:focus { border-color: #888; background: white; outline: none; }
       <div class="view-info-item" id="viewEndDateBlock"><label>Дата окончания</label><div class="value"><input type="date" id="viewEndDate"></div></div>
       <div class="view-info-item"><label>Статус</label><div class="value"><select id="viewStatus"></select></div></div>
       <div class="view-info-item"><label>Ответственный</label><div class="value"><select id="viewResponsible"><option value="">— Не назначен —</option></select></div></div>
-      <div class="view-info-item" id="viewCostBlock"><label>Стоимость, ₽</label><div class="value"><input type="number" id="viewCost" min="0" step="0.01" placeholder="0"></div></div>
-      <div class="view-info-item" id="viewPaidBlock" style="display:none;"><label>Оплачено, ₽</label><div class="value"><input type="number" id="viewPaid" min="0" step="0.01" placeholder="0"></div></div>
-      <div class="view-info-item" id="viewRemainBlock" style="display:none;"><label>Остаток, ₽</label><div class="value"><span id="viewRemain" style="font-weight:bold;color:#c9302c;">0</span></div></div>
-      <div class="view-info-item" id="viewPaidDateBlock" style="display:none;"><label>Дата оплаты</label><div class="value"><input type="date" id="viewPaidDate"></div></div>
+      <div class="view-info-item" id="viewCostBlock" style="grid-column: 1 / -1; display: flex; gap: 12px; background: transparent; padding: 0; margin-bottom: 0;">
+         <div style="flex: 1;"><label>Стоимость, ₽</label><div class="value"><input type="number" id="viewCost" min="0" step="0.01" placeholder="0"></div></div>
+         <div style="flex: 1;" id="viewPaidBlock"><label>Оплачено, ₽</label><div class="value"><input type="number" id="viewPaid" min="0" step="0.01" placeholder="0"></div></div>
+         <div style="flex: 1;" id="viewRemainBlock"><label>Остаток, ₽</label><div class="value" style="font-size: 20px; font-weight: bold; color: #c9302c; padding-top: 6px;"><span id="viewRemain">0 ₽</span></div></div>
+      </div>
+      <div class="view-info-item" id="viewPaidDateBlock" style="grid-column: span 1;">
+         <label>Дата оплаты</label><div class="value"><input type="date" id="viewPaidDate"></div>
+      </div>
       <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
     </div>
     <div id="projectExecutorsBlock" style="display:none;" class="project-executors">
@@ -2224,7 +2227,7 @@ async function openRequestView(id, type) {
 
   // Стоимость есть всегда
   $('viewCost').value = item.cost ? String(item.cost) : '';
-  $('viewCostBlock').style.display = 'block';
+  $('viewCostBlock').style.display = 'flex';
 
   // Оплата/Остаток/Дата — только для заказов
   if (type === 'project') {
