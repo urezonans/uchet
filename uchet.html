@@ -1690,13 +1690,13 @@ function render() {
           ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
           : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
         
+        // Считаем общие суммы для шапки
         const cost = project ? Number(project.cost || 0) : 0;
         const paid = project ? Number(project.paid || 0) : 0;
         const remain = Math.max(0, cost - paid);
         sumCost += cost;
         sumPaid += paid;
         sumRemain += remain;
-        const fmt = v => v > 0 ? v.toLocaleString('ru-RU') + ' ₽' : '—';
 
         return '<div class="req-line" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
           badgeHtml +
@@ -1705,9 +1705,6 @@ function render() {
           respHtml +
           (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') +
           actionsHtml +
-          '<span class="req-money">' + fmt(cost) + '</span>' +
-          '<span class="req-money paid">' + fmt(paid) + '</span>' +
-          '<span class="req-money remain">' + fmt(remain) + '</span>' +
           '</div>';
       }).join('');
     } else {
@@ -1723,7 +1720,6 @@ function render() {
   if ($('sumPaidProjects')) $('sumPaidProjects').textContent = fmtSum(sumPaid);
   if ($('sumRemainProjects')) $('sumRemainProjects').textContent = fmtSum(sumRemain);
 }
-
 function renderRequests() {
   const q = $('requestSearch').value.trim().toLowerCase();
   const sf = $('requestStatusFilter').value;
@@ -1794,9 +1790,9 @@ function renderRequests() {
           ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
           : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
         
+        // Считаем общую сумму для шапки
         const cost = lead ? Number(lead.cost || 0) : 0;
         sumCost += cost;
-        const fmt = v => v > 0 ? v.toLocaleString('ru-RU') + ' ₽' : '—';
 
         return '<div class="req-line" data-action="open-request" data-id="' + l.id + '" data-type="request">' +
           '<span class="req-days neutral">' + days + '</span>' +
@@ -1805,7 +1801,6 @@ function renderRequests() {
           respHtml +
           (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') +
           actionsHtml +
-          '<span class="req-money">' + fmt(cost) + '</span>' +
           '</div>';
       }).join('');
     } else {
@@ -1819,7 +1814,6 @@ function renderRequests() {
   const fmtSum = v => v.toLocaleString('ru-RU') + ' ₽';
   if ($('sumCostRequests')) $('sumCostRequests').textContent = fmtSum(sumCost);
 }
-
 function renderBase() {
   const q = $('baseSearch').value.trim().toLowerCase();
   const bl = $('baseList');
