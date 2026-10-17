@@ -36,7 +36,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
 .requests-cell .req-action-btn { background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
 .requests-cell .req-action-btn:hover { background: #e3f2fd; }
 .requests-cell .req-action-btn.delete:hover { background: #ffebee; }
-.req-money { flex-shrink: 0; font-size: 12px; color: #333; min-width: 90px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.req-money { flex-shrink: 0; font-size: 13px; color: #333; min-width: 90px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: normal; }
 .req-money.paid { color: #2e7d32; }
 .req-money.remain { color: #c9302c; font-weight: bold; }
 .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 999; overflow: auto; }
@@ -1690,14 +1690,16 @@ function render() {
           ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
           : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
         
-        // Считаем общие суммы для шапки
+        // Финансы
         const cost = project ? Number(project.cost || 0) : 0;
         const paid = project ? Number(project.paid || 0) : 0;
         const remain = Math.max(0, cost - paid);
         sumCost += cost;
         sumPaid += paid;
         sumRemain += remain;
+        const fmt = v => v > 0 ? v.toLocaleString('ru-RU') + ' ₽' : '—';
 
+        // Возвращаем вывод денег в строку (перед закрытием div)
         return '<div class="req-line" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
           badgeHtml +
           '<span class="req-date">' + escapeHtml(r.date) + '</span>' +
@@ -1705,6 +1707,9 @@ function render() {
           respHtml +
           (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') +
           actionsHtml +
+          '<span class="req-money">' + fmt(cost) + '</span>' +
+          '<span class="req-money paid">' + fmt(paid) + '</span>' +
+          '<span class="req-money remain">' + fmt(remain) + '</span>' +
           '</div>';
       }).join('');
     } else {
@@ -1808,11 +1813,10 @@ function renderRequests() {
     td2.appendChild(div);
     tr.appendChild(td2);
 
-    // 3. Стоимость (в конце)
+    // 3. Стоимость (без жирного шрифта)
     const tdMoney = document.createElement('td');
     tdMoney.style.textAlign = 'right';
-    tdMoney.style.fontWeight = 'bold';
-    tdMoney.style.fontSize = '14px';
+    tdMoney.style.fontSize = '13px'; // Убран fontWeight = 'bold'
     
     let clientTotalCost = 0;
     c.requests.forEach(l => {
@@ -1820,7 +1824,7 @@ function renderRequests() {
       clientTotalCost += lead ? Number(lead.cost || 0) : 0;
     });
     
-    sumCost += clientTotalCost; // Суммируем для итога в шапке
+    sumCost += clientTotalCost;
     tdMoney.textContent = clientTotalCost > 0 ? clientTotalCost.toLocaleString('ru-RU') + ' ₽' : '—';
     tr.appendChild(tdMoney);
 
