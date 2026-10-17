@@ -1659,6 +1659,8 @@ function render() {
 
   visible.forEach(c => {
     const tr = document.createElement('tr');
+    
+    // 1. Клиент
     const td1 = document.createElement('td');
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -1669,6 +1671,7 @@ function render() {
     td1.appendChild(btn);
     tr.appendChild(td1);
 
+    // 2. Список заказов (без сумм!)
     const td2 = document.createElement('td');
     const div = document.createElement('div');
     div.className = 'requests-cell';
@@ -1689,17 +1692,8 @@ function render() {
         const respHtml = responsible
           ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
           : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
-        
-        // Финансы
-        const cost = project ? Number(project.cost || 0) : 0;
-        const paid = project ? Number(project.paid || 0) : 0;
-        const remain = Math.max(0, cost - paid);
-        sumCost += cost;
-        sumPaid += paid;
-        sumRemain += remain;
-        const fmt = v => v > 0 ? v.toLocaleString('ru-RU') + ' ₽' : '—';
 
-        // Возвращаем вывод денег в строку (перед закрытием div)
+        // Здесь мы НЕ выводим req-money. Выводим только текстовые данные заказа.
         return '<div class="req-line" data-action="open-request" data-id="' + r.id + '" data-type="project">' +
           badgeHtml +
           '<span class="req-date">' + escapeHtml(r.date) + '</span>' +
@@ -1707,9 +1701,6 @@ function render() {
           respHtml +
           (r.status ? '<span class="req-status">' + escapeHtml(r.status) + '</span>' : '') +
           actionsHtml +
-          '<span class="req-money">' + fmt(cost) + '</span>' +
-          '<span class="req-money paid">' + fmt(paid) + '</span>' +
-          '<span class="req-money remain">' + fmt(remain) + '</span>' +
           '</div>';
       }).join('');
     } else {
@@ -1717,6 +1708,47 @@ function render() {
     }
     td2.appendChild(div);
     tr.appendChild(td2);
+
+    // 3. Считаем суммы по клиенту для трех правых колонок
+    let clientCost = 0, clientPaid = 0, clientRemain = 0;
+    c.requests.forEach(r => {
+      const project = state.rows.find(x => x.id === r.id);
+      const cost = project ? Number(project.cost || 0) : 0;
+      const paid = project ? Number(project.paid || 0) : 0;
+      const remain = Math.max(0, cost - paid);
+      clientCost += cost;
+      clientPaid += paid;
+      clientRemain += remain;
+    });
+    
+    sumCost += clientCost;
+    sumPaid += clientPaid;
+    sumRemain += clientRemain;
+    const fmt = v => v > 0 ? v.toLocaleString('ru-RU') + ' ₽' : '—';
+
+    // 4. Стоимость (в конце строки, без жирного шрифта)
+    const tdCost = document.createElement('td');
+    tdCost.style.textAlign = 'right';
+    tdCost.style.fontSize = '13px';
+    tdCost.textContent = fmt(clientCost);
+    tr.appendChild(tdCost);
+
+    // 5. Оплачено (в конце строки)
+    const tdPaid = document.createElement('td');
+    tdPaid.style.textAlign = 'right';
+    tdPaid.style.fontSize = '13px';
+    tdPaid.style.color = '#2e7d32'; // Зеленый цвет для оплаты
+    tdPaid.textContent = fmt(clientPaid);
+    tr.appendChild(tdPaid);
+
+    // 6. Остаток (в конце строки)
+    const tdRemain = document.createElement('td');
+    tdRemain.style.textAlign = 'right';
+    tdRemain.style.fontSize = '13px';
+    tdRemain.style.color = clientRemain > 0 ? '#c9302c' : '#333'; // Красный для остатка
+    tdRemain.textContent = fmt(clientRemain);
+    tr.appendChild(tdRemain);
+
     tbody.appendChild(tr);
   });
 
