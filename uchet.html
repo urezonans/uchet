@@ -2297,10 +2297,10 @@ async function openRequestView(id, type) {
       if (item.endDate) {
         const workDays = workDaysBetween(today(), item.endDate);
         if (workDays < 0) {
-          wdbadge.textContent = 'просрочено на ' + Math.abs(workDays) + ' р.д.';
+          wdbadge.textContent = 'просрочено на ' + Math.abs(workDays);
           wdbadge.className = 'days-badge danger';
         } else {
-          wdbadge.textContent = workDays + ' р.д.';
+          wdbadge.textContent = workDays;
           wdbadge.className = 'days-badge ' + (workDays <= 5 ? 'warn' : 'neutral'); // Желтый, если меньше недели
         }
       } else {
