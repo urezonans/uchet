@@ -623,7 +623,7 @@ td input:focus { border-color: #888; background: white; outline: none; }
   <button class="export-btn" id="btnExportRequests">📤 Экспорт</button>
   <span id="requestInfo" class="muted"></span>
 </div>
-    <table><thead><tr><th style="width:200px;">Клиент</th><th>Заявки</th><th style="width:120px;text-align:right;">Стоимость<br><span id="sumCostRequests" style="font-weight:normal;font-size:12px;color:#666;">0 ₽</span></th></tr></thead><tbody id="requestsTbody"></tbody></table>
+  <table><thead><tr><th style="width:200px;">Клиент</th><th style="width:130px;text-align:right;">Стоимость<br><span id="sumCostRequests" style="font-weight:normal;font-size:12px;color:#666;">0 ₽</span></th><th>Заявки</th></tr></thead><tbody id="requestsTbody"></tbody></table>
   </div>
   <div id="baseView" style="display:none;">
     <div class="toolbar"><input id="baseSearch" placeholder="🔍 Поиск по названию клиента..." style="width: 360px"><span id="baseInfo" class="muted"></span></div>
@@ -1761,6 +1761,8 @@ function renderRequests() {
 
   visible.forEach(c => {
     const tr = document.createElement('tr');
+    
+    // 1. Ячейка с названием клиента
     const td1 = document.createElement('td');
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -1771,6 +1773,21 @@ function renderRequests() {
     td1.appendChild(btn);
     tr.appendChild(td1);
 
+    // 2. Ячейка со стоимостью (теперь она вторая)
+    const tdMoney = document.createElement('td');
+    tdMoney.style.textAlign = 'right';
+    tdMoney.style.fontWeight = 'bold';
+    tdMoney.style.fontSize = '14px';
+    
+    // Сначала считаем общую сумму
+    c.requests.forEach(l => {
+      const lead = state.leads.find(x => x.id === l.id);
+      sumCost += lead ? Number(lead.cost || 0) : 0;
+    });
+    tdMoney.textContent = sumCost > 0 ? sumCost.toLocaleString('ru-RU') + ' ₽' : '—';
+    tr.appendChild(tdMoney);
+
+    // 3. Ячейка со списком заявок (теперь она третья)
     const td2 = document.createElement('td');
     const div = document.createElement('div');
     div.className = 'requests-cell';
@@ -1789,10 +1806,6 @@ function renderRequests() {
         const respHtml = responsible
           ? '<span class="req-responsible" title="Ответственный: ' + escapeHtml(responsible) + '">👤 ' + escapeHtml(formatShortName(responsible)) + '</span>'
           : '<span class="req-responsible empty" title="Ответственный не назначен">👤 —</span>';
-        
-        const cost = lead ? Number(lead.cost || 0) : 0;
-        sumCost += cost;
-        const fmt = v => v > 0 ? v.toLocaleString('ru-RU') + ' ₽' : '—';
 
         return '<div class="req-line" data-action="open-request" data-id="' + l.id + '" data-type="request">' +
           '<span class="req-days neutral">' + days + '</span>' +
@@ -1801,7 +1814,6 @@ function renderRequests() {
           respHtml +
           (l.status ? '<span class="req-status">' + escapeHtml(l.status) + '</span>' : '') +
           actionsHtml +
-          '<span class="req-money">' + fmt(cost) + '</span>' +
           '</div>';
       }).join('');
     } else {
