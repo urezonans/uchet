@@ -725,7 +725,16 @@ td input:focus { border-color: #888; background: white; outline: none; }
       <div class="view-info-item" id="viewPaidDateBlock" style="grid-column: span 1;">
          <label>Дата оплаты</label><div class="value"><input type="date" id="viewPaidDate"></div>
       </div>
-      <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1;"><label>Дней в работе</label><div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div></div>
+         <div class="view-info-item" id="viewDaysBlock" style="grid-column:1/-1; display: flex; gap: 20px; align-items: center;">
+        <div>
+          <label>Остаток дней в работе</label>
+          <div class="value"><span id="viewDaysBadge" class="days-badge">—</span></div>
+        </div>
+        <div>
+          <label>Остаток рабочих дней</label>
+          <div class="value"><span id="viewWorkDaysBadge" class="days-badge" style="background: #004a99;">—</span></div>
+        </div>
+      </div>
     </div>
     <div id="projectExecutorsBlock" style="display:none;" class="project-executors">
       <div class="project-executors-title">👷 Исполнители:</div>
@@ -966,6 +975,25 @@ function daysLabel(d) {
   if (lo === 1) return d + ' день';
   if (lo >= 2 && lo <= 4) return d + ' дня';
   return d + ' дней';
+}
+function workDaysBetween(start, end) {
+  const s = parseDate(start);
+  const e = parseDate(end);
+  if (!s || !e) return 0;
+  let count = 0;
+  let current = new Date(s);
+  // Если дата конца раньше даты начала, меняем их местами для корректного подсчёта
+  if (current > e) return 0; 
+  
+  while (current <= e) {
+    const day = current.getDay();
+    // 0 - воскресенье, 6 - суббота. Пропускаем их.
+    if (day !== 0 && day !== 6) {
+      count++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return count;
 }
 
 function getDeadlineBadge(end, start) {
@@ -2253,19 +2281,37 @@ async function openRequestView(id, type) {
 
   if (type === 'project') {
     const dbadge = $('viewDaysBadge');
+    const wdbadge = $('viewWorkDaysBadge');
+    
     if (isProjectCompleted(item)) {
       dbadge.textContent = getCompletedBadgeText(item);
       dbadge.className = 'days-badge ok';
+      wdbadge.textContent = '—';
+      wdbadge.className = 'days-badge neutral';
     } else {
       const b = getDeadlineBadge(item.endDate, item.date);
       dbadge.textContent = b.text;
       dbadge.className = 'days-badge ' + b.cls;
+      
+      // Считаем рабочие дни до дедлайна
+      if (item.endDate) {
+        const workDays = workDaysBetween(today(), item.endDate);
+        if (workDays < 0) {
+          wdbadge.textContent = 'просрочено на ' + Math.abs(workDays) + ' р.д.';
+          wdbadge.className = 'days-badge danger';
+        } else {
+          wdbadge.textContent = workDays + ' р.д.';
+          wdbadge.className = 'days-badge ' + (workDays <= 5 ? 'warn' : 'neutral'); // Желтый, если меньше недели
+        }
+      } else {
+        wdbadge.textContent = '—';
+        wdbadge.className = 'days-badge neutral';
+      }
     }
     renderProjectExecutors(id);
   } else {
     $('projectExecutorsBlock').style.display = 'none';
   }
-
   fillStatusSelect(type, item.status || getDefaultStatusForType(type));
   fillResponsibleSelect();
   $('viewResponsible').value = item.responsible || '';
